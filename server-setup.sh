@@ -124,3 +124,4 @@ certbot --nginx
 # App dependencies
 # If you need to install additional packages for your app, you can do it here.
 # apt-get -y install ...
+apt -y install postgresql postgresql-contrib

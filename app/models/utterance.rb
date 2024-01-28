@@ -1,2 +1,0 @@
-class Utterance < ApplicationRecord
-end

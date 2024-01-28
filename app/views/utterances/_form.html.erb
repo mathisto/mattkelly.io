@@ -1,0 +1,27 @@
+<%= form_with(model: utterance) do |form| %>
+  <% if utterance.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(utterance.errors.count, "error") %> prohibited this utterance from being saved:</h2>
+
+      <ul>
+        <% utterance.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= form.label :text, style: "display: block" %>
+    <%= form.text_field :text %>
+  </div>
+
+  <div>
+    <%= form.label :user_agent, style: "display: block" %>
+    <%= form.text_field :user_agent %>
+  </div>
+
+  <div>
+    <%= form.submit %>
+  </div>
+<% end %>

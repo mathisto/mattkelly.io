@@ -1,0 +1,56 @@
+<%# CV Page with Tokyo Night theme %>
+<div class="min-h-screen bg-[#1a1b26] text-[#a9b1d6] p-8">
+  <%= render partial: "pages/cv/_sections/header" %>
+
+  <div class="max-w-4xl mx-auto">
+    <%= render partial: "pages/cv/_sections/skills" %>
+    <%= render partial: "pages/cv/_sections/experience" %>
+    <%= render partial: "pages/cv/_sections/education" %>
+  </div>
+</div>
+
+<%# Add these animations to application.css %>
+<% content_for :head do %>
+  <style>
+    @media (prefers-reduced-motion: no-preference) {
+      @keyframes fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      @keyframes slide-in-left {
+        from { transform: translateX(-20px); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+      }
+
+      @keyframes slide-in-right {
+        from { transform: translateX(20px); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+      }
+
+      .animate-fade-in {
+        opacity: 0;
+        animation: fade-in 0.6s ease-out forwards;
+      }
+
+      .animate-slide-in-left {
+        opacity: 0;
+        animation: slide-in-left 0.6s ease-out forwards;
+      }
+
+      .animate-slide-in-right {
+        opacity: 0;
+        animation: slide-in-right 0.6s ease-out forwards;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .animate-fade-in,
+      .animate-slide-in-left,
+      .animate-slide-in-right {
+        animation: none;
+        opacity: 1;
+      }
+    }
+  </style>
+<% end %> 

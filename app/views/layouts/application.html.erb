@@ -42,8 +42,7 @@
       <div class="container mx-auto px-4 py-4">
         <nav class="header-nav flex items-center space-x-8" data-controller="entrance" data-entrance-delay-value="0">
           <%= link_to "MattKelly.io", root_path, class: "nav-link font-heading font-semibold text-xl text-[#7aa2f7]" %>
-          <%= link_to "Projects", projects_path, class: "nav-link font-medium text-[#a9b1d6]" %>
-          <%= link_to "Blog", posts_path, class: "nav-link font-medium text-[#a9b1d6]" %>
+          <%= render "shared/nav" %>
         </nav>
       </div>
     </header>

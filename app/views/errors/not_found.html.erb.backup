@@ -1,0 +1,80 @@
+<%# 404 Page %>
+<div class="min-h-[80vh] flex items-center justify-center bg-[#1a1b26]" data-controller="entrance">
+  <div class="text-center px-4">
+    <%# Glitch Effect %>
+    <div class="relative mb-8 select-none" data-controller="glitch">
+      <h1 class="text-[12rem] font-bold leading-none tracking-tighter text-[#7aa2f7] opacity-75 glitch-base"
+          data-glitch="404">
+        404
+      </h1>
+      <div class="absolute inset-0 text-[12rem] font-bold leading-none tracking-tighter text-[#bb9af7] glitch-layer-1"
+           aria-hidden="true"
+           data-glitch="404">
+        404
+      </div>
+      <div class="absolute inset-0 text-[12rem] font-bold leading-none tracking-tighter text-[#7dcfff] glitch-layer-2"
+           aria-hidden="true"
+           data-glitch="404">
+        404
+      </div>
+    </div>
+
+    <%# Message %>
+    <h2 class="text-2xl font-heading font-semibold text-[#7aa2f7] mb-4">
+      Welp, this is awkward...
+    </h2>
+    <p class="text-[#a9b1d6] mb-8 max-w-md mx-auto">
+      Looks like this page pulled a ninja move and disappeared. 
+      Maybe it's meditating in a digital zen garden? 🤔
+    </p>
+
+    <%# Action Button %>
+    <%= link_to root_path, 
+        class: "inline-flex items-center px-6 py-3 rounded-lg bg-[#7aa2f7] hover:bg-[#bb9af7] text-white font-medium transition-all duration-300 transform hover:scale-105 hover:rotate-1" do %>
+      <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+      </svg>
+      Beam me up, Scotty!
+    <% end %>
+  </div>
+</div>
+
+<%# Add glitch effect styles %>
+<% content_for :head do %>
+  <style>
+    @keyframes glitch-1 {
+      0% { clip-path: inset(40% 0 61% 0); transform: translate(-2px, 2px); }
+      20% { clip-path: inset(92% 0 1% 0); transform: translate(1px, -1px); }
+      40% { clip-path: inset(43% 0 1% 0); transform: translate(-1px, 1px); }
+      60% { clip-path: inset(25% 0 58% 0); transform: translate(2px, -2px); }
+      80% { clip-path: inset(54% 0 7% 0); transform: translate(-2px, 2px); }
+      100% { clip-path: inset(58% 0 43% 0); transform: translate(2px, -2px); }
+    }
+
+    @keyframes glitch-2 {
+      0% { clip-path: inset(25% 0 58% 0); transform: translate(2px, -2px); }
+      20% { clip-path: inset(54% 0 7% 0); transform: translate(-2px, 2px); }
+      40% { clip-path: inset(58% 0 43% 0); transform: translate(2px, -2px); }
+      60% { clip-path: inset(40% 0 61% 0); transform: translate(-2px, 2px); }
+      80% { clip-path: inset(92% 0 1% 0); transform: translate(1px, -1px); }
+      100% { clip-path: inset(43% 0 1% 0); transform: translate(-1px, 1px); }
+    }
+
+    .glitch-base {
+      position: relative;
+      text-shadow: 0.05em 0 0 rgba(247, 118, 142, 0.75),
+                   -0.025em -0.05em 0 rgba(158, 206, 106, 0.75),
+                   0.025em 0.05em 0 rgba(125, 207, 255, 0.75);
+    }
+
+    .glitch-layer-1 {
+      animation: glitch-1 3s infinite linear alternate-reverse;
+      opacity: 0.75;
+    }
+
+    .glitch-layer-2 {
+      animation: glitch-2 2.5s infinite linear alternate-reverse;
+      opacity: 0.75;
+    }
+  </style>
+<% end %> 

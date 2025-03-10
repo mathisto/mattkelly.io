@@ -1,0 +1,28 @@
+<%# Comcast Experience %>
+<div class="group p-6 rounded-lg bg-[#1f2335] border border-[#29293f] transition-all duration-300 hover:border-[#7aa2f7]/30 hover:shadow-lg hover:shadow-[#7aa2f7]/5 hover:scale-[1.02] animate-slide-in-right" style="animation-delay: 800ms">
+  <div class="flex flex-wrap items-baseline justify-between mb-2">
+    <h4 class="text-lg font-semibold text-[#7aa2f7]">Software Engineer</h4>
+    <div class="text-[#bb9af7]">2017 – 2019</div>
+  </div>
+  <div class="flex items-center text-[#7dcfff] mb-4">
+    <span class="mr-2">@</span>
+    Comcast
+    <span class="mx-2">•</span>
+    <span class="text-[#9ece6a]">Philadelphia, PA</span>
+  </div>
+  <ul class="space-y-3 text-[#a9b1d6]">
+    <% [
+      "Principal architect of MOXIE, an Ruby on Rails application enabling bulk querying of customer PII at all levels of network topography",
+      "Enterprise-level security",
+      "Aggregated and collated seven disparate databases traversing billions of rows",
+      "Architected ETL pipelines to handle ingestion into data warehouses with Kafka for high-throughput event streaming",
+      "Query optimization for ingesting data on the petabyte scale",
+      "MOXIE is still in use today"
+    ].each do |bullet| %>
+      <li class="flex items-baseline group/item">
+        <span class="text-[#9ece6a] mr-2 group-hover/item:text-[#f7768e] transition-colors">⁜</span>
+        <%= bullet %>
+      </li>
+    <% end %>
+  </ul>
+</div> 

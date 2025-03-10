@@ -1,35 +1,86 @@
 <%# Skills Section %>
 <section class="mb-12 animate-fade-in" style="animation-delay: 300ms;">
   <h3 class="text-xl font-semibold text-[#f7768e] mb-4 flex items-center">
-    <span class="mr-2">⚡</span>
+    <i class="ph ph-lightning text-2xl mr-2"></i>
     Technical Arsenal
   </h3>
   
   <div class="grid gap-6 md:grid-cols-2">
     <div>
-      <h4 class="text-[#bb9af7] mb-2">Languages</h4>
+      <h4 class="text-[#bb9af7] mb-2 flex items-center">
+        <i class="ph ph-code text-xl mr-2"></i>
+        Languages
+      </h4>
       <div class="flex flex-wrap gap-2">
-        <% ["Ruby", "Python", "Javascript", "Go", "Clojure", "Lua", "Fennel", "Sindarin", "FORTH", "C#", "[ba|z|fi]sh", "Quenya", "QBASIC"].each do |lang| %>
-          <span class="px-3 py-1 rounded-full bg-[#24283b] text-[#7aa2f7] transition-all duration-300 hover:scale-110 hover:bg-[#2ac3de]/10 hover:-translate-y-0.5 cursor-default"><%= lang %></span>
+        <% {
+          "Ruby" => "ruby-plain",
+          "Python" => "python-plain",
+          "Javascript" => "javascript-plain",
+          "Go" => "go-plain",
+          "Clojure" => "clojure-plain",
+          "Lua" => "lua-plain",
+          "C#" => "csharp-plain"
+        }.each do |lang, icon| %>
+          <span class="px-3 py-1 rounded-full bg-[#24283b] text-[#7aa2f7] transition-all duration-300 hover:scale-110 hover:bg-[#2ac3de]/10 hover:-translate-y-0.5 cursor-default">
+            <i class="devicon-<%= icon %> text-sm mr-1 opacity-75"></i>
+            <%= lang %>
+          </span>
+        <% end %>
+        
+        <% ["Fennel", "Sindarin", "FORTH", "[ba|z|fi]sh", "Quenya", "QBASIC"].each do |lang| %>
+          <span class="px-3 py-1 rounded-full bg-[#24283b] text-[#7aa2f7] transition-all duration-300 hover:scale-110 hover:bg-[#2ac3de]/10 hover:-translate-y-0.5 cursor-default">
+            <i class="ph ph-terminal-window text-xs mr-1 opacity-50"></i>
+            <%= lang %>
+          </span>
         <% end %>
       </div>
     </div>
     
     <div>
-      <h4 class="text-[#bb9af7] mb-2">Technologies</h4>
+      <h4 class="text-[#bb9af7] mb-2 flex items-center">
+        <i class="ph ph-cpu text-xl mr-2"></i>
+        Technologies
+      </h4>
       <div class="flex flex-wrap gap-2">
-        <% ["Rails", "AWS", "Kubernetes", "ArgoCD", "PostgreSQL", "Redis", "Kafka", "Airflow", "Memcached"].each do |tech| %>
-          <span class="px-3 py-1 rounded-full bg-[#24283b] text-[#7dcfff] transition-all duration-300 hover:scale-110 hover:bg-[#7dcfff]/10 hover:-translate-y-0.5 cursor-default"><%= tech %></span>
+        <% {
+          "Rails" => "devicon-rails-plain",
+          "AWS" => "devicon-amazonwebservices-original",
+          "Kubernetes" => "devicon-kubernetes-plain",
+          "PostgreSQL" => "devicon-postgresql-plain",
+          "Redis" => "devicon-redis-plain",
+          "Kafka" => "ph ph-broadcast",
+          "Airflow" => "ph ph-wind",
+          "ArgoCD" => "ph ph-git-branch",
+          "Memcached" => "ph ph-database"
+        }.each do |tech, icon| %>
+          <span class="px-3 py-1 rounded-full bg-[#24283b] text-[#7dcfff] transition-all duration-300 hover:scale-110 hover:bg-[#7dcfff]/10 hover:-translate-y-0.5 cursor-default">
+            <i class="<%= icon %> text-sm mr-1 opacity-75"></i>
+            <%= tech %>
+          </span>
         <% end %>
       </div>
     </div>
   </div>
 
   <div class="mt-6">
-    <h4 class="text-[#bb9af7] mb-2">Toolbelt</h4>
+    <h4 class="text-[#bb9af7] mb-2 flex items-center">
+      <i class="ph ph-toolbox text-xl mr-2"></i>
+      Toolbelt
+    </h4>
     <div class="flex flex-wrap gap-2">
-      <% ["VS Code+Neovim", "Cursor", "iTerm2", "tmux", "Obsidian", "Talon Voice", "Hammerspoon", ":(){:|:&};:"].each do |tool| %>
-        <span class="px-3 py-1 rounded-full bg-[#24283b] text-[#9ece6a] transition-all duration-300 hover:scale-110 hover:bg-[#9ece6a]/10 hover:-translate-y-0.5 cursor-default"><%= tool %></span>
+      <% {
+        "Cursor" => "ph ph-cursor-text",
+        "iTerm2" => "ph ph-terminal",
+        "tmux" => "ph ph-terminal-window",
+        "Obsidian" => "ph ph-brain",
+        "Talon Voice" => "ph ph-microphone",
+        "Hammerspoon" => "ph ph-hammer",
+        ":(){:|:&};:" => "ph ph-terminal-window"
+      }.each do |tool, icon| %>
+        <span class="px-3 py-1 rounded-full bg-[#24283b] text-[#9ece6a] transition-all duration-300 hover:scale-110 hover:bg-[#9ece6a]/10 hover:-translate-y-0.5 cursor-default">
+          <i class="<%= icon %> text-sm mr-1 opacity-75"></i>
+          <%= tool %>
+        </span>
       <% end %>
     </div>
   </div>

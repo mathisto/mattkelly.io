@@ -1,0 +1,88 @@
+<%# Project Show Page %>
+<div class="py-12">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <%# Back Link %>
+    <div class="mb-8">
+      <%= link_to projects_path, class: "inline-flex items-center text-[#7aa2f7] hover:text-[#bb9af7] transition-colors duration-200" do %>
+        <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
+        Back to Projects
+      <% end %>
+    </div>
+
+    <%# Project Header %>
+    <div class="bg-[#1f2335] rounded-lg shadow-lg overflow-hidden border border-[#29293f]">
+      <%# Project Image %>
+      <% if @project.screenshot_url.present? %>
+        <div class="aspect-w-16 aspect-h-9 bg-[#16161e]">
+          <%= image_tag @project.screenshot_url, class: "object-cover", alt: @project.title %>
+        </div>
+      <% end %>
+
+      <%# Project Content %>
+      <div class="p-8">
+        <h1 class="text-3xl font-bold font-heading text-[#7aa2f7]"><%= @project.title %></h1>
+        
+        <%# Project Meta %>
+        <div class="mt-4 flex flex-wrap gap-4 text-[#a9b1d6]">
+          <% if @project.role.present? %>
+            <div class="flex items-center">
+              <svg class="h-5 w-5 mr-2 text-[#7aa2f7]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              <%= @project.role %>
+            </div>
+          <% end %>
+
+          <% if @project.duration.present? %>
+            <div class="flex items-center">
+              <svg class="h-5 w-5 mr-2 text-[#7aa2f7]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <%= @project.duration %>
+            </div>
+          <% end %>
+        </div>
+
+        <%# Project Description %>
+        <div class="mt-6 text-[#a9b1d6] prose prose-invert max-w-none">
+          <%= simple_format @project.description %>
+        </div>
+
+        <%# Technologies %>
+        <div class="mt-8">
+          <h2 class="text-xl font-semibold font-heading text-[#7aa2f7] mb-4">Technologies Used</h2>
+          <div class="flex flex-wrap gap-2">
+            <% @project.technologies_used.each do |tech| %>
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-[#29293f] text-[#7aa2f7]">
+                <%= tech %>
+              </span>
+            <% end %>
+          </div>
+        </div>
+
+        <%# Project Links %>
+        <div class="mt-8 flex items-center space-x-4">
+          <% if @project.github_url.present? %>
+            <%= link_to @project.github_url, class: "inline-flex items-center px-4 py-2 border border-[#7aa2f7] rounded-md text-[#7aa2f7] hover:bg-[#7aa2f7] hover:text-[#1a1b26] transition-colors duration-200", target: "_blank", rel: "noopener noreferrer" do %>
+              <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd" />
+              </svg>
+              View on GitHub
+            <% end %>
+          <% end %>
+
+          <% if @project.live_site_url.present? %>
+            <%= link_to @project.live_site_url, class: "inline-flex items-center px-4 py-2 border border-[#7aa2f7] rounded-md text-[#7aa2f7] hover:bg-[#7aa2f7] hover:text-[#1a1b26] transition-colors duration-200", target: "_blank", rel: "noopener noreferrer" do %>
+              <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+              Visit Live Site
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

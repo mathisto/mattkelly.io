@@ -8,3 +8,188 @@
  *
  * Consider organizing styles into separate files for maintainability.
  */
+
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+/* Tokyo Night Theme Colors */
+:root {
+  --tokyo-bg: #1a1b26;
+  --tokyo-bg-darker: #16161e;
+  --tokyo-fg: #a9b1d6;
+  --tokyo-blue: #7aa2f7;
+  --tokyo-purple: #bb9af7;
+  --tokyo-cyan: #7dcfff;
+  --tokyo-green: #9ece6a;
+  --tokyo-orange: #ff9e64;
+  --tokyo-red: #f7768e;
+}
+
+/* Base styles */
+html {
+  @apply bg-gray-900;
+}
+
+body {
+  @apply text-gray-100;
+  @apply font-sans;
+  background-color: var(--tokyo-bg);
+  color: var(--tokyo-fg);
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+  @apply font-heading;
+  color: var(--tokyo-blue);
+}
+
+h1 { @apply text-4xl font-bold mb-6; }
+h2 { @apply text-3xl font-semibold mb-4; }
+h3 { @apply text-2xl font-semibold mb-3; }
+h4 { @apply text-xl font-semibold mb-2; }
+
+/* Code blocks */
+pre[class*="language-"] {
+  @apply font-mono text-sm my-4 !important;
+  background-color: var(--tokyo-bg-darker) !important;
+  border: 1px solid #29293f;
+}
+
+code[class*="language-"] {
+  @apply font-mono text-sm !important;
+  background: transparent !important;
+  text-shadow: none !important;
+}
+
+/* Prism.js Tokyo Night theme overrides */
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  color: #565f89 !important;
+}
+
+.token.punctuation {
+  color: #89ddff !important;
+}
+
+.token.property,
+.token.tag,
+.token.boolean,
+.token.number,
+.token.constant,
+.token.symbol,
+.token.deleted {
+  color: #ff9e64 !important;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+  color: #9ece6a !important;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string {
+  color: #7dcfff !important;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.keyword {
+  color: #bb9af7 !important;
+}
+
+.token.function,
+.token.class-name {
+  color: #7aa2f7 !important;
+}
+
+.token.regex,
+.token.important,
+.token.variable {
+  color: #f7768e !important;
+}
+
+/* Links */
+a {
+  color: var(--tokyo-blue);
+  @apply transition-colors;
+}
+
+a:hover {
+  color: var(--tokyo-purple);
+}
+
+/* Lists */
+ul, ol {
+  @apply pl-6 my-4;
+}
+
+ul {
+  @apply list-disc;
+}
+
+ol {
+  @apply list-decimal;
+}
+
+/* Blockquotes */
+blockquote {
+  @apply pl-4 border-l-4 border-[#29293f] italic my-4;
+  color: var(--tokyo-cyan);
+}
+
+/* Custom transitions */
+[data-page-transition-target="content"] {
+  transition: opacity 300ms ease-in-out;
+}
+
+.transition-opacity {
+  transition-property: opacity;
+}
+
+.duration-300 {
+  transition-duration: 300ms;
+}
+
+.ease-in-out {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.opacity-0 {
+  opacity: 0;
+}
+
+/* Code block styles */
+pre {
+  @apply bg-gray-800 rounded-lg overflow-hidden;
+}
+
+pre[data-filename]::before {
+  content: attr(data-filename);
+  @apply block bg-gray-700 px-4 py-2 text-sm text-gray-300 rounded-t-lg;
+}
+
+pre:not([data-filename]) {
+  @apply rounded-lg;
+}
+
+pre[data-filename] {
+  @apply rounded-t-lg;
+}
+
+pre[data-filename] code {
+  @apply rounded-t-none rounded-b-lg;
+}
+
+code {
+  @apply block p-4 text-sm overflow-x-auto;
+}

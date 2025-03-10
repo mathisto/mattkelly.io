@@ -452,7 +452,7 @@ DEPENDENCIES
   propshaft
   puma (>= 5.0)
   rails (~> 8.0.1)
-  redcarpet
+  redcarpet (~> 3.6)
   rspec-rails
   rubocop-rails-omakase
   selenium-webdriver

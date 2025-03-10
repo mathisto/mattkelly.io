@@ -1,88 +1,92 @@
-<div class="prose dark:prose-invert max-w-none">
-  <h1 class="font-heading text-gray-900 dark:text-white">Welcome to MattKelly.io</h1>
-  
-  <p class="text-lg text-gray-700 dark:text-gray-300">
-    Full-stack developer passionate about building elegant solutions with Ruby on Rails and modern JavaScript.
-  </p>
-
-  <h2 class="font-heading text-gray-900 dark:text-white">Test Typography</h2>
-  
-  <p class="text-gray-700 dark:text-gray-300">This is a regular paragraph using Lato font. Here's some <code class="font-mono bg-gray-100 dark:bg-gray-800 px-1 rounded">inline code</code> using Fira Code.</p>
-  
-  <pre class="bg-gray-100 dark:bg-gray-800 p-4 rounded-lg"><code class="font-mono text-gray-900 dark:text-white">def hello_world
-  puts "Hello, World!"
-end</code></pre>
-
-  <h3 class="font-heading text-gray-900 dark:text-white">Theme Test</h3>
-  
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-    <div class="p-4 rounded-lg bg-gray-100 dark:bg-gray-800">
-      <p class="text-blue-600 dark:text-blue-400">Primary Blue</p>
-      <p class="text-green-600 dark:text-green-400">Success Green</p>
-      <p class="text-red-600 dark:text-red-400">Error Red</p>
-    </div>
-    
-    <div class="p-4 rounded-lg bg-gray-100 dark:bg-gray-800">
-      <p class="text-purple-600 dark:text-purple-400">Purple</p>
-      <p class="text-cyan-600 dark:text-cyan-400">Cyan</p>
-      <p class="text-orange-600 dark:text-orange-400">Orange</p>
+<%# Hero Section %>
+<section class="py-20">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center" data-controller="entrance" data-entrance-delay-value="0">
+      <h1 class="text-5xl font-bold font-heading text-[#7aa2f7] mb-6">
+        Hi, I'm Matt Kelly
+      </h1>
+      <p class="text-xl text-[#a9b1d6] max-w-2xl mx-auto">
+        Software engineer passionate about building elegant solutions with Ruby, Rails, and modern web technologies.
+      </p>
     </div>
   </div>
+</section>
 
-  <h2>Code Example</h2>
-  
-  <%= render partial: "shared/code_block", locals: {
-    language: "ruby",
-    filename: "app/models/user.rb",
-    code: <<~RUBY
-      class User < ApplicationRecord
-        include Authenticatable
-        
-        has_many :posts, dependent: :destroy
-        has_many :comments
-        
-        validates :email, presence: true, uniqueness: true
-        validates :username, presence: true, length: { minimum: 3 }
-        
-        def full_name
-          [first_name, last_name].compact.join(' ')
-        end
-        
-        def authored_post?(post)
-          posts.include?(post)
-        end
-      end
-    RUBY
-  } %>
+<%# Featured Projects %>
+<section class="py-12">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12" data-controller="entrance" data-entrance-delay-value="100">
+      <h2 class="text-3xl font-bold font-heading text-[#7aa2f7]">Featured Projects</h2>
+      <p class="mt-4 text-[#a9b1d6]">Some of my recent work</p>
+    </div>
 
-  <h3 class="mt-8">JavaScript Example</h3>
-  
-  <%= render partial: "shared/code_block", locals: {
-    language: "javascript",
-    filename: "app/javascript/controllers/code_block_controller.js",
-    code: <<~JAVASCRIPT
-      import { Controller } from "@hotwired/stimulus"
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <%= render partial: "projects/project", collection: @featured_projects %>
+    </div>
 
-      export default class extends Controller {
-        static targets = ["code", "copyButton"]
-        
-        async copy() {
-          const code = this.codeTarget.textContent
-          await navigator.clipboard.writeText(code)
-          
-          this.showCopySuccess()
-        }
-        
-        showCopySuccess() {
-          // Show success state
-          this.element.classList.add('copied')
-          
-          // Reset after 2 seconds
-          setTimeout(() => {
-            this.element.classList.remove('copied')
-          }, 2000)
-        }
-      }
-    JAVASCRIPT
-  } %>
-</div>
+    <div class="text-center mt-8" data-controller="entrance" data-entrance-delay-value="400">
+      <%= link_to projects_path, class: "inline-flex items-center text-[#7aa2f7] hover:text-[#bb9af7] transition-colors" do %>
+        View all projects
+        <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+        </svg>
+      <% end %>
+    </div>
+  </div>
+</section>
+
+<%# Recent Blog Posts %>
+<section class="py-12">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12" data-controller="entrance" data-entrance-delay-value="500">
+      <h2 class="text-3xl font-bold font-heading text-[#7aa2f7]">Latest Posts</h2>
+      <p class="mt-4 text-[#a9b1d6]">Thoughts and tutorials on software development</p>
+    </div>
+
+    <div class="grid gap-8">
+      <% @recent_posts.each do |post| %>
+        <%= link_to post_path(post), class: "block" do %>
+          <article class="group relative bg-[#16161e]/50 border border-[#29293f] rounded-lg p-6 hover:border-[#7aa2f7]/50 transition-all duration-300"
+                   data-controller="entrance"
+                   data-entrance-delay-value="<%= 600 + (@recent_posts.index(post) * 100) %>">
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h3 class="text-2xl font-semibold text-[#7aa2f7] group-hover:text-[#bb9af7] transition-colors">
+                  <%= post.title %>
+                </h3>
+                <div class="mt-2 flex items-center space-x-4 text-sm text-[#565f89]">
+                  <time datetime="<%= post.date %>">
+                    <%= post.date.strftime("%B %d, %Y") %>
+                  </time>
+                  <span>•</span>
+                  <span><%= post.reading_time %> min read</span>
+                </div>
+              </div>
+            </div>
+
+            <p class="text-[#a9b1d6] mb-4">
+              <%= post.description %>
+            </p>
+
+            <div class="flex flex-wrap gap-2">
+              <% post.tags.each do |tag| %>
+                <span class="px-2 py-1 text-xs rounded bg-[#1a1b26] border border-[#29293f] text-[#7dcfff]">
+                  <%= tag %>
+                </span>
+              <% end %>
+            </div>
+          </article>
+        <% end %>
+      <% end %>
+    </div>
+
+    <div class="text-center mt-8" data-controller="entrance" data-entrance-delay-value="900">
+      <%= link_to posts_path, class: "inline-flex items-center text-[#7aa2f7] hover:text-[#bb9af7] transition-colors" do %>
+        Read more posts
+        <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+        </svg>
+      <% end %>
+    </div>
+  </div>
+</section>

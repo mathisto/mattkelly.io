@@ -20,7 +20,7 @@ gem "jbuilder"
 # Tailwind CSS for styling
 gem "tailwindcss-rails"
 # Markdown processing
-gem "redcarpet"
+gem "redcarpet", "~> 3.6"
 # CSS bundling
 gem "cssbundling-rails"
 

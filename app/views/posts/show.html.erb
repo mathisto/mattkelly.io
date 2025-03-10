@@ -1,0 +1,86 @@
+<%# Blog Post Show %>
+<article class="py-12">
+  <%# Post Header %>
+  <header class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
+    <div class="text-center" data-controller="entrance" data-entrance-delay-value="0">
+      <%# Title %>
+      <h1 class="text-4xl font-bold font-heading text-[#7aa2f7] mb-4">
+        <%= @post.title %>
+      </h1>
+
+      <%# Meta %>
+      <div class="flex items-center justify-center space-x-4 text-sm text-[#565f89] mb-6">
+        <time datetime="<%= @post.date %>">
+          <%= @post.date.strftime("%B %d, %Y") %>
+        </time>
+        <span>•</span>
+        <span><%= @post.reading_time %> min read</span>
+        <span>•</span>
+        <span>By <%= @post.author %></span>
+      </div>
+
+      <%# Tags %>
+      <div class="flex flex-wrap justify-center gap-2">
+        <% @post.tags.each do |tag| %>
+          <span class="px-2 py-1 text-xs rounded bg-[#1a1b26] border border-[#29293f] text-[#7dcfff]">
+            <%= tag %>
+          </span>
+        <% end %>
+      </div>
+    </div>
+  </header>
+
+  <%# Post Content %>
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 prose prose-invert prose-tokyo-night"
+       data-controller="entrance prism"
+       data-entrance-delay-value="100">
+    <%= raw @post.rendered_content %>
+  </div>
+
+  <%# Post Footer %>
+  <footer class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-8 border-t border-[#29293f]"
+          data-controller="entrance"
+          data-entrance-delay-value="200">
+    <div class="flex justify-between items-center">
+      <%= link_to posts_path, class: "text-[#7aa2f7] hover:text-[#bb9af7] transition-colors" do %>
+        ← Back to Blog
+      <% end %>
+      <div class="flex space-x-4">
+        <%# Add social share buttons here if desired %>
+      </div>
+    </div>
+  </footer>
+</article>
+
+<%# Add Tailwind Typography styles for markdown content %>
+<% content_for :head do %>
+  <style>
+    /* Tokyo Night theme for prose content */
+    .prose-tokyo-night {
+      --tw-prose-body: #a9b1d6;
+      --tw-prose-headings: #7aa2f7;
+      --tw-prose-links: #7dcfff;
+      --tw-prose-bold: #bb9af7;
+      --tw-prose-counters: #565f89;
+      --tw-prose-bullets: #565f89;
+      --tw-prose-hr: #29293f;
+      --tw-prose-quotes: #9ece6a;
+      --tw-prose-quote-borders: #29293f;
+      --tw-prose-captions: #565f89;
+      --tw-prose-code: #7dcfff;
+      --tw-prose-pre-code: #a9b1d6;
+      --tw-prose-pre-bg: #1a1b26;
+      --tw-prose-th-borders: #29293f;
+      --tw-prose-td-borders: #29293f;
+    }
+
+    .prose-tokyo-night a:hover {
+      color: var(--tokyo-purple);
+    }
+
+    .prose-tokyo-night pre {
+      background-color: var(--tokyo-bg-darker) !important;
+      border: 1px solid #29293f;
+    }
+  </style>
+<% end %> 

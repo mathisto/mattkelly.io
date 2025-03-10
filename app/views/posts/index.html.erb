@@ -1,0 +1,53 @@
+<%# Blog Index %>
+<div class="py-12">
+  <%# Header %>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center">
+      <h1 class="text-4xl font-bold font-heading text-[#7aa2f7]">Blog</h1>
+      <p class="mt-4 text-xl text-[#a9b1d6]">Thoughts, tutorials, and tech explorations.</p>
+    </div>
+  </div>
+
+  <%# Posts Grid %>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
+    <div class="grid gap-8">
+      <% @posts.each do |post| %>
+        <%= link_to post_path(post), class: "block" do %>
+          <article class="group relative bg-[#16161e]/50 border border-[#29293f] rounded-lg p-6 hover:border-[#7aa2f7]/50 transition-all duration-300"
+                   data-controller="entrance"
+                   data-entrance-delay-value="<%= @posts.index(post) * 100 %>">
+            <%# Post Header %>
+            <div class="flex items-center justify-between mb-4">
+              <div>
+                <h2 class="text-2xl font-semibold text-[#7aa2f7] group-hover:text-[#bb9af7] transition-colors">
+                  <%= post.title %>
+                </h2>
+                <div class="mt-2 flex items-center space-x-4 text-sm text-[#565f89]">
+                  <time datetime="<%= post.date %>">
+                    <%= post.date.strftime("%B %d, %Y") %>
+                  </time>
+                  <span>•</span>
+                  <span><%= post.reading_time %> min read</span>
+                </div>
+              </div>
+            </div>
+
+            <%# Post Preview %>
+            <p class="text-[#a9b1d6] mb-4">
+              <%= post.description %>
+            </p>
+
+            <%# Tags %>
+            <div class="flex flex-wrap gap-2">
+              <% post.tags.each do |tag| %>
+                <span class="px-2 py-1 text-xs rounded bg-[#1a1b26] border border-[#29293f] text-[#7dcfff]">
+                  <%= tag %>
+                </span>
+              <% end %>
+            </div>
+          </article>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</div> 

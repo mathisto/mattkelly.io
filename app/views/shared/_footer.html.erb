@@ -1,17 +1,14 @@
 <%# Footer with copyright %>
 <footer class="bg-[#1f2335] border-t border-[#29293f]">
-  <div class="container mx-auto px-4 py-6">
+  <div class="max-w-7xl mx-auto px-4 py-6">
     <p class="text-center text-sm text-[#7aa2f7]">
-      <i class="ph ph-copyright text-sm mr-1 opacity-75"></i>
+      <i class="fas fa-copyright text-sm mr-1 opacity-75"></i>
       <%= Time.current.year %>
       <%= mail_to "matthew.ryan.kelly@gmail.com", "Matt Kelly", 
           subject: "mattkelly.io",
           class: "text-[#7aa2f7] hover:text-[#bb9af7] transition-colors duration-200" %>. 
       Built with <i class="devicon-rails-plain text-sm"></i> Rails and 
-      <span class="font-medium">
-        <span class="text-[#f7768e]">T</span><span class="text-[#ff9e64]">o</span><span class="text-[#e0af68]">k</span><span class="text-[#9ece6a]">y</span><span class="text-[#73daca]">o</span>
-        <span class="text-[#2ac3de]">N</span><span class="text-[#7aa2f7]">i</span><span class="text-[#7dcfff]">g</span><span class="text-[#bb9af7]">h</span><span class="text-[#c0caf5]">t</span>
-      </span>.
+      <span class="rainbow-text font-medium inline-flex">Tokyo Night</span>.
     </p>
   </div>
 </footer> 

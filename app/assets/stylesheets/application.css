@@ -1,17 +1,8 @@
 /*
  * This is a manifest file that'll be compiled into application.css.
  *
- * With Propshaft, assets are served efficiently without preprocessing steps. You can still include
- * application-wide styles in this file, but keep in mind that CSS precedence will follow the standard
- * cascading order, meaning styles declared later in the document or manifest will override earlier ones,
- * depending on specificity.
- *
- * Consider organizing styles into separate files for maintainability.
+ * With Propshaft, assets are served efficiently without preprocessing steps.
  */
-
-@import "tailwindcss/base";
-@import "tailwindcss/components";
-@import "tailwindcss/utilities";
 
 /* Tokyo Night Theme Colors */
 :root {
@@ -28,19 +19,20 @@
 
 /* Base styles */
 html {
-  @apply bg-gray-900;
+  background-color: var(--tokyo-bg);
 }
 
 body {
-  @apply text-gray-100;
-  @apply font-sans;
-  background-color: var(--tokyo-bg);
   color: var(--tokyo-fg);
+  font-family: 'Lato', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Typography */
 h1, h2, h3, h4, h5, h6 {
-  @apply font-heading;
+  font-family: 'Montserrat', sans-serif;
   color: var(--tokyo-blue);
 }
 
@@ -51,15 +43,18 @@ h4 { @apply text-xl font-semibold mb-2; }
 
 /* Code blocks */
 pre[class*="language-"] {
-  @apply font-mono text-sm my-4 !important;
-  background-color: var(--tokyo-bg-darker) !important;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.875rem;
+  margin: 1rem 0;
+  background-color: var(--tokyo-bg-darker);
   border: 1px solid #29293f;
 }
 
 code[class*="language-"] {
-  @apply font-mono text-sm !important;
-  background: transparent !important;
-  text-shadow: none !important;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.875rem;
+  background: transparent;
+  text-shadow: none;
 }
 
 /* Prism.js Tokyo Night theme overrides */
@@ -121,7 +116,7 @@ code[class*="language-"] {
 /* Links */
 a {
   color: var(--tokyo-blue);
-  @apply transition-colors;
+  transition: color 0.2s ease;
 }
 
 a:hover {
@@ -130,30 +125,30 @@ a:hover {
 
 /* Lists */
 ul, ol {
-  @apply pl-6 my-4;
+  padding-left: 1.5rem;
+  margin: 1rem 0;
 }
 
 ul {
-  @apply list-disc;
+  list-style-type: disc;
 }
 
 ol {
-  @apply list-decimal;
+  list-style-type: decimal;
 }
 
 /* Blockquotes */
 blockquote {
-  @apply pl-4 border-l-4 border-[#29293f] italic my-4;
+  padding-left: 1rem;
+  border-left: 4px solid #29293f;
+  font-style: italic;
+  margin: 1rem 0;
   color: var(--tokyo-cyan);
 }
 
 /* Custom transitions */
-[data-page-transition-target="content"] {
-  transition: opacity 300ms ease-in-out;
-}
-
-.transition-opacity {
-  transition-property: opacity;
+.transition-all {
+  transition: all 0.3s ease;
 }
 
 .duration-300 {
@@ -162,54 +157,6 @@ blockquote {
 
 .ease-in-out {
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.opacity-0 {
-  opacity: 0;
-}
-
-/* Code block styles */
-pre {
-  @apply bg-gray-800 rounded-lg overflow-hidden;
-}
-
-pre[data-filename]::before {
-  content: attr(data-filename);
-  @apply block bg-gray-700 px-4 py-2 text-sm text-gray-300 rounded-t-lg;
-}
-
-pre:not([data-filename]) {
-  @apply rounded-lg;
-}
-
-pre[data-filename] {
-  @apply rounded-t-lg;
-}
-
-pre[data-filename] code {
-  @apply rounded-t-none rounded-b-lg;
-}
-
-code {
-  @apply block p-4 text-sm overflow-x-auto;
-}
-
-/* Animations and Transitions */
-[data-page-transition-target="content"] {
-  transition: opacity 300ms ease-in-out;
-}
-
-/* Entrance animations */
-.transition-all {
-  transition-property: all;
-}
-
-.duration-700 {
-  transition-duration: 700ms;
-}
-
-.ease-out {
-  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* Project card animations */
@@ -260,12 +207,12 @@ pre[class*="language-"]:hover {
 }
 
 /* Link hover effects */
-a.nav-link {
+.nav-link {
   position: relative;
-  transition: color 300ms ease-in-out;
+  transition: color 0.3s ease;
 }
 
-a.nav-link::after {
+.nav-link::after {
   content: '';
   position: absolute;
   width: 100%;
@@ -275,10 +222,14 @@ a.nav-link::after {
   background-color: var(--tokyo-purple);
   transform: scaleX(0);
   transform-origin: right;
-  transition: transform 300ms ease-in-out;
+  transition: transform 0.3s ease;
 }
 
-a.nav-link:hover::after {
+.nav-link:hover {
+  color: var(--tokyo-purple);
+}
+
+.nav-link:hover::after {
   transform: scaleX(1);
   transform-origin: left;
 }
@@ -391,3 +342,90 @@ a.nav-link:hover::after {
 .nav-link[href="/this-page-does-not-exist"]:hover::after {
   display: none;
 }
+
+/* Social Icons */
+.social-icon {
+  transition: all 0.3s ease;
+}
+
+.social-icon:hover {
+  transform: translateY(-2px);
+  color: var(--tokyo-purple);
+}
+
+/* Footer */
+footer {
+  margin-top: auto;
+  background-color: var(--tokyo-bg-darker);
+  border-top: 1px solid #29293f;
+}
+
+.rainbow-text {
+  background: linear-gradient(
+    45deg,
+    var(--tokyo-red),
+    var(--tokyo-orange),
+    var(--tokyo-green),
+    var(--tokyo-blue),
+    var(--tokyo-purple)
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: rainbow 8s ease infinite;
+  background-size: 400% 400%;
+}
+
+@keyframes rainbow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Layout */
+main {
+  flex: 1;
+  width: 100%;
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+/* Header */
+header {
+  width: 100%;
+  background-color: var(--tokyo-bg-darker);
+  border-bottom: 1px solid #29293f;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  max-width: 80rem;
+  margin: 0 auto;
+}
+
+nav {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+/* Transitions */
+.hover\:scale-105:hover {
+  transform: scale(1.05);
+}
+
+.hover\:translate-y-1:hover {
+  transform: translateY(-4px);
+}
+
+/* Add any additional custom styles below */

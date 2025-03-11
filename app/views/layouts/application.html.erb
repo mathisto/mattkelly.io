@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html class="h-full" lang="en">
+<html class="h-full bg-[#1a1b26]" lang="en">
   <head>
     <title><%= content_for(:title) || "MattKelly.io" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -18,43 +18,127 @@
     <link rel="apple-touch-icon" href="/icon.png">
 
     <%# Includes all stylesheet files in app/assets/stylesheets %>
-    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
-    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "builds/tailwind", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <!-- Custom Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Montserrat:wght@500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
 
-    <!-- Prism.js -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-ruby.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+    <!-- Custom Styles -->
+    <style>
+      /* Navigation */
+      .nav-link {
+        position: relative !important;
+        color: #a9b1d6 !important;
+        font-weight: 500 !important;
+        transition: color 0.3s ease-in-out !important;
+      }
 
-    <!-- Phosphor Icons -->
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    
-    <!-- Devicon - Programming Language Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css">
+      .nav-link:hover {
+        color: #bb9af7 !important;
+      }
+
+      .nav-link::after {
+        content: '';
+        position: absolute !important;
+        width: 100% !important;
+        height: 2px !important;
+        bottom: -4px !important;
+        left: 0 !important;
+        background-color: #bb9af7 !important;
+        transform: scaleX(0) !important;
+        transform-origin: right !important;
+        transition: transform 0.3s ease-in-out !important;
+      }
+
+      .nav-link:hover::after {
+        transform: scaleX(1) !important;
+        transform-origin: left !important;
+      }
+
+      /* Social Icons */
+      .social-icon {
+        color: #7aa2f7 !important;
+        transition: all 0.3s ease-in-out !important;
+      }
+
+      .social-icon:hover {
+        color: #bb9af7 !important;
+        transform: translateY(-2px) !important;
+      }
+
+      /* Rainbow Text */
+      .rainbow-text {
+        display: inline-block !important;
+        background-image: linear-gradient(
+          45deg,
+          #f7768e,
+          #ff9e64,
+          #9ece6a,
+          #7aa2f7,
+          #bb9af7
+        ) !important;
+        background-size: 400% 400% !important;
+        -webkit-background-clip: text !important;
+        background-clip: text !important;
+        color: transparent !important;
+        animation: rainbow 8s ease infinite !important;
+      }
+
+      @keyframes rainbow {
+        0%, 100% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+      }
+    </style>
   </head>
 
-  <body class="min-h-full bg-[#1a1b26] text-[#a9b1d6] flex flex-col">
+  <body class="min-h-screen bg-[#1a1b26] text-[#a9b1d6] flex flex-col">
     <header class="fixed w-full top-0 bg-[#16161e]/80 backdrop-blur-sm border-b border-[#29293f] z-50">
-      <div class="container mx-auto px-4 py-4">
-        <nav class="header-nav flex items-center space-x-8" data-controller="entrance" data-entrance-delay-value="0">
-          <%= link_to "MattKelly.io", root_path, class: "nav-link font-heading font-semibold text-xl text-[#7aa2f7]" %>
-          <%= render "shared/nav" %>
-        </nav>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+          <div class="flex-none">
+            <%= link_to "MattKelly.io", root_path, class: "nav-link font-heading font-semibold text-xl text-[#7aa2f7]" %>
+          </div>
+          
+          <%# Navigation Links - Centered %>
+          <div class="flex-1 flex justify-center">
+            <nav class="flex items-center space-x-8">
+              <%= link_to "Projects", projects_path, class: "nav-link" %>
+              <%= link_to "Blog", posts_path, class: "nav-link" %>
+              <%= link_to "CV", cv_path, class: "nav-link" %>
+            </nav>
+          </div>
+
+          <%# Social Icons %>
+          <div class="flex-none flex items-center space-x-6">
+            <a href="https://github.com/mathisto" target="_blank" rel="noopener noreferrer" class="social-icon">
+              <span class="sr-only">GitHub</span>
+              <i class="fab fa-github text-xl"></i>
+            </a>
+            <a href="https://www.linkedin.com/in/themattkellyshow/" target="_blank" rel="noopener noreferrer" class="social-icon">
+              <span class="sr-only">LinkedIn</span>
+              <i class="fab fa-linkedin text-xl"></i>
+            </a>
+            <a href="mailto:matthew.ryan.kelly@gmail.com" class="social-icon">
+              <span class="sr-only">Email</span>
+              <i class="fas fa-envelope text-xl"></i>
+            </a>
+          </div>
+        </div>
       </div>
     </header>
 
-    <main data-controller="page-transition" class="container mx-auto px-4 py-8 mt-20 flex-grow">
-      <div data-page-transition-target="content" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="flex-grow pt-20">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <%= yield %>
       </div>
     </main>

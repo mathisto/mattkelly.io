@@ -1,0 +1,74 @@
+<%# 400 Page %>
+<div class="min-h-[80vh] flex items-center justify-center bg-[#1a1b26]" data-controller="entrance">
+  <div class="text-center px-4">
+    <%# Glitch Effect %>
+    <div class="relative mb-8 select-none" data-controller="glitch">
+      <h1 class="text-[12rem] font-bold leading-none tracking-tighter text-[#e0af68] opacity-75 glitch-base"
+          data-glitch="400">
+        400
+      </h1>
+      <div class="absolute inset-0 text-[12rem] font-bold leading-none tracking-tighter text-[#bb9af7] glitch-layer-1"
+           aria-hidden="true"
+           data-glitch="400">
+        400
+      </div>
+      <div class="absolute inset-0 text-[12rem] font-bold leading-none tracking-tighter text-[#7dcfff] glitch-layer-2"
+           aria-hidden="true"
+           data-glitch="400">
+        400
+      </div>
+    </div>
+
+    <%# Message %>
+    <h2 class="text-2xl font-heading font-semibold text-[#e0af68] mb-4">
+      Bad Request...
+    </h2>
+    <p class="text-[#a9b1d6] mb-8 max-w-md mx-auto">
+      Looks like you're trying to access something that doesn't exist. 
+      Maybe check your URL and try again? 🤔
+    </p>
+
+    <%# Action Button %>
+    <%= link_to root_path, 
+        class: "inline-flex items-center px-6 py-3 rounded-lg bg-[#e0af68] hover:bg-[#bb9af7] text-white font-medium transition-all duration-300 transform hover:scale-105 hover:rotate-1 shadow-[0_0_15px_rgba(224,175,104,0.5)] hover:shadow-[0_0_25px_rgba(187,154,247,0.5)]" do %>
+      <i class="ph ph-house mr-2 text-white"></i>
+      <span class="text-white">Beam me up, Scotty!</span>
+    <% end %>
+  </div>
+</div>
+
+<%# Add glitch effect styles %>
+<style>
+  .glitch-base {
+    position: relative;
+    z-index: 1;
+  }
+
+  .glitch-layer-1 {
+    z-index: 0;
+    animation: glitch-1 2s infinite linear alternate-reverse;
+  }
+
+  .glitch-layer-2 {
+    z-index: -1;
+    animation: glitch-2 3s infinite linear alternate-reverse;
+  }
+
+  @keyframes glitch-1 {
+    0% { transform: translate(0); }
+    20% { transform: translate(-2px, 2px); }
+    40% { transform: translate(-2px, -2px); }
+    60% { transform: translate(2px, 2px); }
+    80% { transform: translate(2px, -2px); }
+    100% { transform: translate(0); }
+  }
+
+  @keyframes glitch-2 {
+    0% { transform: translate(0); }
+    20% { transform: translate(2px, -2px); }
+    40% { transform: translate(2px, 2px); }
+    60% { transform: translate(-2px, -2px); }
+    80% { transform: translate(-2px, 2px); }
+    100% { transform: translate(0); }
+  }
+</style> 

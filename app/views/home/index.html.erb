@@ -24,13 +24,11 @@
       <%= render partial: "projects/project", collection: @featured_projects %>
     </div>
 
-    <div class="text-center mt-8" data-controller="entrance" data-entrance-delay-value="400">
-      <%= link_to projects_path, class: "inline-flex items-center text-[#7aa2f7] hover:text-[#bb9af7] transition-colors" do %>
+    <div class="text-center mt-8 transition-all duration-700 ease-out" data-controller="entrance" data-entrance-delay-value="400" style="opacity: 1; transform: translateY(0px);">
+      <a class="inline-flex items-center text-[#7aa2f7] hover:text-[#bb9af7] transition-colors" href="/projects">
         View all projects
-        <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-        </svg>
-      <% end %>
+        <i class="fas fa-arrow-right ml-2 w-4 h-4"></i>
+      </a>
     </div>
   </div>
 </section>
@@ -83,9 +81,7 @@
     <div class="text-center mt-8" data-controller="entrance" data-entrance-delay-value="900">
       <%= link_to posts_path, class: "inline-flex items-center text-[#7aa2f7] hover:text-[#bb9af7] transition-colors" do %>
         Read more posts
-        <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-        </svg>
+        <i class="fas fa-chevron-right ml-2 w-4 h-4"></i>
       <% end %>
     </div>
   </div>

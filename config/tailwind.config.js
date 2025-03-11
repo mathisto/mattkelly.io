@@ -15,6 +15,15 @@ module.exports = {
         heading: ['Montserrat', ...defaultTheme.fontFamily.sans],
         mono: ['Fira Code', ...defaultTheme.fontFamily.mono],
       },
+      animation: {
+        'rainbow': 'rainbow 8s ease infinite',
+      },
+      keyframes: {
+        rainbow: {
+          '0%, 100%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+        }
+      },
       colors: {
         // Tokyo Night theme colors
         'tokyo': {

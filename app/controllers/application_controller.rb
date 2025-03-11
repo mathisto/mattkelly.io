@@ -4,10 +4,20 @@ class ApplicationController < ActionController::Base
 
   rescue_from ActiveRecord::RecordNotFound, with: :not_found
   rescue_from ActionController::RoutingError, with: :not_found
+  rescue_from ActionController::BadRequest, with: :bad_request
+  rescue_from StandardError, with: :internal_server_error
 
   private
 
   def not_found
-    render 'errors/404', status: :not_found
+    render 'errors/404', status: :not_found, layout: 'application'
+  end
+
+  def internal_server_error
+    render 'errors/500', status: :internal_server_error, layout: 'application'
+  end
+
+  def bad_request
+    render 'errors/400', status: :bad_request, layout: 'application'
   end
 end

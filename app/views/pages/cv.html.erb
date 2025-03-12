@@ -338,6 +338,78 @@
   .skill-pill:hover i {
     color: #bb9af7 !important;
   }
+
+  /* Tagline container styling */
+  .taglines-grid {
+    position: relative;
+    z-index: 2;
+  }
+
+  /* Tagline item styling */
+  .taglines-grid > div {
+    padding: 0.5rem;
+    transition: transform 0.3s ease;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .taglines-grid > div:hover {
+    transform: translateY(-2px);
+  }
+
+  .taglines-grid i {
+    color: #9ece6a;
+    transition: transform 0.3s ease, background-position 0.3s ease;
+    flex-shrink: 0;
+    background: linear-gradient(
+      135deg,
+      #7aa2f7 0%,
+      #9d7cd8 16.67%,
+      #7dcfff 33.33%,
+      #73daca 50%,
+      #ff9e64 66.67%,
+      #f7768e 83.33%,
+      #9d7cd8 91.67%,
+      #7aa2f7 100%
+    );
+    background-size: 100% 100%;
+    background-position: 0% 0%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: #9ece6a;
+  }
+
+  .taglines-grid > div:hover i {
+    transform: scale(1.2);
+    color: transparent;
+  }
+
+  .taglines-grid span {
+    color: #a9b1d6;
+    transition: color 0.3s ease, background-position 0.3s ease;
+    background: linear-gradient(
+      135deg,
+      #7aa2f7 0%,
+      #9d7cd8 16.67%,
+      #7dcfff 33.33%,
+      #73daca 50%,
+      #ff9e64 66.67%,
+      #f7768e 83.33%,
+      #9d7cd8 91.67%,
+      #7aa2f7 100%
+    );
+    background-size: 100% 100%;
+    background-position: 0% 0%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: #a9b1d6;
+  }
+
+  .taglines-grid > div:hover span {
+    color: transparent;
+  }
 </style>
 
 <div class="min-h-screen bg-[#1a1b26] text-[#a9b1d6] p-8 pt-20">

@@ -184,7 +184,3 @@ We're continuing to evolve the site with:
 - Improved mobile experience
 
 Stay tuned for more updates as we continue to refine this digital space.
-
----
-
-*This post was written as part of the ongoing development of mattkelly.io. The site continues to evolve with new features and improvements.* 

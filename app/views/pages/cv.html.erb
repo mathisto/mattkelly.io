@@ -94,22 +94,71 @@
 
   /* CV Job Entry */
   .cv-job-entry {
+    composes: card-base;
     background: rgba(31, 35, 53, 0.8);
-    border: 1px solid #29293f;
+    border: 1px solid transparent;
     border-radius: 1rem;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     backdrop-filter: blur(8px);
     text-align: left;
+    position: relative;
+    isolation: isolate;
+    z-index: 1;
+  }
+
+  .cv-job-entry::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    padding: 2px;
+    background: linear-gradient(
+      90deg,
+      #7aa2f7 0%,     /* Tokyo Night blue */
+      #bb9af7 16.67%, /* Tokyo Night purple */
+      #7dcfff 33.33%, /* Tokyo Night cyan */
+      #9ece6a 50%,    /* Tokyo Night green */
+      #ff9e64 66.67%, /* Tokyo Night orange */
+      #f7768e 83.33%, /* Tokyo Night red */
+      #9d7cd8 91.67%, /* Transition purple */
+      #7aa2f7 100%    /* Back to blue */
+    );
+    border-radius: calc(1rem + 2px);
+    -webkit-mask: 
+      linear-gradient(#fff 0 0) content-box, 
+      linear-gradient(#fff 0 0);
+    mask: 
+      linear-gradient(#fff 0 0) content-box, 
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    will-change: opacity, background-position;
+    transition: opacity 0.3s ease;
+    background-size: 200% 100%;
+    z-index: 0;
+  }
+
+  .cv-job-entry::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    background: rgba(31, 35, 53, 0.95);
+    border-radius: calc(1rem + 1px);
+    z-index: -1;
   }
 
   .cv-job-entry:hover {
-    border-color: rgba(122, 162, 247, 0.3);
     transform: translateY(-4px);
     box-shadow: 
       0 20px 25px -5px rgba(122, 162, 247, 0.1),
       0 10px 10px -5px rgba(187, 154, 247, 0.04);
+  }
+
+  .cv-job-entry:hover::before {
+    opacity: 1;
+    animation: borderGradient 6s linear infinite;
   }
 
   .cv-job-entry h3,
@@ -157,20 +206,69 @@
 
   /* Skills section styling */
   .skills-section {
+    composes: card-base;
     background: rgba(31, 35, 53, 0.8);
-    border: 1px solid #29293f;
+    border: 1px solid transparent;
     border-radius: 1rem;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
     backdrop-filter: blur(8px);
+    position: relative;
+    isolation: isolate;
+    z-index: 1;
+  }
+
+  .skills-section::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    padding: 2px;
+    background: linear-gradient(
+      90deg,
+      #7aa2f7 0%,     /* Tokyo Night blue */
+      #bb9af7 16.67%, /* Tokyo Night purple */
+      #7dcfff 33.33%, /* Tokyo Night cyan */
+      #9ece6a 50%,    /* Tokyo Night green */
+      #ff9e64 66.67%, /* Tokyo Night orange */
+      #f7768e 83.33%, /* Tokyo Night red */
+      #9d7cd8 91.67%, /* Transition purple */
+      #7aa2f7 100%    /* Back to blue */
+    );
+    border-radius: calc(1rem + 2px);
+    -webkit-mask: 
+      linear-gradient(#fff 0 0) content-box, 
+      linear-gradient(#fff 0 0);
+    mask: 
+      linear-gradient(#fff 0 0) content-box, 
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    will-change: opacity, background-position;
+    transition: opacity 0.3s ease;
+    background-size: 200% 100%;
+    z-index: 0;
+  }
+
+  .skills-section::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    background: rgba(31, 35, 53, 0.95);
+    border-radius: calc(1rem + 1px);
+    z-index: -1;
   }
 
   .skills-section:hover {
-    border-color: rgba(122, 162, 247, 0.3);
     transform: translateY(-4px);
     box-shadow: 
       0 20px 25px -5px rgba(122, 162, 247, 0.1),
       0 10px 10px -5px rgba(187, 154, 247, 0.04);
+  }
+
+  .skills-section:hover::before {
+    opacity: 1;
+    animation: borderGradient 6s linear infinite;
   }
 
   /* Section Headers (Experience, Core Skills, Education) */
@@ -196,6 +294,49 @@
     font-size: 1.125rem;
     font-weight: 600;
     color: #7aa2f7;
+  }
+
+  /* Skills Container and Pills */
+  .skills-container {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+
+  .skill-pill {
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.75rem;
+    background: rgba(122, 162, 247, 0.1);
+    border: 1px solid rgba(122, 162, 247, 0.2);
+    border-radius: 9999px;
+    color: #a9b1d6;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.01em;
+    pointer-events: auto;
+  }
+
+  .skill-pill:hover {
+    transform: translateY(-2px);
+    background: rgba(187, 154, 247, 0.15);
+    border-color: rgba(187, 154, 247, 0.3);
+  }
+
+  .skill-pill i {
+    color: #9ece6a !important;
+    transition: color 0.3s ease !important;
+  }
+
+  .skill-pill:hover i {
+    color: #bb9af7 !important;
   }
 </style>
 

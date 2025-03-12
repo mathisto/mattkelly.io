@@ -22,10 +22,13 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
+    <!-- Devicon -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css">
+
     <!-- Custom Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Montserrat:wght@500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
     <!-- Custom Styles -->
     <style>
@@ -43,7 +46,7 @@
         display: flex;
         flex-direction: column;
         margin: 0;
-        font-family: 'Lato', sans-serif;
+        font-family: 'Inter', sans-serif;
         line-height: 1.6;
         opacity: 0;
         animation: fadeIn 0.5s ease-in forwards;
@@ -161,23 +164,77 @@
         }
       }
 
-      /* Universal Card Styles */
+      /* Card Base with Animated Border */
       .card-base {
         background: rgba(31, 35, 53, 0.8);
-        border: 1px solid #29293f;
+        border: 1px solid transparent;
         border-radius: 1rem;
         padding: 1.5rem;
         margin-bottom: 1.5rem;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         backdrop-filter: blur(8px);
+        position: relative;
+        isolation: isolate;
+        z-index: 1;
+      }
+
+      .card-base::before {
+        content: '';
+        position: absolute;
+        inset: -2px;
+        padding: 2px;
+        background: linear-gradient(
+          90deg,
+          #7aa2f7 0%,     /* Tokyo Night blue */
+          #bb9af7 16.67%, /* Tokyo Night purple */
+          #7dcfff 33.33%, /* Tokyo Night cyan */
+          #9ece6a 50%,    /* Tokyo Night green */
+          #ff9e64 66.67%, /* Tokyo Night orange */
+          #f7768e 83.33%, /* Tokyo Night red */
+          #9d7cd8 91.67%, /* Transition purple */
+          #7aa2f7 100%    /* Back to blue */
+        );
+        border-radius: calc(1rem + 2px);
+        -webkit-mask: 
+          linear-gradient(#fff 0 0) content-box, 
+          linear-gradient(#fff 0 0);
+        mask: 
+          linear-gradient(#fff 0 0) content-box, 
+          linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        opacity: 0;
+        will-change: opacity, background-position;
+        transition: opacity 0.3s ease;
+        background-size: 200% 100%;
+        z-index: 0;
+      }
+
+      .card-base::after {
+        content: '';
+        position: absolute;
+        inset: -1px;
+        background: rgba(31, 35, 53, 0.95);
+        border-radius: calc(1rem + 1px);
+        z-index: -1;
       }
 
       .card-base:hover {
-        border-color: rgba(122, 162, 247, 0.3);
         transform: translateY(-4px) scale(1.01);
         box-shadow: 
           0 20px 25px -5px rgba(122, 162, 247, 0.1),
           0 10px 10px -5px rgba(187, 154, 247, 0.04);
+      }
+
+      .card-base:hover::before {
+        opacity: 1;
+        animation: borderGradient 6s linear infinite;
+      }
+
+      @keyframes borderGradient {
+        to {
+          background-position: 200% 0;
+        }
       }
 
       /* Project Card Styles */
@@ -232,7 +289,7 @@
         font-size: 1.25rem;
         font-weight: 600;
         margin-bottom: 0.75rem;
-        font-family: 'Montserrat', sans-serif;
+        font-family: 'Space Grotesk', sans-serif;
       }
 
       .card-subtitle {
@@ -254,26 +311,30 @@
         display: flex;
         gap: 1rem;
         margin-top: 1.5rem;
-        justify-content: flex-start;
+        justify-content: center;
+        width: 100%;
       }
 
       .card-link {
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         gap: 0.5rem;
-        padding: 0.5rem 0.75rem;
+        padding: 0.75rem 1.5rem;
         background: rgba(122, 162, 247, 0.1);
         border: 1px solid rgba(122, 162, 247, 0.2);
         border-radius: 0.5rem;
         color: #7aa2f7;
-        font-size: 0.875rem;
         font-weight: 500;
         transition: all 0.3s ease;
+        min-width: 8rem;
+        font-family: 'Inter', sans-serif;
       }
 
       .card-link:hover {
-        background: rgba(187, 154, 247, 0.1);
+        background: rgba(187, 154, 247, 0.15);
         border-color: rgba(187, 154, 247, 0.3);
+        transform: translateY(-2px);
         color: #bb9af7;
       }
 
@@ -292,6 +353,7 @@
         color: #7aa2f7;
         font-size: 0.875rem;
         transition: all 0.3s ease;
+        font-family: 'Inter', sans-serif;
       }
 
       .tag:hover {
@@ -396,11 +458,11 @@
 
       /* Code Blocks */
       code {
-        font-family: 'Fira Code', monospace;
+        font-family: 'JetBrains Mono', monospace;
         background-color: #24283b;
         padding: 0.2em 0.4em;
         border-radius: 0.3em;
-        font-size: 0.9em;
+        font-size: 0.925em;
       }
 
       pre {
@@ -434,7 +496,7 @@
       }
 
       h1, h2, h3, h4, h5, h6 {
-        font-family: 'Montserrat', sans-serif;
+        font-family: 'Space Grotesk', sans-serif;
         color: #7aa2f7;
         margin: 0;
       }
@@ -492,6 +554,8 @@
         font-weight: 500 !important;
         transition: color 0.3s ease-in-out !important;
         text-decoration: none;
+        font-family: 'Space Grotesk', sans-serif;
+        letter-spacing: -0.01em;
       }
 
       .nav-link:hover {
@@ -556,6 +620,8 @@
         background-clip: text !important;
         color: transparent !important;
         animation: rainbow 8s ease infinite !important;
+        font-family: 'Space Grotesk', sans-serif;
+        font-weight: 500;
       }
 
       @keyframes rainbow {
@@ -579,6 +645,7 @@
         transition: all 0.3s ease-in-out;
         transform: scale(1) rotate(0);
         box-shadow: 0 0 15px rgba(122, 162, 247, 0.5);
+        font-family: 'Inter', sans-serif;
       }
 
       .btn-primary:hover {
@@ -623,7 +690,7 @@
       }
 
       .font-heading {
-        font-family: 'Montserrat', sans-serif;
+        font-family: 'Space Grotesk', sans-serif;
       }
 
       /* Content Cards and Containers */
@@ -656,7 +723,7 @@
       .dev-card {
         composes: card-base;
         background: rgba(31, 35, 53, 0.8);
-        border: 1px solid #29293f;
+        border: 1px solid transparent;
         border-radius: 1rem;
         padding: 1.25rem;
         margin-bottom: 1rem;
@@ -665,14 +732,60 @@
         display: flex;
         flex-direction: column;
         height: 100%;
+        position: relative;
+        isolation: isolate;
+        z-index: 1;
+      }
+
+      .dev-card::before {
+        content: '';
+        position: absolute;
+        inset: -2px;
+        padding: 2px;
+        background: linear-gradient(
+          90deg,
+          #7aa2f7 0%,     /* Tokyo Night blue */
+          #bb9af7 16.67%, /* Tokyo Night purple */
+          #7dcfff 33.33%, /* Tokyo Night cyan */
+          #9ece6a 50%,    /* Tokyo Night green */
+          #ff9e64 66.67%, /* Tokyo Night orange */
+          #f7768e 83.33%, /* Tokyo Night red */
+          #9d7cd8 91.67%, /* Transition purple */
+          #7aa2f7 100%    /* Back to blue */
+        );
+        border-radius: calc(1rem + 2px);
+        -webkit-mask: 
+          linear-gradient(#fff 0 0) content-box, 
+          linear-gradient(#fff 0 0);
+        mask: 
+          linear-gradient(#fff 0 0) content-box, 
+          linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        opacity: 0;
+        will-change: opacity, background-position;
+        transition: opacity 0.3s ease;
+        background-size: 200% 100%;
+        z-index: 0;
+      }
+
+      .dev-card::after {
+        content: '';
+        position: absolute;
+        inset: -1px;
+        background: rgba(31, 35, 53, 0.95);
+        border-radius: calc(1rem + 1px);
+        z-index: -1;
       }
 
       .dev-card:hover {
-        border-color: rgba(122, 162, 247, 0.3);
+        border-color: transparent;
         transform: translateY(-4px);
-        box-shadow: 
-          0 20px 25px -5px rgba(122, 162, 247, 0.1),
-          0 10px 10px -5px rgba(187, 154, 247, 0.04);
+      }
+
+      .dev-card:hover::before {
+        opacity: 1;
+        animation: borderGradient 6s linear infinite;
       }
 
       .dev-card a {
@@ -702,6 +815,8 @@
         color: #a9b1d6;
         font-size: 0.875rem;
         transition: all 0.3s ease;
+        font-family: 'Inter', sans-serif;
+        letter-spacing: 0.01em;
       }
 
       .skill-pill:hover {
@@ -719,33 +834,6 @@
         color: #bb9af7;
       }
 
-      /* Card Actions */
-      .card-actions {
-        display: flex;
-        gap: 1rem;
-        margin-top: 1.5rem;
-      }
-
-      .card-link {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.75rem 1.5rem;
-        background: rgba(122, 162, 247, 0.1);
-        border: 1px solid rgba(122, 162, 247, 0.2);
-        border-radius: 0.5rem;
-        color: #7aa2f7;
-        font-weight: 500;
-        transition: all 0.3s ease;
-      }
-
-      .card-link:hover {
-        background: rgba(187, 154, 247, 0.15);
-        border-color: rgba(187, 154, 247, 0.3);
-        transform: translateY(-2px);
-        color: #bb9af7;
-      }
-
       /* Section Headers */
       .section-header {
         margin-bottom: 1.5rem;
@@ -758,6 +846,7 @@
         color: #7aa2f7;
         margin-bottom: 0.5rem;
         letter-spacing: -0.025em;
+        font-family: 'Space Grotesk', sans-serif;
       }
 
       .section-header p {
@@ -781,6 +870,7 @@
         margin-bottom: 0.75rem;
         letter-spacing: -0.025em;
         text-shadow: 0 0 20px rgba(122, 162, 247, 0.3);
+        font-family: 'Space Grotesk', sans-serif;
       }
 
       .hero p {
@@ -945,6 +1035,39 @@
         background-color: #bb9af7;
         transform: scale(1.05) rotate(1deg);
         box-shadow: 0 0 25px rgba(187, 154, 247, 0.5);
+      }
+
+      /* Call to Action Section Styles */
+      .cta-section .dev-card {
+        width: 100%;
+        max-width: 42rem;
+        margin: 0 auto;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .cta-section .dev-card .card-title,
+      .cta-section .dev-card .card-content {
+        text-align: center;
+        width: 100%;
+        max-width: 36rem;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .cta-section .dev-card .card-actions {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+        width: 100%;
+      }
+
+      .cta-section .dev-card .card-link {
+        min-width: 8rem;
+        justify-content: center;
       }
     </style>
   </head>

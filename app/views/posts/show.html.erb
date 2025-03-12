@@ -6,7 +6,7 @@
       <%# Metadata Grid %>
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <%# Date %>
-        <div class="flex items-center justify-center p-3 rounded-lg bg-[#1a1b26] border border-[#29293f] transition-all duration-300 hover:border-[#7dcfff] group">
+        <div class="flex items-center justify-center group">
           <i class="far fa-calendar-alt text-[#7dcfff] mr-2 group-hover:scale-110 transition-transform duration-300"></i>
           <time datetime="<%= @post.date %>" class="font-medium">
             <%= @post.date.strftime("%B %d, %Y") %>
@@ -14,13 +14,13 @@
         </div>
 
         <%# Reading Time %>
-        <div class="flex items-center justify-center p-3 rounded-lg bg-[#1a1b26] border border-[#29293f] transition-all duration-300 hover:border-[#9ece6a] group">
+        <div class="flex items-center justify-center group">
           <i class="far fa-clock text-[#9ece6a] mr-2 group-hover:scale-110 transition-transform duration-300"></i>
           <span class="font-medium"><%= @post.reading_time %> min read</span>
         </div>
 
         <%# Author %>
-        <div class="flex items-center justify-center p-3 rounded-lg bg-[#1a1b26] border border-[#29293f] transition-all duration-300 hover:border-[#bb9af7] group">
+        <div class="flex items-center justify-center group">
           <i class="far fa-user text-[#bb9af7] mr-2 group-hover:scale-110 transition-transform duration-300"></i>
           <span class="font-medium">By <%= @post.author %></span>
         </div>
@@ -47,20 +47,11 @@
     <%= raw @post.rendered_content %>
   </div>
 
-  <%# Post Footer %>
-  <footer class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 pt-8 border-t border-[#29293f]"
-          data-controller="entrance"
-          data-entrance-delay-value="200">
-    <div class="flex justify-between items-center">
-      <%= link_to posts_path, class: "inline-flex items-center gap-2 text-[#7aa2f7] hover:text-[#bb9af7] transition-all duration-300 ease-in-out group" do %>
-        <i class="fas fa-arrow-left text-sm transition-transform duration-300 group-hover:-translate-x-1"></i>
-        <span class="font-medium">Back to Blog</span>
-      <% end %>
-      <div class="flex space-x-4">
-        <%# Add social share buttons here if desired %>
-      </div>
-    </div>
-  </footer>
+  <%# Back to Blog Link %>
+  <%= link_to posts_path, class: "inline-flex items-center gap-2 text-[#7aa2f7] hover:text-[#bb9af7] transition-colors duration-300 group mt-12 ml-4 sm:ml-6 lg:ml-8" do %>
+    <i class="fas fa-arrow-left text-sm transition-transform duration-300 group-hover:-translate-x-1"></i>
+    <span class="font-medium">Back to Blog</span>
+  <% end %>
 </article>
 
 <%# Add Tailwind Typography styles for markdown content %>

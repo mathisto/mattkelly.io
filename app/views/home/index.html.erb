@@ -1,4 +1,92 @@
 <%# Hero Section %>
+<style>
+  /* Skills Container and Pills - Copied from CV page */
+  .skills-container {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+
+  .skill-pill {
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.75rem;
+    background: rgba(122, 162, 247, 0.1);
+    border: 1px solid rgba(122, 162, 247, 0.2);
+    border-radius: 9999px;
+    color: #a9b1d6;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.01em;
+    pointer-events: auto;
+  }
+
+  .skill-pill:hover {
+    transform: translateY(-2px);
+    background: rgba(187, 154, 247, 0.15);
+    border-color: rgba(187, 154, 247, 0.3);
+  }
+
+  .skill-pill i {
+    color: #9ece6a !important;
+    transition: color 0.3s ease !important;
+  }
+
+  .skill-pill:hover i {
+    color: #bb9af7 !important;
+  }
+
+  /* Improve icon alignment and sizing in CTA section */
+  .cta-section .card-actions {
+    display: flex;
+    justify-content: center;
+    gap: 4rem;
+    margin-top: 2rem;
+    width: 100%;
+  }
+
+  .cta-section .card-actions a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.75rem;
+    transition: all 0.3s ease;
+    min-width: 8rem;
+  }
+
+  .cta-section .card-actions a i {
+    font-size: 2rem;
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #a9b1d6;
+    transition: all 0.3s ease;
+  }
+
+  .cta-section .card-actions a:hover i {
+    transform: translateY(-4px) scale(1.1);
+    color: #bb9af7;
+  }
+
+  .cta-section .card-actions a span {
+    display: block;
+    width: 100%;
+    font-weight: 600;
+    transition: color 0.3s ease;
+  }
+
+  .cta-section .card-actions a:hover span {
+    color: #bb9af7;
+  }
+</style>
+
 <section class="hero py-12">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div data-controller="entrance" data-entrance-delay-value="0" class="text-center">
@@ -13,7 +101,6 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="section-header text-center mb-8" data-controller="entrance" data-entrance-delay-value="100">
       <h2>Core Expertise</h2>
-      <p>Key areas where I excel and create impact</p>
     </div>
 
     <div class="grid gap-6" data-controller="entrance" data-entrance-delay-value="200">
@@ -90,7 +177,6 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="section-header text-center mb-8" data-controller="entrance" data-entrance-delay-value="300">
       <h2>Technical Arsenal</h2>
-      <p>Languages and tools I work with</p>
     </div>
 
     <div class="grid gap-6" data-controller="entrance" data-entrance-delay-value="400">
@@ -143,13 +229,13 @@
           I'd love to help you achieve your goals.
         </p>
         <div class="card-actions">
-          <a href="mailto:matthew.ryan.kelly@gmail.com" class="card-link">
-            <i class="fas fa-envelope"></i>
-            Get in Touch
+          <a href="mailto:matthew.ryan.kelly@gmail.com" class="text-[#a9b1d6] hover:text-[#bb9af7] transition-colors group">
+            <i class="fas fa-envelope group-hover:scale-110 transition-transform"></i>
+            <span>Get in Touch</span>
           </a>
-          <a href="/CV.pdf" class="card-link">
-            <i class="fas fa-file-pdf"></i>
-            Download CV
+          <a href="/CV.pdf" class="text-[#a9b1d6] hover:text-[#bb9af7] transition-colors group">
+            <i class="fas fa-file-pdf group-hover:scale-110 transition-transform"></i>
+            <span>Download CV</span>
           </a>
         </div>
       </div>

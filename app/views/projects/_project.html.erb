@@ -1,37 +1,157 @@
 <%# Project card with entrance animation %>
-<div class="dev-card"
-     data-controller="entrance"
-     data-entrance-delay-value="<%= project_counter * 100 %>">
-  <h3 class="card-title">
-    <%= project.title %>
-  </h3>
-  
-  <p class="card-content">
-    <%= project.description %>
-  </p>
-  
-  <div class="skills-container">
-    <% project.technologies_used.each do |tech| %>
-      <span class="skill-pill">
-        <i class="fas fa-code"></i>
-        <%= tech %>
-      </span>
-    <% end %>
-  </div>
-  
-  <div class="card-actions">
-    <% if project.github_url.present? %>
-      <%= link_to project.github_url, class: "card-link", target: "_blank" do %>
-        <i class="fab fa-github"></i>
-        <span>GitHub</span>
-      <% end %>
-    <% end %>
+<style>
+  /* Skills Container and Pills - Copied from CV page */
+  .skills-container {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+  }
+
+  .skill-pill {
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.75rem;
+    background: rgba(122, 162, 247, 0.1);
+    border: 1px solid rgba(122, 162, 247, 0.2);
+    border-radius: 9999px;
+    color: #a9b1d6;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.01em;
+    pointer-events: auto;
+  }
+
+  .skill-pill:hover {
+    transform: translateY(-2px);
+    background: rgba(187, 154, 247, 0.15);
+    border-color: rgba(187, 154, 247, 0.3);
+  }
+
+  .skill-pill i {
+    color: #9ece6a !important;
+    transition: color 0.3s ease !important;
+  }
+
+  .skill-pill:hover i {
+    color: #bb9af7 !important;
+  }
+
+  /* Fix alignment of GitHub and Live Site links */
+  .card-actions {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid #29293f;
+    width: 100%;
+  }
+
+  .card-actions a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-width: 7rem;
+    text-align: center;
+  }
+
+  .card-actions a i {
+    width: 1.25rem;
+    display: inline-block;
+    text-align: center;
+  }
+
+  .card-actions a span {
+    display: inline-block;
+  }
+</style>
+
+<div class="p-4" data-controller="entrance" data-entrance-delay-value="<%= project_counter * 100 %>">
+  <article class="dev-card relative p-6 rounded-lg bg-[#1f2335] border border-[#29293f] transition-all duration-300 hover:shadow-lg hover:shadow-[#7aa2f7]/5 w-full h-full min-h-[26rem] flex flex-col overflow-hidden">
+    <div class="relative isolate z-[1]">
+      <h3 class="card-title text-xl font-semibold text-[#7aa2f7] mt-0 mb-4">
+        <%= project.title %>
+      </h3>
+      
+      <p class="card-content text-[#a9b1d6] mb-6 flex-grow overflow-y-auto">
+        <%= project.description %>
+      </p>
+      
+      <div class="skills-container mb-6">
+        <% project.technologies_used.each do |tech| %>
+          <span class="skill-pill">
+            <%= case tech.downcase
+                when /ruby/
+                  '<i class="devicon-ruby-plain"></i>'.html_safe
+                when /rails/
+                  '<i class="devicon-rails-plain"></i>'.html_safe
+                when /react/
+                  '<i class="devicon-react-original"></i>'.html_safe
+                when /vue/
+                  '<i class="devicon-vuejs-plain"></i>'.html_safe
+                when /node/
+                  '<i class="devicon-nodejs-plain"></i>'.html_safe
+                when /typescript/
+                  '<i class="devicon-typescript-plain"></i>'.html_safe
+                when /javascript/
+                  '<i class="devicon-javascript-plain"></i>'.html_safe
+                when /postgres/
+                  '<i class="devicon-postgresql-plain"></i>'.html_safe
+                when /mongo/
+                  '<i class="devicon-mongodb-plain"></i>'.html_safe
+                when /redis/
+                  '<i class="devicon-redis-plain"></i>'.html_safe
+                when /docker/
+                  '<i class="devicon-docker-plain"></i>'.html_safe
+                when /kubernetes/
+                  '<i class="devicon-kubernetes-plain"></i>'.html_safe
+                when /tailwind/
+                  '<i class="devicon-tailwindcss-plain"></i>'.html_safe
+                when /css/
+                  '<i class="devicon-css3-plain"></i>'.html_safe
+                when /html/
+                  '<i class="devicon-html5-plain"></i>'.html_safe
+                when /git/
+                  '<i class="devicon-git-plain"></i>'.html_safe
+                when /aws/
+                  '<i class="devicon-amazonwebservices-original"></i>'.html_safe
+                else
+                  '<i class="fas fa-code"></i>'.html_safe
+                end %>
+            <%= tech %>
+          </span>
+        <% end %>
+      </div>
+    </div>
     
-    <% if project.live_site_url.present? %>
-      <%= link_to project.live_site_url, class: "card-link", target: "_blank" do %>
-        <i class="fas fa-link"></i>
-        <span>Live Site</span>
+    <div class="card-actions">
+      <% if project.github_url.present? %>
+        <%= link_to project.github_url, 
+            class: "text-[#a9b1d6] hover:text-[#7aa2f7] transition-colors group", 
+            target: "_blank", 
+            rel: "noopener noreferrer" do %>
+          <i class="fab fa-github text-xl group-hover:scale-110 transition-transform"></i>
+          <span class="font-medium">GitHub</span>
+        <% end %>
       <% end %>
-    <% end %>
-  </div>
+      
+      <% if project.live_site_url.present? %>
+        <%= link_to project.live_site_url, 
+            class: "text-[#a9b1d6] hover:text-[#7aa2f7] transition-colors group", 
+            target: "_blank", 
+            rel: "noopener noreferrer" do %>
+          <i class="fas fa-external-link-alt text-lg group-hover:scale-110 transition-transform"></i>
+          <span class="font-medium">Live Site</span>
+        <% end %>
+      <% end %>
+    </div>
+  </article>
 </div> 

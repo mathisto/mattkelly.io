@@ -1,48 +1,10 @@
 <%# Projects Index with Tokyo Night theme %>
-<div class="min-h-screen bg-[#1a1b26] text-[#a9b1d6] p-8">
-  <div class="max-w-7xl mx-auto">
-    <h1 class="text-[#7aa2f7] text-4xl font-bold mb-8">Projects</h1>
+<div class="min-h-screen bg-[#1a1b26] text-[#a9b1d6] py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto w-full">
+    <h1 class="text-[#7aa2f7] text-4xl font-bold mb-12">Projects</h1>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <% @projects.each do |project| %>
-        <article class="dev-card">
-          <h2 class="card-title"><%= project.title %></h2>
-          
-          <% if project.role.present? %>
-            <div class="card-subtitle">
-              <i class="fas fa-user-tie mr-2 opacity-90"></i>
-              <%= project.role %>
-            </div>
-          <% end %>
-          
-          <p class="card-content"><%= project.description %></p>
-          
-          <div class="skills-container">
-            <% project.technologies_used.each do |tech| %>
-              <span class="skill-pill">
-                <i class="fas fa-code"></i>
-                <%= tech %>
-              </span>
-            <% end %>
-          </div>
-          
-          <div class="card-actions">
-            <% if project.github_url.present? %>
-              <%= link_to project.github_url, class: "card-link", target: "_blank", rel: "noopener noreferrer" do %>
-                <i class="fab fa-github"></i>
-                <span>View Source</span>
-              <% end %>
-            <% end %>
-            
-            <% if project.live_site_url.present? %>
-              <%= link_to project.live_site_url, class: "card-link", target: "_blank", rel: "noopener noreferrer" do %>
-                <i class="fas fa-external-link-alt"></i>
-                <span>Live Site</span>
-              <% end %>
-            <% end %>
-          </div>
-        </article>
-      <% end %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 isolate">
+      <%= render partial: "project", collection: @projects, as: :project %>
     </div>
   </div>
 </div> 

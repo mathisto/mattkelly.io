@@ -6,6 +6,7 @@
     gap: clamp(1rem, 3vw, 2rem);
     grid-template-columns: repeat(1, 1fr);
     width: 100%;
+    margin-bottom: clamp(2rem, 6vw, 4rem);
   }
 
   @media (min-width: 640px) {
@@ -33,11 +34,15 @@
 
     .projects-grid {
       gap: 1rem;
-      margin: 0 -0.5rem;
+      margin: 0 -0.5rem 3rem -0.5rem;
     }
 
     .dev-card {
-      margin: 0;
+      margin: 0 0 1rem 0;
+    }
+
+    .dev-card:last-child {
+      margin-bottom: 0;
     }
 
     .dev-card:hover {
@@ -56,7 +61,7 @@
   }
 </style>
 
-<div class="min-h-screen bg-[#1a1b26] text-[#a9b1d6] py-8 px-4 sm:py-12 sm:px-6 lg:px-8">
+<div class="min-h-screen bg-[#1a1b26] text-[#a9b1d6] py-8 pb-16 sm:pb-20 px-4 sm:py-12 sm:px-6 lg:px-8">
   <div class="max-w-7xl mx-auto w-full">
     <h1 class="text-[#7aa2f7] text-3xl sm:text-4xl font-bold mb-8 sm:mb-12">Projects</h1>
 

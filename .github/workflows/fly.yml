@@ -19,16 +19,8 @@ jobs:
           ruby-version: '3.3.0'
           bundler-cache: true
       
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-      
       - name: Install dependencies
-        run: |
-          bundle install
-          npm install
+        run: bundle install
       
       - name: Setup Fly.io CLI
         uses: superfly/flyctl-actions/setup-flyctl@master

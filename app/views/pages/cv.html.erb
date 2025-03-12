@@ -108,6 +108,52 @@
     z-index: 1;
   }
 
+  /* Job Entry Headers - Updated for better positioning */
+  .cv-job-entry .header-container {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1rem;
+    align-items: start;
+    margin-bottom: 0.75rem;
+  }
+
+  .cv-job-entry h4 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #7aa2f7;
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  /* Date styling */
+  .cv-job-entry .date-container {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    color: #bb9af7;
+    font-size: 0.95rem;
+  }
+
+  .cv-job-entry .date-container i {
+    color: #f7768e !important;
+    opacity: 0.9;
+    margin-right: 0.5rem;
+  }
+
+  /* Location line styling */
+  .cv-job-entry .location-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+  }
+
+  .cv-job-entry .location-container i {
+    color: #7dcfff !important;
+    opacity: 0.9;
+    margin-right: 0.5rem;
+  }
+
   .cv-job-entry::before {
     content: '';
     position: absolute;
@@ -161,23 +207,36 @@
     animation: borderGradient 6s linear infinite;
   }
 
-  .cv-job-entry h3,
-  .cv-job-entry h4,
-  .cv-job-entry p {
-    text-align: left;
+  .cv-job-entry .flex.flex-wrap {
+    margin-bottom: 0.75rem;
+  }
+
+  .cv-job-entry .flex.items-center {
+    white-space: nowrap;
+    font-size: 0.9rem;
+  }
+
+  .cv-job-entry .flex.items-center i {
+    font-size: 0.875rem;
+  }
+
+  .cv-job-entry .flex.items-center.mb-4 {
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
   }
 
   /* CV Bullet Points */
   .cv-bullet {
     position: relative;
     padding-left: 1.5rem;
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
     transition: all 0.3s ease;
     list-style-type: none;
     text-align: left;
     padding: 0.25rem 0.5rem;
     margin-left: -0.5rem;
     border-radius: 0.25rem;
+    line-height: 1.5;
   }
 
   .cv-bullet:hover {

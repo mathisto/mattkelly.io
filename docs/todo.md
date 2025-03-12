@@ -301,6 +301,19 @@
 - [ ] Create experience descriptions
 - [ ] Write skills descriptions
 
+### Design Inspiration
+- [ ] Terminal-style interface elements:
+  - [ ] Implement command prompt styling
+  - [ ] Add cursor blink animation
+  - [ ] Create typewriter text effect
+- [ ] Minimalist navigation:
+  - [ ] Simple command-like menu structure
+  - [ ] Clean typography for commands
+  - [ ] Subtle hover effects
+- [ ] Create language switcher component
+- [ ] Implement clean card layouts for projects
+- [ ] Add subtle animations for state changes
+
 ### Performance Optimization
 - [ ] Optimize asset delivery
 - [ ] Add image lazy loading

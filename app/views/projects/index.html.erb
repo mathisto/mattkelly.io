@@ -3,22 +3,24 @@
   <div class="max-w-7xl mx-auto">
     <h1 class="text-[#7aa2f7] text-4xl font-bold mb-8">Projects</h1>
 
-    <div class="grid">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <% @projects.each do |project| %>
-        <article class="project-card">
+        <article class="dev-card">
           <h2 class="card-title"><%= project.title %></h2>
           
-          <div class="card-subtitle">
-            <i class="fas fa-code-branch mr-2 opacity-90"></i>
-            <%= project.status %>
-          </div>
+          <% if project.role.present? %>
+            <div class="card-subtitle">
+              <i class="fas fa-user-tie mr-2 opacity-90"></i>
+              <%= project.role %>
+            </div>
+          <% end %>
           
           <p class="card-content"><%= project.description %></p>
           
-          <div class="tags">
-            <% project.technologies.each do |tech| %>
-              <span class="tag">
-                <i class="<%= tech_icon_class(tech) %> mr-2"></i>
+          <div class="skills-container">
+            <% project.technologies_used.each do |tech| %>
+              <span class="skill-pill">
+                <i class="fas fa-code"></i>
                 <%= tech %>
               </span>
             <% end %>
@@ -32,10 +34,10 @@
               <% end %>
             <% end %>
             
-            <% if project.demo_url.present? %>
-              <%= link_to project.demo_url, class: "card-link", target: "_blank", rel: "noopener noreferrer" do %>
+            <% if project.live_site_url.present? %>
+              <%= link_to project.live_site_url, class: "card-link", target: "_blank", rel: "noopener noreferrer" do %>
                 <i class="fas fa-external-link-alt"></i>
-                <span>Live Demo</span>
+                <span>Live Site</span>
               <% end %>
             <% end %>
           </div>

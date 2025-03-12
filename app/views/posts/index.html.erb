@@ -3,19 +3,19 @@
   <div class="max-w-7xl mx-auto">
     <h1 class="text-[#7aa2f7] text-4xl font-bold mb-8">Blog Posts</h1>
 
-    <div class="grid">
+    <div class="grid gap-6">
       <% @posts.each do |post| %>
         <article class="post-card">
           <h2 class="card-title"><%= post.title %></h2>
           
           <div class="card-subtitle">
-            <time datetime="<%= post.published_at.strftime('%Y-%m-%d') %>">
+            <time datetime="<%= post.date.strftime('%Y-%m-%d') %>">
               <i class="fas fa-calendar-alt mr-2 opacity-90"></i>
-              <%= post.published_at.strftime('%B %d, %Y') %>
+              <%= post.date.strftime('%B %d, %Y') %>
             </time>
           </div>
           
-          <p class="card-content"><%= post.excerpt %></p>
+          <p class="card-content"><%= post.description %></p>
           
           <div class="tags">
             <% post.tags.each do |tag| %>

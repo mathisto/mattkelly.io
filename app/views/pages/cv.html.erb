@@ -108,8 +108,8 @@
     z-index: 1;
   }
 
-  /* Job Entry Headers - Updated for better positioning */
-  .cv-job-entry .header-container {
+  /* Job Entry Headers - Updated for better mobile positioning */
+  .header-container {
     display: grid;
     grid-template-columns: 1fr auto;
     gap: 1rem;
@@ -469,9 +469,52 @@
   .taglines-grid > div:hover span {
     color: transparent;
   }
+
+  /* Mobile Optimizations */
+  @media (max-width: 639px) {
+    .cv-section {
+      padding: 0 1rem;
+      padding-top: 4rem; /* Add extra padding at the top for the icons */
+    }
+
+    .icon-container-reset {
+      top: 0.75rem !important; /* Move icons up */
+      right: 0.75rem !important; /* Adjust right spacing */
+    }
+
+    .cv-job-entry {
+      margin-left: -1rem;
+      margin-right: -1rem;
+      border-radius: 0;
+      border-left: none;
+      border-right: none;
+    }
+
+    .cv-job-entry .header-container {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+    }
+
+    .cv-job-entry h4 {
+      font-size: clamp(1.125rem, 4vw, 1.25rem);
+    }
+
+    .cv-job-entry .date-container {
+      font-size: clamp(0.875rem, 2.5vw, 0.95rem);
+      opacity: 0.9;
+    }
+
+    .skills-container {
+      padding: 0.5rem;
+    }
+
+    .skill-pill {
+      margin: 0.25rem;
+    }
+  }
 </style>
 
-<div class="min-h-screen bg-[#1a1b26] text-[#a9b1d6] p-8 pt-20">
+<div class="min-h-screen bg-[#1a1b26] text-[#a9b1d6] p-4 sm:p-8 pt-20">
   <div class="max-w-4xl mx-auto">
     <%= render partial: "pages/cv/_sections/header" %>
 

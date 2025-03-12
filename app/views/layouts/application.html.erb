@@ -59,6 +59,7 @@
         line-height: 1.6;
         opacity: 0;
         animation: fadeIn 0.5s ease-in forwards;
+        -webkit-text-size-adjust: 100%;
       }
 
       @keyframes fadeIn {
@@ -69,13 +70,32 @@
       /* Typography */
       p {
         margin-bottom: 1.5rem;
-        font-size: 1.125rem;
+        font-size: clamp(1rem, 2.5vw, 1.125rem);
+        line-height: 1.7;
+      }
+
+      h1 {
+        font-size: clamp(2rem, 5vw, 3rem);
+        line-height: 1.2;
+        margin-bottom: 1rem;
+      }
+
+      h2 {
+        font-size: clamp(1.5rem, 4vw, 2rem);
+        line-height: 1.3;
+        margin-bottom: 1rem;
+      }
+
+      h3 {
+        font-size: clamp(1.25rem, 3vw, 1.5rem);
+        line-height: 1.4;
       }
 
       a {
         color: #7aa2f7;
         text-decoration: none;
         transition: color 0.3s ease;
+        display: inline-block;
       }
 
       a:hover {
@@ -84,14 +104,15 @@
 
       /* Content Sections */
       section {
-        margin-bottom: 2rem;
+        margin-bottom: clamp(2rem, 5vw, 3rem);
+        padding: clamp(1rem, 3vw, 2rem) 0;
       }
 
       /* Main Content Area */
       main {
         flex: 1;
         width: 100%;
-        padding: 1rem 0;
+        padding: clamp(0.5rem, 2vw, 1rem) 0;
         display: flex;
         justify-content: flex-start;
       }
@@ -100,22 +121,22 @@
         width: 100%;
         max-width: 80rem;
         margin: 0 auto;
-        padding: 0 1rem;
+        padding: 0 clamp(1rem, 3vw, 2rem);
         display: flex;
         flex-direction: column;
         align-items: center;
-        gap: 1rem;
+        gap: clamp(1rem, 3vw, 2rem);
       }
 
       /* Container Styles */
       .container {
         width: 100%;
         max-width: 65ch;
-        margin: 2rem auto;
-        padding: 2.5rem;
+        margin: clamp(1rem, 4vw, 2rem) auto;
+        padding: clamp(1.5rem, 4vw, 2.5rem);
         background: rgba(36, 40, 59, 0.8);
         border: 1px solid #29293f;
-        border-radius: 1rem;
+        border-radius: clamp(0.5rem, 2vw, 1rem);
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         backdrop-filter: blur(8px);
@@ -152,16 +173,17 @@
         max-width: 80rem;
       }
 
-      /* Grid Layout */
+      /* Grid Layout with better mobile support */
       .grid {
         display: grid;
         width: 100%;
-        gap: 1.5rem;
+        gap: clamp(1rem, 3vw, 1.5rem);
         grid-template-columns: 1fr;
         margin-bottom: 1.5rem;
+        padding: 0 clamp(0.5rem, 2vw, 1rem);
       }
 
-      @media (min-width: 768px) {
+      @media (min-width: 640px) {
         .grid {
           grid-template-columns: repeat(2, 1fr);
         }
@@ -170,21 +192,23 @@
       @media (min-width: 1024px) {
         .grid {
           grid-template-columns: repeat(3, 1fr);
+          padding: 0;
         }
       }
 
-      /* Card Base with Animated Border */
+      /* Card Base with better mobile support */
       .card-base {
         background: rgba(31, 35, 53, 0.8);
         border: 1px solid transparent;
-        border-radius: 1rem;
-        padding: 1.5rem;
-        margin-bottom: 1.5rem;
+        border-radius: clamp(0.5rem, 2vw, 1rem);
+        padding: clamp(1rem, 3vw, 1.5rem);
+        margin-bottom: clamp(1rem, 3vw, 1.5rem);
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         backdrop-filter: blur(8px);
         position: relative;
         isolation: isolate;
         z-index: 1;
+        width: 100%;
       }
 
       .card-base::before {
@@ -1082,6 +1106,42 @@
       /* Remove the general header styles */
       header:not(.main-header) {
         position: relative;
+      }
+
+      /* Mobile-specific adjustments */
+      @media (max-width: 639px) {
+        .container {
+          margin: 1rem auto;
+          padding: 1.25rem;
+        }
+
+        .card-base:hover {
+          transform: none;
+        }
+
+        .container:hover {
+          transform: none;
+        }
+
+        .skills-container {
+          justify-content: center;
+        }
+
+        .skill-pill {
+          font-size: 0.8125rem;
+          padding: 0.3rem 0.6rem;
+        }
+
+        .cta-section .card-actions {
+          flex-direction: column;
+          gap: 1.5rem;
+          align-items: center;
+        }
+
+        .cta-section .card-actions a {
+          width: 100%;
+          justify-content: center;
+        }
       }
     </style>
   </head>

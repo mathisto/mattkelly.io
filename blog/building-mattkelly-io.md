@@ -96,7 +96,7 @@ The cards feature:
 
 Each blog card contains multiple interactive elements:
 
-1. Tags with hover effects:
+Tags with hover effects:
 ```css
 .post-card .tag {
   display: inline-flex;
@@ -114,7 +114,7 @@ Each blog card contains multiple interactive elements:
 }
 ```
 
-2. "Read More" link with animated underline:
+"Read More" link with animated underline:
 ```css
 .post-card .card-link span::after {
   content: '';

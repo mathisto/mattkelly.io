@@ -1,17 +1,303 @@
 <%# CV Page with Tokyo Night theme %>
-<div class="min-h-screen bg-[#1a1b26] text-[#a9b1d6] p-8">
-  <%= render partial: "pages/cv/_sections/header" %>
+<style>
+  /* Enhanced header section styling */
+  .cv-section {
+    position: relative !important;
+    text-align: center;
+    padding: 2.5rem 2rem;
+    background: rgba(36, 40, 59, 0.8);
+    border: 1px solid #29293f;
+    border-radius: 1rem;
+    margin-bottom: 2rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(8px);
+  }
 
-  <div class="max-w-4xl mx-auto">
-    <%= render partial: "pages/cv/_sections/skills" %>
-    <%= render partial: "pages/cv/_sections/experience" %>
-    <%= render partial: "pages/cv/_sections/education" %>
+  /* Name styling with more emphasis */
+  .cv-section h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #7aa2f7;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.025em;
+    text-shadow: 0 0 20px rgba(122, 162, 247, 0.3);
+  }
+
+  /* Title styling */
+  .cv-section h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #bb9af7;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+  }
+
+  /* Tagline grid layout */
+  .cv-section .grid {
+    gap: 1.5rem 3rem;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  /* Individual tagline items */
+  .cv-section .flex.items-center.justify-center {
+    padding: 0.75rem 1rem;
+    background: rgba(31, 35, 53, 0.5);
+    border-radius: 0.75rem;
+    transition: all 0.3s ease;
+  }
+
+  .cv-section .flex.items-center.justify-center:hover {
+    transform: translateY(-2px);
+    background: rgba(31, 35, 53, 0.8);
+    box-shadow: 0 5px 15px rgba(122, 162, 247, 0.1);
+  }
+
+  /* Tagline icons */
+  .cv-section .fas {
+    font-size: 1rem;
+    margin-right: 0.75rem;
+    color: #9ece6a;
+  }
+
+  /* Tagline text */
+  .cv-section .flex.items-center.justify-center span {
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #7dcfff;
+  }
+
+  /* Document icons styling */
+  .icon-container-reset .group {
+    display: inline-flex;
+    padding: 0.5rem;
+    background: rgba(31, 35, 53, 0.6);
+    border-radius: 0.5rem;
+    margin-left: 0.75rem;
+    transition: all 0.3s ease;
+  }
+
+  .icon-container-reset .group:hover {
+    background: rgba(31, 35, 53, 0.9);
+    transform: translateY(-2px);
+  }
+
+  /* Keep existing icon container reset */
+  .icon-container-reset {
+    position: absolute !important;
+    top: 1.5rem !important;
+    right: 1.5rem !important;
+    display: flex !important;
+    align-items: center !important;
+    z-index: 50 !important;
+    margin: 0 !important;
+    padding: 1rem !important;
+  }
+
+  /* Reinforce cv-section positioning */
+  .cv-section:hover {
+    border-color: rgba(122, 162, 247, 0.3);
+    transform: translateY(-4px);
+    box-shadow: 
+      0 20px 25px -5px rgba(122, 162, 247, 0.1),
+      0 10px 10px -5px rgba(187, 154, 247, 0.04);
+  }
+
+  .cv-job-entry {
+    background: rgba(31, 35, 53, 0.8);
+    border: 1px solid #29293f;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .cv-job-entry:hover {
+    border-color: rgba(122, 162, 247, 0.3);
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 
+      0 20px 25px -5px rgba(122, 162, 247, 0.1),
+      0 10px 10px -5px rgba(187, 154, 247, 0.04);
+  }
+
+  .cv-bullet {
+    position: relative;
+    padding-left: 0;
+    margin-bottom: 0.75rem;
+    transition: all 0.3s ease;
+    list-style-type: none;
+  }
+
+  .cv-bullet::before {
+    content: '⁜';
+    position: absolute;
+    left: -1.5rem;
+    color: #9ece6a;
+    transition: all 0.3s ease;
+  }
+
+  .cv-bullet:hover::before {
+    color: #f7768e;
+    transform: translateX(2px);
+  }
+
+  /* Remove default bullets from ul elements */
+  .cv-job-entry ul {
+    list-style-type: none;
+    padding-left: 0;
+  }
+
+  /* Animations */
+  @media (prefers-reduced-motion: no-preference) {
+    @keyframes fade-in {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slide-in-left {
+      from { transform: translateX(-20px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    @keyframes slide-in-right {
+      from { transform: translateX(20px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .animate-fade-in {
+      opacity: 0;
+      animation: fade-in 0.6s ease-out forwards;
+    }
+
+    .animate-slide-in-left {
+      opacity: 0;
+      animation: slide-in-left 0.6s ease-out forwards;
+    }
+
+    .animate-slide-in-right {
+      opacity: 0;
+      animation: slide-in-right 0.6s ease-out forwards;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-fade-in,
+    .animate-slide-in-left,
+    .animate-slide-in-right {
+      animation: none;
+      opacity: 1;
+    }
+  }
+
+  /* Footer styling */
+  footer .max-w-7xl {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  footer p.text-sm {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin: 0 auto;
+    line-height: 1.5;
+  }
+
+  footer .rainbow-text {
+    background: linear-gradient(45deg, #7aa2f7, #bb9af7, #7dcfff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 500;
+  }
+</style>
+
+<div class="min-h-screen bg-[#1a1b26] text-[#a9b1d6] p-8 pt-20">
+  <div class="container wide">
+    <%= render partial: "pages/cv/_sections/header" %>
+
+    <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-8">
+        <%= render partial: "pages/cv/_sections/skills" %>
+      </div>
+      <div class="space-y-8">
+        <%= render partial: "pages/cv/_sections/experience" %>
+        <%= render partial: "pages/cv/_sections/education" %>
+      </div>
+    </div>
   </div>
 </div>
 
 <%# Add these animations to application.css %>
 <% content_for :head do %>
   <style>
+    /* CV-specific styles */
+    .cv-section {
+      background: rgba(36, 40, 59, 0.8);
+      border: 1px solid #29293f;
+      border-radius: 1rem;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      backdrop-filter: blur(8px);
+    }
+
+    .cv-section:hover {
+      border-color: rgba(122, 162, 247, 0.3);
+      transform: translateY(-4px);
+      box-shadow: 
+        0 20px 25px -5px rgba(122, 162, 247, 0.1),
+        0 10px 10px -5px rgba(187, 154, 247, 0.04);
+    }
+
+    .cv-job-entry {
+      background: rgba(31, 35, 53, 0.8);
+      border: 1px solid #29293f;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .cv-job-entry:hover {
+      border-color: rgba(122, 162, 247, 0.3);
+      transform: translateY(-4px) scale(1.01);
+      box-shadow: 
+        0 20px 25px -5px rgba(122, 162, 247, 0.1),
+        0 10px 10px -5px rgba(187, 154, 247, 0.04);
+    }
+
+    .cv-bullet {
+      position: relative;
+      padding-left: 0;
+      margin-bottom: 0.75rem;
+      transition: all 0.3s ease;
+      list-style-type: none;
+    }
+
+    .cv-bullet::before {
+      content: '⁜';
+      position: absolute;
+      left: -1.5rem;
+      color: #9ece6a;
+      transition: all 0.3s ease;
+    }
+
+    .cv-bullet:hover::before {
+      color: #f7768e;
+      transform: translateX(2px);
+    }
+
+    /* Remove default bullets from ul elements */
+    .cv-job-entry ul {
+      list-style-type: none;
+      padding-left: 0;
+    }
+
+    /* Animations */
     @media (prefers-reduced-motion: no-preference) {
       @keyframes fade-in {
         from { opacity: 0; }

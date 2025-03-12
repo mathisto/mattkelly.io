@@ -30,7 +30,7 @@ FROM base AS build
 
 # Install packages needed to build gems and node modules
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential git pkg-config node-gyp curl && \
+    apt-get install --no-install-recommends -y build-essential git pkg-config node-gyp curl libffi-dev python-is-python3 && \
     curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives

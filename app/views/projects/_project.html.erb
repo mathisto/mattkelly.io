@@ -1,39 +1,36 @@
 <%# Project card with entrance animation %>
-<div class="project-card bg-[#16161e]/50 border border-[#29293f] rounded-lg p-6 hover:border-[#7aa2f7]/50"
+<div class="dev-card"
      data-controller="entrance"
      data-entrance-delay-value="<%= project_counter * 100 %>">
-  <h3 class="text-xl font-semibold mb-3 text-[#7aa2f7]">
+  <h3 class="card-title">
     <%= project.title %>
   </h3>
   
-  <p class="text-[#a9b1d6] mb-4">
+  <p class="card-content">
     <%= project.description %>
   </p>
   
-  <div class="flex flex-wrap gap-2 mb-4">
+  <div class="skills-container">
     <% project.technologies_used.each do |tech| %>
-      <span class="px-2 py-1 text-sm rounded bg-[#1a1b26] border border-[#29293f] text-[#7dcfff]">
+      <span class="skill-pill">
+        <i class="fas fa-code"></i>
         <%= tech %>
       </span>
     <% end %>
   </div>
   
-  <div class="flex space-x-4">
+  <div class="card-actions">
     <% if project.github_url.present? %>
-      <%= link_to project.github_url, class: "project-link group", target: "_blank" do %>
-        <span class="flex items-center px-3 py-2 rounded-lg bg-[#1a1b26]/50 border border-[#29293f] hover:border-[#7aa2f7]/50">
-          <i class="fab fa-github w-4 h-4 mr-2 transition-transform duration-300 ease-spring group-hover:scale-110"></i>
-          <span class="text-sm font-medium text-[#7aa2f7] group-hover:text-[#bb9af7] transition-colors">GitHub</span>
-        </span>
+      <%= link_to project.github_url, class: "card-link", target: "_blank" do %>
+        <i class="fab fa-github"></i>
+        <span>GitHub</span>
       <% end %>
     <% end %>
     
     <% if project.live_site_url.present? %>
-      <%= link_to project.live_site_url, class: "project-link group", target: "_blank" do %>
-        <span class="flex items-center px-3 py-2 rounded-lg bg-[#1a1b26]/50 border border-[#29293f] hover:border-[#7aa2f7]/50">
-          <i class="fas fa-link w-4 h-4 mr-2 transition-transform duration-300 ease-spring group-hover:scale-110"></i>
-          <span class="text-sm font-medium text-[#7aa2f7] group-hover:text-[#bb9af7] transition-colors">Live Site</span>
-        </span>
+      <%= link_to project.live_site_url, class: "card-link", target: "_blank" do %>
+        <i class="fas fa-link"></i>
+        <span>Live Site</span>
       <% end %>
     <% end %>
   </div>

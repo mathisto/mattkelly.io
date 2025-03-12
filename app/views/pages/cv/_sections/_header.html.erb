@@ -1,34 +1,37 @@
 <%# Header Section %>
-<header class="max-w-4xl mx-auto mb-12 animate-fade-in">
-  <div class="flex items-baseline justify-between mb-6">
-    <h1 class="text-5xl font-bold text-[#7aa2f7] animate-slide-in-left">Matt Kelly</h1>
-    <div class="flex items-center space-x-6 animate-slide-in-right">
-      <%= link_to "/CV.pdf", class: "group", title: "Download PDF" do %>
-        <i class="ph ph-file-pdf text-2xl text-[#a9b1d6] group-hover:text-[#f7768e] transition-all duration-300 group-hover:scale-110"></i>
-      <% end %>
-      <%= link_to "/CV.docx", class: "group", title: "Download Word Document" do %>
-        <i class="ph ph-file-doc text-2xl text-[#a9b1d6] group-hover:text-[#7dcfff] transition-all duration-300 group-hover:scale-110"></i>
-      <% end %>
+<section class="cv-section max-w-4xl mx-auto mb-6 animate-fade-in relative">
+  <div class="icon-container-reset animate-slide-in-right">
+    <%= link_to "/CV.pdf", class: "group", title: "Download PDF" do %>
+      <i class="fas fa-file-pdf text-xl text-[#a9b1d6] group-hover:text-[#f7768e] transition-all duration-300 group-hover:scale-110"></i>
+    <% end %>
+    <%= link_to "/CV.docx", class: "group", title: "Download Word Document" do %>
+      <i class="fas fa-file-word text-xl text-[#a9b1d6] group-hover:text-[#7dcfff] transition-all duration-300 group-hover:scale-110"></i>
+    <% end %>
+  </div>
+
+  <div class="flex flex-col items-center justify-center text-center w-full">
+    <div class="mb-8 w-full">
+      <h1 class="animate-slide-in-left">Matt Kelly</h1>
+      <h2 class="animate-slide-in-left" style="animation-delay: 100ms;">Managing Staff Software Engineer</h2>
+    </div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-base animate-slide-in-left w-full max-w-3xl mx-auto" style="animation-delay: 200ms;">
+      <div class="flex items-center justify-center">
+        <i class="fas fa-lightbulb mr-2"></i>
+        <span>Audacious vision for high-level abstractions</span>
+      </div>
+      <div class="flex items-center justify-center">
+        <i class="fas fa-brain mr-2"></i>
+        <span>Big picture systems thinker</span>
+      </div>
+      <div class="flex items-center justify-center">
+        <i class="fas fa-compass mr-2"></i>
+        <span>Product-minded decision maker</span>
+      </div>
+      <div class="flex items-center justify-center">
+        <i class="fas fa-graduation-cap mr-2"></i>
+        <span>Mentor at heart with a penchant for teaching</span>
+      </div>
     </div>
   </div>
-  <h2 class="text-2xl font-semibold text-[#bb9af7] mb-4 animate-slide-in-left" style="animation-delay: 100ms;">Managing Staff Software Engineer</h2>
-  
-  <div class="flex flex-wrap gap-4 text-lg text-[#7dcfff] mb-6 animate-slide-in-left" style="animation-delay: 200ms;">
-    <div class="flex items-center">
-      <i class="ph ph-lightbulb-filament text-[#9ece6a] mr-2"></i>
-      Audacious vision for high-level abstractions
-    </div>
-    <div class="flex items-center">
-      <i class="ph ph-brain text-[#9ece6a] mr-2"></i>
-      Big picture systems thinker
-    </div>
-    <div class="flex items-center">
-      <i class="ph ph-compass text-[#9ece6a] mr-2"></i>
-      Product-minded decision maker
-    </div>
-    <div class="flex items-center">
-      <i class="ph ph-graduation-cap text-[#9ece6a] mr-2"></i>
-      Mentor at heart with a penchant for teaching
-    </div>
-  </div>
-</header> 
+</section> 

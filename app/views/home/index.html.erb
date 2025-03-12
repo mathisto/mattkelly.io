@@ -1,88 +1,158 @@
 <%# Hero Section %>
-<section class="py-20">
+<section class="hero">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center" data-controller="entrance" data-entrance-delay-value="0">
-      <h1 class="text-5xl font-bold font-heading text-[#7aa2f7] mb-6">
-        Hi, I'm Matt Kelly
-      </h1>
-      <p class="text-xl text-[#a9b1d6] max-w-2xl mx-auto">
-        Software engineer passionate about building elegant solutions with Ruby, Rails, and modern web technologies.
-      </p>
+    <div data-controller="entrance" data-entrance-delay-value="0">
+      <h1>Hi, I'm Matt Kelly</h1>
+      <p>Managing Staff Software Engineer passionate about elegant solutions and mentoring.</p>
     </div>
   </div>
 </section>
 
-<%# Featured Projects %>
-<section class="py-12">
+<%# Core Skills %>
+<section class="py-6">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center mb-12" data-controller="entrance" data-entrance-delay-value="100">
-      <h2 class="text-3xl font-bold font-heading text-[#7aa2f7]">Featured Projects</h2>
-      <p class="mt-4 text-[#a9b1d6]">Some of my recent work</p>
+    <div class="mb-6" data-controller="entrance" data-entrance-delay-value="100">
+      <h2 class="text-3xl font-bold font-heading text-[#7aa2f7]">Core Expertise</h2>
+      <p class="mt-2 text-[#a9b1d6]">Key areas where I excel and create impact</p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <%= render partial: "projects/project", collection: @featured_projects %>
-    </div>
+    <div class="grid" data-controller="entrance" data-entrance-delay-value="200">
+      <div class="dev-card">
+        <h3 class="card-title">System Architecture</h3>
+        <p class="card-content">
+          Designing scalable, maintainable systems with a focus on high-level abstractions and clean interfaces.
+          Experienced in microservices, API design, and complex system integration.
+        </p>
+        <div class="skills-container">
+          <span class="skill-pill">
+            <i class="fas fa-sitemap"></i>
+            System Design
+          </span>
+          <span class="skill-pill">
+            <i class="fas fa-code-branch"></i>
+            Microservices
+          </span>
+          <span class="skill-pill">
+            <i class="fas fa-project-diagram"></i>
+            API Design
+          </span>
+        </div>
+      </div>
 
-    <div class="text-center mt-8 transition-all duration-700 ease-out" data-controller="entrance" data-entrance-delay-value="400" style="opacity: 1; transform: translateY(0px);">
-      <a class="inline-flex items-center text-[#7aa2f7] hover:text-[#bb9af7] transition-colors" href="/projects">
-        View all projects
-        <i class="fas fa-arrow-right ml-2 w-4 h-4"></i>
-      </a>
+      <div class="dev-card">
+        <h3 class="card-title">Technical Leadership</h3>
+        <p class="card-content">
+          Leading engineering teams with a focus on mentorship, knowledge sharing, and building high-performing cultures.
+          Strong emphasis on code quality and best practices.
+        </p>
+        <div class="skills-container">
+          <span class="skill-pill">
+            <i class="fas fa-users"></i>
+            Team Leadership
+          </span>
+          <span class="skill-pill">
+            <i class="fas fa-graduation-cap"></i>
+            Mentoring
+          </span>
+          <span class="skill-pill">
+            <i class="fas fa-code"></i>
+            Best Practices
+          </span>
+        </div>
+      </div>
+
+      <div class="dev-card">
+        <h3 class="card-title">Cloud & DevOps</h3>
+        <p class="card-content">
+          Implementing robust CI/CD pipelines and cloud infrastructure with a focus on security, scalability, and automation.
+        </p>
+        <div class="skills-container">
+          <span class="skill-pill">
+            <i class="fas fa-cloud"></i>
+            Cloud Architecture
+          </span>
+          <span class="skill-pill">
+            <i class="fas fa-infinity"></i>
+            CI/CD
+          </span>
+          <span class="skill-pill">
+            <i class="fas fa-shield-alt"></i>
+            Security
+          </span>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
-<%# Recent Blog Posts %>
-<section class="py-12">
+<%# Technologies %>
+<section class="py-6">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center mb-12" data-controller="entrance" data-entrance-delay-value="500">
-      <h2 class="text-3xl font-bold font-heading text-[#7aa2f7]">Latest Posts</h2>
-      <p class="mt-4 text-[#a9b1d6]">Thoughts and tutorials on software development</p>
+    <div class="mb-6" data-controller="entrance" data-entrance-delay-value="300">
+      <h2 class="text-3xl font-bold font-heading text-[#7aa2f7]">Technical Arsenal</h2>
+      <p class="mt-2 text-[#a9b1d6]">Languages and tools I work with</p>
     </div>
 
-    <div class="grid gap-8">
-      <% @recent_posts.each do |post| %>
-        <%= link_to post_path(post), class: "block" do %>
-          <article class="group relative bg-[#16161e]/50 border border-[#29293f] rounded-lg p-6 hover:border-[#7aa2f7]/50 transition-all duration-300"
-                   data-controller="entrance"
-                   data-entrance-delay-value="<%= 600 + (@recent_posts.index(post) * 100) %>">
-            <div class="flex items-center justify-between mb-4">
-              <div>
-                <h3 class="text-2xl font-semibold text-[#7aa2f7] group-hover:text-[#bb9af7] transition-colors">
-                  <%= post.title %>
-                </h3>
-                <div class="mt-2 flex items-center space-x-4 text-sm text-[#565f89]">
-                  <time datetime="<%= post.date %>">
-                    <%= post.date.strftime("%B %d, %Y") %>
-                  </time>
-                  <span>•</span>
-                  <span><%= post.reading_time %> min read</span>
-                </div>
-              </div>
-            </div>
+    <div class="grid" data-controller="entrance" data-entrance-delay-value="400">
+      <div class="dev-card">
+        <h3 class="card-title">Languages</h3>
+        <div class="skills-container" style="margin-top: 0">
+          <span class="skill-pill"><i class="fas fa-gem"></i> Ruby</span>
+          <span class="skill-pill"><i class="fab fa-python"></i> Python</span>
+          <span class="skill-pill"><i class="fab fa-js"></i> JavaScript</span>
+          <span class="skill-pill"><i class="fab fa-golang"></i> Go</span>
+          <span class="skill-pill"><i class="fas fa-code"></i> Clojure</span>
+          <span class="skill-pill"><i class="fas fa-moon"></i> Lua</span>
+        </div>
+      </div>
 
-            <p class="text-[#a9b1d6] mb-4">
-              <%= post.description %>
-            </p>
+      <div class="dev-card">
+        <h3 class="card-title">Frameworks & Tools</h3>
+        <div class="skills-container" style="margin-top: 0">
+          <span class="skill-pill"><i class="fas fa-train"></i> Rails</span>
+          <span class="skill-pill"><i class="fab fa-react"></i> React</span>
+          <span class="skill-pill"><i class="fab fa-docker"></i> Docker</span>
+          <span class="skill-pill"><i class="fas fa-dharmachakra"></i> Kubernetes</span>
+          <span class="skill-pill"><i class="fab fa-aws"></i> AWS</span>
+          <span class="skill-pill"><i class="fab fa-git-alt"></i> Git</span>
+        </div>
+      </div>
 
-            <div class="flex flex-wrap gap-2">
-              <% post.tags.each do |tag| %>
-                <span class="px-2 py-1 text-xs rounded bg-[#1a1b26] border border-[#29293f] text-[#7dcfff]">
-                  <%= tag %>
-                </span>
-              <% end %>
-            </div>
-          </article>
-        <% end %>
-      <% end %>
+      <div class="dev-card">
+        <h3 class="card-title">Databases & Storage</h3>
+        <div class="skills-container" style="margin-top: 0">
+          <span class="skill-pill"><i class="fas fa-database"></i> PostgreSQL</span>
+          <span class="skill-pill"><i class="fas fa-server"></i> Redis</span>
+          <span class="skill-pill"><i class="fas fa-memory"></i> MongoDB</span>
+          <span class="skill-pill"><i class="fas fa-cube"></i> S3</span>
+          <span class="skill-pill"><i class="fas fa-search"></i> Elasticsearch</span>
+        </div>
+      </div>
     </div>
+  </div>
+</section>
 
-    <div class="text-center mt-8" data-controller="entrance" data-entrance-delay-value="900">
-      <%= link_to posts_path, class: "inline-flex items-center text-[#7aa2f7] hover:text-[#bb9af7] transition-colors" do %>
-        Read more posts
-        <i class="fas fa-chevron-right ml-2 w-4 h-4"></i>
-      <% end %>
+<%# Call to Action %>
+<section class="py-6">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div data-controller="entrance" data-entrance-delay-value="500">
+      <div class="dev-card">
+        <h2 class="card-title text-2xl mb-4">Let's Build Something Together</h2>
+        <p class="card-content">
+          Whether you're looking to scale your infrastructure, mentor your team, or build something new,
+          I'd love to help you achieve your goals.
+        </p>
+        <div class="card-actions">
+          <a href="mailto:matthew.ryan.kelly@gmail.com" class="card-link">
+            <i class="fas fa-envelope"></i>
+            Get in Touch
+          </a>
+          <a href="/CV.pdf" class="card-link">
+            <i class="fas fa-file-pdf"></i>
+            Download CV
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 </section>

@@ -1,87 +1,44 @@
 <%# Skills Section %>
-<section class="mb-12 animate-fade-in" style="animation-delay: 300ms;">
-  <h3 class="text-xl font-semibold text-[#f7768e] mb-4 flex items-center">
-    <i class="ph ph-lightning text-2xl mr-2"></i>
-    Technical Arsenal
+<section class="cv-section animate-fade-in" style="animation-delay: 200ms;">
+  <h3 class="text-xl font-semibold text-[#f7768e] mb-6 flex items-center">
+    <span class="mr-2">💫</span>
+    Core Skills
   </h3>
-  
-  <div class="grid gap-6 md:grid-cols-2">
-    <div>
-      <h4 class="text-[#bb9af7] mb-2 flex items-center">
-        <i class="ph ph-code text-xl mr-2"></i>
-        Languages
-      </h4>
-      <div class="flex flex-wrap gap-2">
-        <% {
-          "Ruby" => "ruby-plain",
-          "Python" => "python-plain",
-          "Javascript" => "javascript-plain",
-          "Go" => "go-plain",
-          "Clojure" => "clojure-plain",
-          "Lua" => "lua-plain",
-          "C#" => "csharp-plain"
-        }.each do |lang, icon| %>
-          <span class="px-3 py-1 rounded-full bg-[#24283b] text-[#7aa2f7] transition-all duration-300 hover:scale-110 hover:bg-[#2ac3de]/10 hover:-translate-y-0.5 cursor-default">
-            <i class="devicon-<%= icon %> text-sm mr-1 opacity-75"></i>
-            <%= lang %>
-          </span>
-        <% end %>
-        
-        <% ["Fennel", "Sindarin", "FORTH", "[ba|z|fi]sh", "Quenya", "QBASIC"].each do |lang| %>
-          <span class="px-3 py-1 rounded-full bg-[#24283b] text-[#7aa2f7] transition-all duration-300 hover:scale-110 hover:bg-[#2ac3de]/10 hover:-translate-y-0.5 cursor-default">
-            <i class="ph ph-terminal-window text-xs mr-1 opacity-50"></i>
-            <%= lang %>
-          </span>
-        <% end %>
-      </div>
-    </div>
-    
-    <div>
-      <h4 class="text-[#bb9af7] mb-2 flex items-center">
-        <i class="ph ph-cpu text-xl mr-2"></i>
-        Technologies
-      </h4>
-      <div class="flex flex-wrap gap-2">
-        <% {
-          "Rails" => "devicon-rails-plain",
-          "AWS" => "devicon-amazonwebservices-original",
-          "Kubernetes" => "devicon-kubernetes-plain",
-          "PostgreSQL" => "devicon-postgresql-plain",
-          "Redis" => "devicon-redis-plain",
-          "Kafka" => "ph ph-broadcast",
-          "Airflow" => "ph ph-wind",
-          "ArgoCD" => "ph ph-git-branch",
-          "Memcached" => "ph ph-database"
-        }.each do |tech, icon| %>
-          <span class="px-3 py-1 rounded-full bg-[#24283b] text-[#7dcfff] transition-all duration-300 hover:scale-110 hover:bg-[#7dcfff]/10 hover:-translate-y-0.5 cursor-default">
-            <i class="<%= icon %> text-sm mr-1 opacity-75"></i>
-            <%= tech %>
-          </span>
-        <% end %>
-      </div>
-    </div>
-  </div>
 
-  <div class="mt-6">
-    <h4 class="text-[#bb9af7] mb-2 flex items-center">
-      <i class="ph ph-toolbox text-xl mr-2"></i>
-      Toolbelt
-    </h4>
-    <div class="flex flex-wrap gap-2">
-      <% {
-        "Cursor" => "ph ph-cursor-text",
-        "iTerm2" => "ph ph-terminal",
-        "tmux" => "ph ph-terminal-window",
-        "Obsidian" => "ph ph-brain",
-        "Talon Voice" => "ph ph-microphone",
-        "Hammerspoon" => "ph ph-hammer",
-        ":(){:|:&};:" => "ph ph-terminal-window"
-      }.each do |tool, icon| %>
-        <span class="px-3 py-1 rounded-full bg-[#24283b] text-[#9ece6a] transition-all duration-300 hover:scale-110 hover:bg-[#9ece6a]/10 hover:-translate-y-0.5 cursor-default">
-          <i class="<%= icon %> text-sm mr-1 opacity-75"></i>
-          <%= tool %>
-        </span>
-      <% end %>
+  <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+    <div class="cv-job-entry">
+      <h4 class="text-lg font-semibold text-[#7aa2f7] mb-4">Languages</h4>
+      <div class="skills-container">
+        <span class="skill-pill"><i class="fas fa-gem"></i> Ruby</span>
+        <span class="skill-pill"><i class="fab fa-python"></i> Python</span>
+        <span class="skill-pill"><i class="fab fa-js"></i> JavaScript</span>
+        <span class="skill-pill"><i class="fab fa-golang"></i> Go</span>
+        <span class="skill-pill"><i class="fas fa-code"></i> Clojure</span>
+        <span class="skill-pill"><i class="fas fa-moon"></i> Lua</span>
+      </div>
+    </div>
+
+    <div class="cv-job-entry">
+      <h4 class="text-lg font-semibold text-[#7aa2f7] mb-4">Frameworks & Tools</h4>
+      <div class="skills-container">
+        <span class="skill-pill"><i class="fas fa-train"></i> Rails</span>
+        <span class="skill-pill"><i class="fab fa-react"></i> React</span>
+        <span class="skill-pill"><i class="fab fa-docker"></i> Docker</span>
+        <span class="skill-pill"><i class="fas fa-dharmachakra"></i> Kubernetes</span>
+        <span class="skill-pill"><i class="fab fa-aws"></i> AWS</span>
+        <span class="skill-pill"><i class="fab fa-git-alt"></i> Git</span>
+      </div>
+    </div>
+
+    <div class="cv-job-entry">
+      <h4 class="text-lg font-semibold text-[#7aa2f7] mb-4">Databases & Storage</h4>
+      <div class="skills-container">
+        <span class="skill-pill"><i class="fas fa-database"></i> PostgreSQL</span>
+        <span class="skill-pill"><i class="fas fa-server"></i> Redis</span>
+        <span class="skill-pill"><i class="fas fa-memory"></i> MongoDB</span>
+        <span class="skill-pill"><i class="fas fa-cube"></i> S3</span>
+        <span class="skill-pill"><i class="fas fa-search"></i> Elasticsearch</span>
+      </div>
     </div>
   </div>
 </section> 

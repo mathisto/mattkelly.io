@@ -1,117 +1,61 @@
 <%# Education Section %>
-<section class="mt-12 animate-fade-in" style="animation-delay: 1200ms;">
+<section class="cv-section animate-fade-in" style="animation-delay: 600ms;">
   <h3 class="text-xl font-semibold text-[#f7768e] mb-6 flex items-center">
     <span class="mr-2">🎓</span>
     Education
   </h3>
 
-  <div class="grid grid-cols-1 gap-6">
-    <div class="group p-6 rounded-lg bg-[#1f2335] border border-[#29293f] transition-all duration-300 hover:border-[#7aa2f7]/30 hover:shadow-lg hover:shadow-[#7aa2f7]/5 hover:scale-[1.02]">
+  <div class="space-y-6">
+    <div class="cv-job-entry">
       <div class="flex flex-wrap items-baseline justify-between mb-2">
-        <h4 class="text-lg font-semibold text-[#7aa2f7]">Excelsior College</h4>
-        <div class="text-[#bb9af7]">2013-2017</div>
+        <h4 class="text-lg font-semibold text-[#7aa2f7]">Bachelor of Science in Nuclear Engineering Technology</h4>
+        <div class="text-[#bb9af7]">2007 – 2009</div>
       </div>
-      <div class="text-[#7dcfff] mb-1">B.S. Nuclear Engineering Technology</div>
-      <div class="flex items-center text-[#9ece6a] mb-4">
-        <span class="mr-2">📍</span>
-        Albany, NY
+      <div class="flex items-center text-[#7dcfff] mb-4">
+        <i class="fas fa-location-dot mr-2"></i>
+        Excelsior University
+        <span class="mx-2">•</span>
+        <span class="text-[#9ece6a]">Albany, NY</span>
       </div>
-
-      <div class="mt-4">
-        <h5 class="text-[#bb9af7] mb-2">Core Engineering Technology</h5>
-        <ul class="space-y-2 text-[#a9b1d6]">
-          <% [
-            "Electric Circuits: DC/AC analysis, network theorems, resonance",
-            "Digital Electronics: Logic gates, Boolean algebra, digital systems",
-            "Computer Programming and algorithm development",
-            "Electronics: Semiconductor devices and signal processing",
-            "Materials Science: Engineering materials properties and applications",
-            "Thermodynamics: Energy, entropy, power cycles, heat transfer",
-            "Statics, Dynamics, and Strength of Materials"
-          ].each do |bullet| %>
-            <li class="flex items-baseline group/item">
-              <span class="text-[#9ece6a] mr-2 group-hover/item:text-[#f7768e] transition-colors">⁜</span>
-              <%= bullet %>
-            </li>
-          <% end %>
-        </ul>
-
-        <h5 class="text-[#bb9af7] mt-6 mb-2">Nuclear-Specific Coursework</h5>
-        <ul class="space-y-2 text-[#a9b1d6]">
-          <% [
-            "Reactor Fundamentals: Core design, neutron lifecycle, reactivity",
-            "Nuclear Physics: Radioactivity and particle interactions",
-            "Radiation Protection: Biological effects and shielding design",
-            "Reactor Chemistry: Coolant chemistry and corrosion control",
-            "Nuclear Materials: Fuel fabrication and radiation effects",
-            "Health Physics: Radiation measurement and dosimetry",
-            "Reactor Safety: Accident analysis and safety systems"
-          ].each do |bullet| %>
-            <li class="flex items-baseline group/item">
-              <span class="text-[#9ece6a] mr-2 group-hover/item:text-[#f7768e] transition-colors">⁜</span>
-              <%= bullet %>
-            </li>
-          <% end %>
-        </ul>
-
-        <div class="mt-6 p-4 bg-[#24283b] rounded-lg text-[#a9b1d6] italic">
-          A comprehensive program designed for working professionals, integrating theoretical concepts with practical applications through laboratory components and applied projects that simulate real-world nuclear industry challenges.
-        </div>
-      </div>
+      <ul class="space-y-3">
+        <% [
+          "Advanced mathematics including calculus, differential equations, and linear algebra",
+          "Nuclear physics, reactor theory, and thermodynamics",
+          "Radiation protection and nuclear materials handling",
+          "Plant systems and operations",
+          "Specialized focus on nuclear power generation systems"
+        ].each do |bullet| %>
+          <li class="cv-bullet">
+            <%= bullet %>
+          </li>
+        <% end %>
+      </ul>
     </div>
 
-    <div class="group p-6 rounded-lg bg-[#1f2335] border border-[#29293f] transition-all duration-300 hover:border-[#7aa2f7]/30 hover:shadow-lg hover:shadow-[#7aa2f7]/5 hover:scale-[1.02]">
+    <div class="cv-job-entry">
       <div class="flex flex-wrap items-baseline justify-between mb-2">
-        <h4 class="text-lg font-semibold text-[#7aa2f7]">Naval Nuclear Power Training Command</h4>
-        <div class="text-[#bb9af7]">2003-2004</div>
+        <h4 class="text-lg font-semibold text-[#7aa2f7]">Nuclear Power School</h4>
+        <div class="text-[#bb9af7]">2003 – 2004</div>
       </div>
-      <div class="text-[#7dcfff] mb-1">Nuclear Power School</div>
-      <div class="flex items-center text-[#9ece6a] mb-4">
-        <span class="mr-2">📍</span>
-        Charleston, SC
+      <div class="flex items-center text-[#7dcfff] mb-4">
+        <i class="fas fa-location-dot mr-2"></i>
+        Naval Nuclear Power Training Command
+        <span class="mx-2">•</span>
+        <span class="text-[#9ece6a]">Goose Creek, SC</span>
       </div>
-
-      <div class="mt-4">
-        <h5 class="text-[#bb9af7] mb-2">Phase 1: Nuclear Power School (6 months)</h5>
-        <ul class="space-y-2 text-[#a9b1d6]">
-          <% [
-            "Advanced calculus, differential equations, and applied mathematics",
-            "Classical and nuclear physics with emphasis on reactor theory",
-            "Physical chemistry, radiochemistry, and materials science",
-            "Electrical engineering theory and power distribution systems",
-            "Thermodynamics, heat transfer, and fluid dynamics",
-            "Reactor theory and neutron behavior",
-            "Radiation effects, protection, and detection"
-          ].each do |bullet| %>
-            <li class="flex items-baseline group/item">
-              <span class="text-[#9ece6a] mr-2 group-hover/item:text-[#f7768e] transition-colors">⁜</span>
-              <%= bullet %>
-            </li>
-          <% end %>
-        </ul>
-
-        <h5 class="text-[#bb9af7] mt-6 mb-2">Phase 2: Nuclear Power Training Unit (6 months)</h5>
-        <ul class="space-y-2 text-[#a9b1d6]">
-          <% [
-            "Hands-on operation of naval nuclear reactor prototypes",
-            "Supervised reactor control room operations under various conditions",
-            "Practical application of electrical, mechanical, and reactor systems",
-            "Emergency procedure training and casualty response drills",
-            "Progressive qualification in various watch stations",
-            "Team coordination and operational communication",
-            "Documentation, logs, and reporting requirements"
-          ].each do |bullet| %>
-            <li class="flex items-baseline group/item">
-              <span class="text-[#9ece6a] mr-2 group-hover/item:text-[#f7768e] transition-colors">⁜</span>
-              <%= bullet %>
-            </li>
-          <% end %>
-        </ul>
-
-        <div class="mt-6 p-4 bg-[#24283b] rounded-lg text-[#a9b1d6] italic">
-          An intensive 12-14 month program often described as "drinking from a fire hose" academically, with 8-10 hours of daily classes plus additional study time. The program transforms sailors into nuclear operators capable of safely running naval propulsion systems, emphasizing both theoretical knowledge and practical application.
-        </div>
-      </div>
+      <ul class="space-y-3">
+        <% [
+          "Reactor plant materials, mechanical systems, and fluid dynamics",
+          "Advanced nuclear physics and reactor theory",
+          "Thermodynamics and heat transfer principles",
+          "Electrical engineering and power distribution systems",
+          "Nuclear chemistry and radiological fundamentals"
+        ].each do |bullet| %>
+          <li class="cv-bullet">
+            <%= bullet %>
+          </li>
+        <% end %>
+      </ul>
     </div>
   </div>
 </section> 

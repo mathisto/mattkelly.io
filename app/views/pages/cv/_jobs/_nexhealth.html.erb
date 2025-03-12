@@ -1,23 +1,22 @@
 <%# NexHealth Experience %>
-<div class="group p-6 rounded-lg bg-[#1f2335] border border-[#29293f] transition-all duration-300 hover:border-[#7aa2f7]/30 hover:shadow-lg hover:shadow-[#7aa2f7]/5 hover:scale-[1.02] animate-slide-in-right" style="animation-delay: 600ms">
+<div class="cv-job-entry animate-slide-in-right" style="animation-delay: 600ms">
   <div class="flex flex-wrap items-baseline justify-between mb-2">
     <h4 class="text-lg font-semibold text-[#7aa2f7]">Senior Software Engineer</h4>
     <div class="text-[#bb9af7]">2022 – 2023</div>
   </div>
   <div class="flex items-center text-[#7dcfff] mb-4">
-    <span class="mr-2">@</span>
+    <i class="fas fa-location-dot mr-2"></i>
     NexHealth
     <span class="mx-2">•</span>
     <span class="text-[#9ece6a]">San Francisco, CA [Remote]</span>
   </div>
-  <ul class="space-y-3 text-[#a9b1d6]">
+  <ul class="space-y-3">
     <% [
       "Resuscitated an ancient Python 2/Django app and ported it to Ruby on Rails",
       "Untangled a hairy, ten year old, diamond dependency",
       "Fixed a mountain of broken tests, bringing the test suite green for the first time ever"
     ].each do |bullet| %>
-      <li class="flex items-baseline group/item">
-        <span class="text-[#9ece6a] mr-2 group-hover/item:text-[#f7768e] transition-colors">⁜</span>
+      <li class="cv-bullet">
         <%= bullet %>
       </li>
     <% end %>

@@ -4,34 +4,115 @@
 # belong in git's global ignore instead:
 # `$XDG_CONFIG_HOME/git/ignore` or `~/.config/git/ignore`
 
-# Ignore bundler config.
+# Ignore bundler config and downloaded gems
 /.bundle
+/vendor/bundle
 
-# Ignore all environment files.
-/.env*
-
-# Ignore all logfiles and tempfiles.
+# Ignore all logfiles and tempfiles
 /log/*
 /tmp/*
 !/log/.keep
 !/tmp/.keep
 
-# Ignore pidfiles, but keep the directory.
+# Ignore pidfiles, but keep the directory
 /tmp/pids/*
 !/tmp/pids/
 !/tmp/pids/.keep
 
-# Ignore storage (uploaded files in development and any SQLite databases).
+# Ignore uploaded files in development
 /storage/*
 !/storage/.keep
 /tmp/storage/*
 !/tmp/storage/
 !/tmp/storage/.keep
 
-/public/assets
-
-# Ignore master key for decrypting credentials and more.
+# Ignore master key for decrypting credentials
 /config/master.key
 
+# Ignore environment files
+.env
+.env.*
+!.env.example
+
+# Ignore node modules and yarn files
+/node_modules
+/yarn-error.log
+yarn-debug.log*
+.yarn-integrity
+.yarnrc
+yarn.lock
+
+# Ignore precompiled assets and source maps
+/public/assets
+/public/packs
+/public/packs-test
+/node_modules
+.byebug_history
+
+# Ignore Cursor-specific files and directories
+.cursor/
+.cursor
+.vscode/
+*.code-workspace
+
+# Ignore version manager files
+.ruby-version
+.node-version
+.nvmrc
+.tool-versions
+
+# Ignore OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Ignore coverage reports
+/coverage/
+/spec/tmp
+*.orig
+
+# Ignore Redis dump file
+dump.rdb
+
+# Ignore database configuration
+/config/database.yml
+
+# Ignore local development files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Ignore IDE specific files
+.idea/
+*.swp
+*.swo
+*~
+
+# Ignore test files
+/spec/examples.txt
+/test/tmp/
+/test/version_tmp/
+
+# Ignore production builds
+/build
+
+# Ignore Fly.io specific files
+.dockerignore
+
+# Ignore compiled assets
+/public/packs
+/public/packs-test
+/public/assets
 /app/assets/builds/*
 !/app/assets/builds/.keep
+
+# Ignore node packages
+package-lock.json
+
+# Ignore tailwind compiled css
+/app/assets/stylesheets/application.tailwind.css

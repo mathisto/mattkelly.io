@@ -19,7 +19,7 @@ Our foundation is built on:
 - Ruby on Rails 7.1
 - Tailwind CSS for styling
 - Stimulus.js for JavaScript interactions
-- Phosphor Icons and Devicon for beautiful iconography
+- Font Awesome for iconography
 - Prism.js for code highlighting
 
 But what really sets this site apart is its aesthetic - inspired by the Tokyo Night theme, a color palette that perfectly balances cyberpunk energy with elegant minimalism.
@@ -34,78 +34,127 @@ But what really sets this site apart is its aesthetic - inspired by the Tokyo Ni
 --tokyo-purple: #bb9af7;
 --tokyo-cyan: #7dcfff;
 --tokyo-green: #9ece6a;
+--tokyo-orange: #ff9e64;
 --tokyo-red: #f7768e;
 ```
 
 This carefully chosen color scheme creates a cohesive, high-contrast experience that's both modern and easy on the eyes. The dark background with carefully selected accent colors gives the site a professional yet distinctive look.
 
-## The CV Page: A Showcase of Modern UI
+## Blog Posts: Animated Cards with Style
 
-The CV page is where we really let the Tokyo Night theme shine. Each job entry is presented as a card with subtle hover effects:
+The blog index page showcases our attention to detail with elegantly designed post cards. Each card features a subtle yet eye-catching animated rainbow border on hover:
 
-```html
-<div class="p-6 rounded-lg bg-[#1f2335] border border-[#29293f] 
-            hover:border-[#7aa2f7]/30 hover:shadow-lg hover:shadow-[#7aa2f7]/5 
-            transition-all duration-300">
+```css
+.post-card {
+  display: flex;
+  flex-direction: column;
+  background: rgba(31, 35, 53, 0.8);
+  border-radius: 1rem;
+  position: relative;
+  isolation: isolate;
+}
+
+.post-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 4px;
+  right: 4px;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    #7aa2f7 0%,     /* Tokyo Night blue */
+    #bb9af7 16.67%, /* Tokyo Night purple */
+    #7dcfff 33.33%, /* Tokyo Night cyan */
+    #9ece6a 50%,    /* Tokyo Night green */
+    #ff9e64 66.67%, /* Tokyo Night orange */
+    #f7768e 83.33%, /* Tokyo Night red */
+    #9d7cd8 91.67%, /* Transition purple */
+    #7aa2f7 100%    /* Back to blue */
+  );
+  background-size: 200% 100%;
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: scaleX(0.98);
+  transform-origin: center;
+}
+
+.post-card:hover::before {
+  opacity: 1;
+  animation: borderGradient 6s linear infinite;
+}
 ```
 
 The cards feature:
-- Smooth scale transforms on hover
-- Subtle border color transitions
-- Soft shadow effects
-- Rounded corners
-- Comfortable padding
+- A subtle top rainbow border that animates on hover
+- Smooth elevation transition with shadow effects
+- Backdrop blur for depth
+- Carefully crafted spacing and typography
+- Responsive layout with maximum width constraints
 
-### Skill Pills with Icons
+### Interactive Elements
 
-We've created an engaging way to display skills using "pills" with icons:
+Each blog card contains multiple interactive elements:
 
-```html
-<span class="px-3 py-1 rounded-full bg-[#24283b] text-[#7aa2f7] 
-            transition-all duration-300 hover:scale-110 
-            hover:bg-[#2ac3de]/10 hover:-translate-y-0.5">
-  <i class="devicon-ruby-plain text-sm mr-1 opacity-75"></i>
-  Ruby
-</span>
+1. Tags with hover effects:
+```css
+.post-card .tag {
+  display: inline-flex;
+  align-items: center;
+  background: rgba(122, 162, 247, 0.1);
+  border: 1px solid rgba(122, 162, 247, 0.2);
+  border-radius: 9999px;
+  transition: all 0.3s ease;
+}
+
+.post-card .tag:hover {
+  transform: translateY(-2px);
+  background: rgba(187, 154, 247, 0.15);
+  border-color: rgba(187, 154, 247, 0.3);
+}
 ```
 
-Each pill features:
-- A subtle background
-- Icon integration (Devicon for languages, Phosphor for tools)
-- Scale and lift animations on hover
-- Color transitions
-- Semi-transparent icons for visual harmony
+2. "Read More" link with animated underline:
+```css
+.post-card .card-link span::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 1px;
+  bottom: -2px;
+  left: 0;
+  background-color: #f7768e;
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
 
-## Navigation and Footer
-
-The navigation bar features a clean, minimal design with:
-- Smooth underline animations on hover
-- Social icons with matching hover effects
-- Proper spacing and alignment
-
-The footer is a masterpiece of subtle design:
-- Rainbow text effect for "Tokyo Night"
-- Rails icon integration
-- Copyright symbol using Phosphor icons
-- Email link with hover effect
+.post-card .card-link:hover span::after {
+  transform: scaleX(1);
+}
+```
 
 ## Animations and Transitions
 
 Throughout the site, we've implemented smooth animations:
-- Page load transitions
-- Hover effects on cards and pills
-- Underline animations on links
-- Scale transforms on interactive elements
+- Rainbow border gradient animation on card hover
+- Elevation transitions for cards
+- Scale and translate transforms for interactive elements
+- Underline animations for links
+- Icon scale effects
 
-All animations are carefully timed and use appropriate easing functions for a natural feel.
+All animations use carefully chosen cubic-bezier timing functions for natural movement:
+```css
+transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+```
 
 ## Modular Design
 
-We've structured the site using partials for maintainability:
-- `_header.html.erb` for the navigation
-- `_footer.html.erb` for the site footer
-- `_sections/_skills.html.erb` for the skills section
-- Individual job partials for each position
+We've structured the site using a modular approach:
+- Scoped CSS within components
+- Reusable card patterns
+- Consistent spacing and color variables
+- Isolated animation keyframes
+- Component-specific style organization
 
 This modular approach makes the code:
 - Easy to maintain
@@ -117,7 +166,7 @@ This modular approach makes the code:
 
 What started as a basic Rails application evolved into a polished, professional website that stands out for its:
 - Distinctive Tokyo Night theme
-- Smooth animations and transitions
+- Subtle yet engaging animations
 - Modern UI components
 - Consistent design language
 - Attention to detail
@@ -126,14 +175,15 @@ The site now serves as both a portfolio and a testament to modern web design pra
 
 ## What's Next?
 
-We're not done yet! Upcoming features include:
-- Blog functionality
+We're continuing to evolve the site with:
+- Enhanced blog functionality
 - Projects showcase
-- Additional UI enhancements
+- Additional UI polish
 - Performance optimizations
+- Improved mobile experience
 
-Stay tuned for more updates as we continue to evolve this digital space.
+Stay tuned for more updates as we continue to refine this digital space.
 
 ---
 
-*This post was written as part of the initial build of mattkelly.io. The site continues to evolve with new features and improvements.* 
+*This post was written as part of the ongoing development of mattkelly.io. The site continues to evolve with new features and improvements.* 

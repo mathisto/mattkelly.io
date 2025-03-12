@@ -1,30 +1,40 @@
 <%# Blog Post Show %>
 <article class="py-12">
-  <%# Post Header %>
-  <header class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
-    <div class="text-center" data-controller="entrance" data-entrance-delay-value="0">
+  <%# Post Header - Enhanced styling %>
+  <header class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+    <div class="space-y-8" data-controller="entrance" data-entrance-delay-value="0">
+      <%# Metadata Grid %>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <%# Date %>
+        <div class="flex items-center justify-center p-3 rounded-lg bg-[#1a1b26] border border-[#29293f] transition-all duration-300 hover:border-[#7dcfff] group">
+          <i class="far fa-calendar-alt text-[#7dcfff] mr-2 group-hover:scale-110 transition-transform duration-300"></i>
+          <time datetime="<%= @post.date %>" class="font-medium">
+            <%= @post.date.strftime("%B %d, %Y") %>
+          </time>
+        </div>
+
+        <%# Reading Time %>
+        <div class="flex items-center justify-center p-3 rounded-lg bg-[#1a1b26] border border-[#29293f] transition-all duration-300 hover:border-[#9ece6a] group">
+          <i class="far fa-clock text-[#9ece6a] mr-2 group-hover:scale-110 transition-transform duration-300"></i>
+          <span class="font-medium"><%= @post.reading_time %> min read</span>
+        </div>
+
+        <%# Author %>
+        <div class="flex items-center justify-center p-3 rounded-lg bg-[#1a1b26] border border-[#29293f] transition-all duration-300 hover:border-[#bb9af7] group">
+          <i class="far fa-user text-[#bb9af7] mr-2 group-hover:scale-110 transition-transform duration-300"></i>
+          <span class="font-medium">By <%= @post.author %></span>
+        </div>
+      </div>
+
       <%# Title %>
-      <h1 class="text-4xl font-bold font-heading text-[#7aa2f7] mb-4">
+      <h1 class="text-5xl font-bold font-heading text-[#7aa2f7] leading-tight text-center">
         <%= @post.title %>
       </h1>
 
-      <%# Meta %>
-      <div class="flex items-center justify-center space-x-4 text-sm text-[#565f89] mb-6">
-        <time datetime="<%= @post.date %>">
-          <%= @post.date.strftime("%B %d, %Y") %>
-        </time>
-        <span>•</span>
-        <span><%= @post.reading_time %> min read</span>
-        <span>•</span>
-        <span>By <%= @post.author %></span>
-      </div>
-
-      <%# Tags %>
-      <div class="flex flex-wrap justify-center gap-2">
+      <%# Hidden tags for SEO %>
+      <div class="sr-only" aria-hidden="true">
         <% @post.tags.each do |tag| %>
-          <span class="px-2 py-1 text-xs rounded bg-[#1a1b26] border border-[#29293f] text-[#7dcfff]">
-            <%= tag %>
-          </span>
+          <meta name="keywords" content="<%= tag %>">
         <% end %>
       </div>
     </div>
@@ -42,8 +52,9 @@
           data-controller="entrance"
           data-entrance-delay-value="200">
     <div class="flex justify-between items-center">
-      <%= link_to posts_path, class: "text-[#7aa2f7] hover:text-[#bb9af7] transition-colors" do %>
-        ← Back to Blog
+      <%= link_to posts_path, class: "inline-flex items-center gap-2 text-[#7aa2f7] hover:text-[#bb9af7] transition-all duration-300 ease-in-out group" do %>
+        <i class="fas fa-arrow-left text-sm transition-transform duration-300 group-hover:-translate-x-1"></i>
+        <span class="font-medium">Back to Blog</span>
       <% end %>
       <div class="flex space-x-4">
         <%# Add social share buttons here if desired %>
@@ -74,13 +85,65 @@
       --tw-prose-td-borders: #29293f;
     }
 
+    /* Enhanced tag hover effect */
+    .hover\:shadow-glow:hover {
+      box-shadow: 0 0 15px rgba(125, 207, 255, 0.15);
+      transform: translateY(-1px);
+    }
+
+    /* Hide the first h1 in the content since we already show it in the header */
+    .prose-tokyo-night h1:first-child {
+      display: none;
+    }
+
     .prose-tokyo-night a:hover {
       color: var(--tokyo-purple);
     }
 
+    /* Code block styles */
     .prose-tokyo-night pre {
-      background-color: var(--tokyo-bg-darker) !important;
-      border: 1px solid #29293f;
+      background-color: #1f2335 !important;
+      border: 1px solid #29293f !important;
+      border-radius: 0.5rem !important;
+      margin: 1.5rem 0 !important;
+      padding: 1rem !important;
     }
+
+    .prose-tokyo-night pre code {
+      background-color: transparent !important;
+      border: none !important;
+      padding: 0 !important;
+      font-size: 0.875rem !important;
+      line-height: 1.6 !important;
+      font-family: 'JetBrains Mono', monospace !important;
+      text-shadow: none !important;
+    }
+
+    /* Inline code styles */
+    .prose-tokyo-night :not(pre) > code {
+      background-color: #24283b !important;
+      color: #7dcfff !important;
+      padding: 0.2em 0.4em !important;
+      border-radius: 0.3em !important;
+      font-size: 0.925em !important;
+      font-family: 'JetBrains Mono', monospace !important;
+      border: 1px solid #29293f !important;
+    }
+
+    /* Token colors */
+    .prose-tokyo-night .token.comment { color: #565f89 !important; }
+    .prose-tokyo-night .token.punctuation { color: #89ddff !important; }
+    .prose-tokyo-night .token.property,
+    .prose-tokyo-night .token.tag,
+    .prose-tokyo-night .token.constant,
+    .prose-tokyo-night .token.symbol { color: #ff9e64 !important; }
+    .prose-tokyo-night .token.string,
+    .prose-tokyo-night .token.char { color: #9ece6a !important; }
+    .prose-tokyo-night .token.operator,
+    .prose-tokyo-night .token.entity,
+    .prose-tokyo-night .token.url { color: #7dcfff !important; }
+    .prose-tokyo-night .token.keyword { color: #bb9af7 !important; }
+    .prose-tokyo-night .token.function { color: #7aa2f7 !important; }
+    .prose-tokyo-night .token.variable { color: #f7768e !important; }
   </style>
 <% end %> 

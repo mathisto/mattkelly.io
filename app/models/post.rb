@@ -93,6 +93,8 @@ class Post
   class PrismRenderer < Redcarpet::Render::HTML
     def block_code(code, language)
       language ||= 'plaintext'
+      # Ensure code is properly escaped
+      code = CGI.escapeHTML(code)
       %(<pre><code class="language-#{language}">#{code}</code></pre>)
     end
   end

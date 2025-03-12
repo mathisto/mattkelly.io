@@ -5,6 +5,14 @@ export default class extends Controller {
   connect() {
     // Re-highlight code blocks when content changes
     this.highlight()
+
+    // Listen for Turbo navigation events
+    document.addEventListener("turbo:render", () => this.highlight())
+  }
+
+  disconnect() {
+    // Clean up event listener
+    document.removeEventListener("turbo:render", () => this.highlight())
   }
 
   highlight() {

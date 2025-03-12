@@ -3,7 +3,7 @@
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'mattkelly-io-silent-river-7285'
+app = 'mattkelly-io'
 primary_region = 'ewr'
 console_command = '/rails/bin/rails console'
 
@@ -59,3 +59,10 @@ console_command = '/rails/bin/rails console'
   memory = '1gb'
   cpu_kind = 'shared'
   cpus = 1
+
+[deploy]
+  release_command = './bin/rails db:prepare'
+
+[[statics]]
+  guest_path = '/rails/public'
+  url_prefix = '/'

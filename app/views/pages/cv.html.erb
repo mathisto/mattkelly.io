@@ -5,8 +5,6 @@
     position: relative !important;
     text-align: center;
     padding: 2.5rem 2rem;
-    background: rgba(36, 40, 59, 0.8);
-    border: 1px solid #29293f;
     border-radius: 1rem;
     margin-bottom: 2rem;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -110,6 +108,7 @@
     padding: 1.5rem;
     margin-bottom: 1.5rem;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-align: left;
   }
 
   .cv-job-entry:hover {
@@ -120,18 +119,33 @@
       0 10px 10px -5px rgba(187, 154, 247, 0.04);
   }
 
+  .cv-job-entry h3,
+  .cv-job-entry h4,
+  .cv-job-entry p {
+    text-align: left;
+  }
+
   .cv-bullet {
     position: relative;
-    padding-left: 0;
+    padding-left: 1.5rem;
     margin-bottom: 0.75rem;
     transition: all 0.3s ease;
     list-style-type: none;
+    text-align: left;
+    padding: 0.25rem 0.5rem;
+    margin-left: -0.5rem;
+    border-radius: 0.25rem;
+  }
+
+  .cv-bullet:hover {
+    background: rgba(122, 162, 247, 0.05);
+    transform: translateX(2px);
   }
 
   .cv-bullet::before {
     content: '⁜';
     position: absolute;
-    left: -1.5rem;
+    left: -1rem;
     color: #9ece6a;
     transition: all 0.3s ease;
   }
@@ -188,45 +202,18 @@
       opacity: 1;
     }
   }
-
-  /* Footer styling */
-  footer .max-w-7xl {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  footer p.text-sm {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    margin: 0 auto;
-    line-height: 1.5;
-  }
-
-  footer .rainbow-text {
-    background: linear-gradient(45deg, #7aa2f7, #bb9af7, #7dcfff);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    font-weight: 500;
-  }
 </style>
 
 <div class="min-h-screen bg-[#1a1b26] text-[#a9b1d6] p-8 pt-20">
-  <div class="container wide">
+  <div class="max-w-4xl mx-auto">
     <%= render partial: "pages/cv/_sections/header" %>
 
-    <div class="max-w-4xl mx-auto">
-      <div class="text-center mb-8">
-        <%= render partial: "pages/cv/_sections/skills" %>
-      </div>
-      <div class="space-y-8">
-        <%= render partial: "pages/cv/_sections/experience" %>
-        <%= render partial: "pages/cv/_sections/education" %>
-      </div>
+    <div class="text-center mb-8">
+      <%= render partial: "pages/cv/_sections/skills" %>
+    </div>
+    <div class="space-y-8">
+      <%= render partial: "pages/cv/_sections/experience" %>
+      <%= render partial: "pages/cv/_sections/education" %>
     </div>
   </div>
 </div>

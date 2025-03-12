@@ -281,10 +281,27 @@
       }
 
       footer .max-w-7xl {
+        width: 100%;
         display: flex;
-        justify-content: flex-start;
+        justify-content: center;
         align-items: center;
-        gap: 1rem;
+      }
+
+      footer p.text-sm {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        margin: 0 auto;
+        line-height: 1.5;
+      }
+
+      footer .rainbow-text {
+        background: linear-gradient(45deg, #7aa2f7, #bb9af7, #7dcfff);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 500;
       }
 
       /* Lists */

@@ -1,11 +1,11 @@
 <%# Footer with copyright %>
 <footer class="bg-[#1f2335] border-t border-[#29293f]">
-  <div class="max-w-7xl mx-auto px-4 py-6 flex justify-center">
+  <div class="max-w-7xl mx-auto px-4 py-6">
     <p class="text-sm text-[#7aa2f7] flex items-center justify-center gap-2">
-      <i class="fas fa-copyright text-sm opacity-75"></i>
-      <%= Time.current.year %>
+      &copy;&nbsp;
+      <%= Time.current.year %>&nbsp;
       <%= mail_to "matthew.ryan.kelly@gmail.com", "Matt Kelly", subject: "mattkelly.io", class: "text-[#7aa2f7] hover:text-[#bb9af7] transition-colors duration-200" %>. 
-      Built with <i class="devicon-rails-plain text-sm"></i> Rails and 
+      Built&nbsp;with&nbsp;<i class="devicon-rails-plain text-sm"></i> Rails&nbsp;and&nbsp;
       <span class="rainbow-text font-medium">Tokyo Night</span>.
     </p>
   </div>

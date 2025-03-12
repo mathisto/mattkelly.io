@@ -1,17 +1,46 @@
-<%# Projects Index %>
-<div class="py-12">
-  <%# Header %>
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center">
-      <h1 class="text-4xl font-bold font-heading text-[#7aa2f7]">Projects</h1>
-      <p class="mt-4 text-xl text-[#a9b1d6]">A collection of my favorite projects and experiments.</p>
-    </div>
-  </div>
+<%# Projects Index with Tokyo Night theme %>
+<div class="min-h-screen bg-[#1a1b26] text-[#a9b1d6] p-8">
+  <div class="max-w-7xl mx-auto">
+    <h1 class="text-[#7aa2f7] text-4xl font-bold mb-8">Projects</h1>
 
-  <%# Projects Grid %>
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <%= render partial: "project", collection: @projects, as: :project %>
+    <div class="grid">
+      <% @projects.each do |project| %>
+        <article class="project-card">
+          <h2 class="card-title"><%= project.title %></h2>
+          
+          <div class="card-subtitle">
+            <i class="fas fa-code-branch mr-2 opacity-90"></i>
+            <%= project.status %>
+          </div>
+          
+          <p class="card-content"><%= project.description %></p>
+          
+          <div class="tags">
+            <% project.technologies.each do |tech| %>
+              <span class="tag">
+                <i class="<%= tech_icon_class(tech) %> mr-2"></i>
+                <%= tech %>
+              </span>
+            <% end %>
+          </div>
+          
+          <div class="card-actions">
+            <% if project.github_url.present? %>
+              <%= link_to project.github_url, class: "card-link", target: "_blank", rel: "noopener noreferrer" do %>
+                <i class="fab fa-github"></i>
+                <span>View Source</span>
+              <% end %>
+            <% end %>
+            
+            <% if project.demo_url.present? %>
+              <%= link_to project.demo_url, class: "card-link", target: "_blank", rel: "noopener noreferrer" do %>
+                <i class="fas fa-external-link-alt"></i>
+                <span>Live Demo</span>
+              <% end %>
+            <% end %>
+          </div>
+        </article>
+      <% end %>
     </div>
   </div>
 </div> 

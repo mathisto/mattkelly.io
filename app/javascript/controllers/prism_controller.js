@@ -7,32 +7,28 @@ export default class extends Controller {
     this.highlight()
 
     // Listen for Turbo navigation events
-    document.addEventListener("turbo:render", () => this.highlight())
+    document.addEventListener("turbo:render", this.highlight.bind(this))
   }
 
   disconnect() {
     // Clean up event listener
-    document.removeEventListener("turbo:render", () => this.highlight())
+    document.removeEventListener("turbo:render", this.highlight.bind(this))
   }
 
   highlight() {
     // Ensure Prism is available
     if (typeof Prism !== 'undefined') {
-      // Highlight all code blocks in the controller's element
+      // First, ensure all code blocks have proper language classes
       this.element.querySelectorAll('pre code').forEach((block) => {
-        // Add the language class if not present
-        if (!block.classList.contains('language-')) {
-          const languageClass = Array.from(block.classList)
-            .find(className => className.startsWith('language-'))
-          
-          if (!languageClass) {
-            block.classList.add('language-plaintext')
-          }
+        if (!Array.from(block.classList).some(className => className.startsWith('language-'))) {
+          block.classList.add('language-plaintext')
         }
-        
-        // Highlight the block
-        Prism.highlightElement(block)
       })
+
+      // Then highlight all code blocks
+      Prism.highlightAllUnder(this.element)
+    } else {
+      console.warn('Prism.js is not loaded')
     }
   }
 } 

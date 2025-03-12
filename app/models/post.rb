@@ -83,7 +83,8 @@ class Post
         strikethrough: true,
         highlight: true,
         footnotes: true,
-        quote: true
+        quote: true,
+        lax_spacing: true
       )
       markdown.render(content)
     end
@@ -93,9 +94,30 @@ class Post
   class PrismRenderer < Redcarpet::Render::HTML
     def block_code(code, language)
       language ||= 'plaintext'
-      # Ensure code is properly escaped
-      code = CGI.escapeHTML(code)
-      %(<pre><code class="language-#{language}">#{code}</code></pre>)
+      # Don't escape the code here since Redcarpet already handles that
+      %(<div class="code-block"><pre><code class="language-#{language}">#{code}</code></pre></div>)
+    end
+
+    def list(contents, list_type)
+      tag = list_type == :ordered ? 'ol' : 'ul'
+      # Add proper list classes and ensure proper spacing
+      "<#{tag} class=\"list-#{list_type}\">\n#{contents}</#{tag}>\n"
+    end
+
+    def list_item(text, list_type)
+      # Add proper list item classes and ensure proper spacing
+      "<li class=\"list-item\">\n#{text}\n</li>\n"
+    end
+
+    def header(text, header_level)
+      # Add proper heading classes
+      tag = "h#{header_level}"
+      "<#{tag} class=\"heading-#{header_level}\">\n#{text}\n</#{tag}>\n"
+    end
+
+    def paragraph(text)
+      # Add proper paragraph spacing
+      "<p>\n#{text}\n</p>\n"
     end
   end
 end 

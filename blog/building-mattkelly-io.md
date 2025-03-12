@@ -143,6 +143,7 @@ Throughout the site, we've implemented smooth animations:
 - Icon scale effects
 
 All animations use carefully chosen cubic-bezier timing functions for natural movement:
+
 ```css
 transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 ```

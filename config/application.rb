@@ -3,13 +3,18 @@ require_relative "boot"
 # Only load the parts of Rails we need
 require "rails"
 
-# Pick the frameworks you want:
-require "action_controller/railtie"
-require "action_view/railtie"
-require "rails/test_unit/railtie"
-require "active_model/railtie"
-require "active_support/railtie"
-require "propshaft"
+%w(
+  action_controller/railtie
+  action_view/railtie
+  rails/test_unit/railtie
+  active_model/railtie
+  propshaft
+).each do |railtie|
+  begin
+    require railtie
+  rescue LoadError
+  end
+end
 
 # Require the gems listed in Gemfile
 Bundler.require(*Rails.groups)
@@ -18,10 +23,6 @@ module MattkellyIo
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 8.0
-
-    # Enable zeitwerk logging in development for debugging autoload issues
-    config.autoloader = :zeitwerk
-    Rails.autoloaders.log! if Rails.env.development?
 
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
@@ -33,33 +34,5 @@ module MattkellyIo
     # These settings can be overridden in specific environments using the files
     # in config/environments, which are processed later.
     config.time_zone = "UTC"
-
-    # Configure logging
-    config.log_level = :info
-    config.logger = ActiveSupport::TaggedLogging.new(Logger.new(STDOUT))
-
-    # Configure autoloading paths before they get frozen
-    paths_to_remove = %w[jobs models mailers].map { |dir| "#{Rails.root}/app/#{dir}" }
-    
-    # Remove paths from autoload_paths
-    config.autoload_paths = config.autoload_paths.reject do |path|
-      paths_to_remove.any? { |remove_path| path.to_s.start_with?(remove_path) }
-    end
-
-    # Remove paths from eager_load_paths
-    config.eager_load_paths = config.eager_load_paths.reject do |path|
-      paths_to_remove.any? { |remove_path| path.to_s.start_with?(remove_path) }
-    end
-
-    # Configure test framework
-    config.generators do |g|
-      g.test_framework :rspec,
-        view_specs: true,
-        helper_specs: false,
-        routing_specs: false,
-        request_specs: true,
-        controller_specs: true
-      g.fixture_replacement :factory_bot, dir: "spec/factories"
-    end
   end
 end

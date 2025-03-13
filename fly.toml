@@ -10,18 +10,10 @@ console_command = '/rails/bin/rails console'
 [build]
 
 [env]
-  DATABASE_URL = 'sqlite3:///data/production.sqlite3'
   PORT = '8080'
 
 [processes]
-  app = './bin/rake litestream:run ./bin/rails server'
-
-[[mounts]]
-  source = 'data'
-  destination = '/data'
-  auto_extend_size_threshold = 80
-  auto_extend_size_increment = '1GB'
-  auto_extend_size_limit = '10GB'
+  app = './bin/rails server'
 
 [http_service]
   internal_port = 8080
@@ -43,25 +35,10 @@ console_command = '/rails/bin/rails console'
     [http_service.checks.headers]
       X-Forwarded-Proto = 'https'
 
-  [[http_service.checks]]
-    interval = '10s'
-    timeout = '2s'
-    grace_period = '5s'
-    method = 'GET'
-    path = '/up'
-    protocol = 'http'
-    tls_skip_verify = false
-
-    [http_service.checks.headers]
-      X-Forwarded-Proto = 'https'
-
 [[vm]]
   memory = '1gb'
   cpu_kind = 'shared'
   cpus = 1
-
-[deploy]
-  release_command = './bin/rails db:prepare'
 
 [[statics]]
   guest_path = '/rails/public'

@@ -28,9 +28,6 @@ Dir[Rails.root.join('spec', 'support', '**', '*.rb')].sort.each { |f| require f 
 # Remove ActiveRecord migration check
 
 RSpec.configure do |config|
-  # Remove this line since we're not using ActiveRecord
-  # config.use_transactional_fixtures = true
-
   # Configure Capybara
   Capybara.register_driver :selenium_chrome_headless do |app|
     options = Selenium::WebDriver::Chrome::Options.new

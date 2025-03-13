@@ -1,18 +1,18 @@
 <%# 400 Page %>
-<div class="min-h-[80vh] flex items-center justify-center bg-[#1a1b26]" data-controller="entrance">
-  <div class="text-center px-4">
+<div class="min-h-screen w-full flex items-center justify-center bg-[#1a1b26]" data-controller="entrance">
+  <div class="text-center w-full px-4">
     <%# Glitch Effect %>
-    <div class="relative mb-8 select-none" data-controller="glitch">
-      <h1 class="text-[12rem] font-bold leading-none tracking-tighter text-[#e0af68] opacity-75 glitch-base"
+    <div class="relative mb-8 select-none mx-auto" style="width: min-content;" data-controller="glitch">
+      <h1 class="text-[20rem] md:text-[24rem] font-bold leading-none tracking-tighter text-[#e0af68] opacity-75 glitch-base"
           data-glitch="400">
         400
       </h1>
-      <div class="absolute inset-0 text-[12rem] font-bold leading-none tracking-tighter text-[#bb9af7] glitch-layer-1"
+      <div class="absolute inset-0 text-[20rem] md:text-[24rem] font-bold leading-none tracking-tighter text-[#bb9af7] glitch-layer-1"
            aria-hidden="true"
            data-glitch="400">
         400
       </div>
-      <div class="absolute inset-0 text-[12rem] font-bold leading-none tracking-tighter text-[#7dcfff] glitch-layer-2"
+      <div class="absolute inset-0 text-[20rem] md:text-[24rem] font-bold leading-none tracking-tighter text-[#7dcfff] glitch-layer-2"
            aria-hidden="true"
            data-glitch="400">
         400
@@ -42,33 +42,73 @@
   .glitch-base {
     position: relative;
     z-index: 1;
+    transform: translate(0);
+    transition: transform 0.15s ease;
+  }
+
+  .glitch-layer-1,
+  .glitch-layer-2 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    mix-blend-mode: screen;
   }
 
   .glitch-layer-1 {
-    z-index: 0;
-    animation: glitch-1 2s infinite linear alternate-reverse;
+    z-index: -1;
+    animation: glitch-1 3.5s infinite linear alternate-reverse;
+    transform: translate(0);
+    transition: transform 0.15s ease;
   }
 
   .glitch-layer-2 {
-    z-index: -1;
-    animation: glitch-2 3s infinite linear alternate-reverse;
+    z-index: -2;
+    animation: glitch-2 4s infinite linear alternate-reverse;
+    transform: translate(0);
+    transition: transform 0.15s ease;
+  }
+
+  .extra-glitch .glitch-base {
+    transform: translate(4px, -4px);
+    opacity: 0.8;
+  }
+
+  .extra-glitch .glitch-layer-1 {
+    transform: translate(-8px, 4px);
+    opacity: 0.9;
+  }
+
+  .extra-glitch .glitch-layer-2 {
+    transform: translate(8px, 8px);
+    opacity: 0.9;
   }
 
   @keyframes glitch-1 {
-    0% { transform: translate(0); }
-    20% { transform: translate(-2px, 2px); }
-    40% { transform: translate(-2px, -2px); }
-    60% { transform: translate(2px, 2px); }
-    80% { transform: translate(2px, -2px); }
-    100% { transform: translate(0); }
+    0%, 100% { transform: translate(0); }
+    33% { transform: translate(-5px, 3px); }
+    66% { transform: translate(5px, -3px); }
+    85% { transform: translate(-2px, -2px); }
   }
 
   @keyframes glitch-2 {
-    0% { transform: translate(0); }
-    20% { transform: translate(2px, -2px); }
-    40% { transform: translate(2px, 2px); }
-    60% { transform: translate(-2px, -2px); }
-    80% { transform: translate(-2px, 2px); }
-    100% { transform: translate(0); }
+    0%, 100% { transform: translate(0); }
+    33% { transform: translate(5px, -3px); }
+    66% { transform: translate(-5px, 3px); }
+    85% { transform: translate(2px, 2px); }
+  }
+
+  /* Enhance hover effect */
+  [data-controller="glitch"]:hover .glitch-base {
+    transform: translate(2px, -2px);
+  }
+
+  [data-controller="glitch"]:hover .glitch-layer-1 {
+    transform: translate(-4px, 2px);
+  }
+
+  [data-controller="glitch"]:hover .glitch-layer-2 {
+    transform: translate(4px, 4px);
   }
 </style> 

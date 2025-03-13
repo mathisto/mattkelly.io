@@ -10,21 +10,5 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_10_034453) do
-  create_table "projects", force: :cascade do |t|
-    t.string "title", null: false
-    t.text "description", null: false
-    t.text "technologies_used", default: "[]", null: false
-    t.string "role"
-    t.string "duration"
-    t.string "github_url"
-    t.string "live_site_url"
-    t.string "screenshot_url"
-    t.boolean "highlight", default: false, null: false
-    t.integer "position", null: false
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.index ["highlight"], name: "index_projects_on_highlight"
-    t.index ["position"], name: "index_projects_on_position"
-  end
+ActiveRecord::Schema[8.0].define(version: 2025_03_13_044922) do
 end

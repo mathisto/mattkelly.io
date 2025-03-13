@@ -2,7 +2,7 @@ Rails.application.routes.draw do
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
   root "home#index"
 
-  resources :projects, only: [:index, :show]
+  get '/projects', to: 'pages#projects', as: :projects
   resources :posts, only: [:index, :show], path: 'blog'
   get '/cv', to: 'pages#cv', as: :cv
 

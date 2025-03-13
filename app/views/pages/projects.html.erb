@@ -3,44 +3,294 @@
   <div class="max-w-4xl mx-auto">
     <h1 class="text-[#7aa2f7] text-3xl sm:text-4xl font-bold mb-8 sm:mb-12 text-center">Projects</h1>
 
-    <div class="grid grid-cols-1 gap-6">
+    <style>
+      /* Card base styles */
+      .dev-card {
+        composes: card-base;
+        background: rgba(31, 35, 53, 0.8);
+        border: 1px solid transparent;
+        border-radius: 1rem;
+        margin-bottom: 2rem;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        backdrop-filter: blur(8px);
+        position: relative;
+        isolation: isolate;
+        z-index: 1;
+        width: 100%;
+        max-width: 100%;
+      }
+
+      .dev-card > div {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+
+      .dev-card::before {
+        content: '';
+        position: absolute;
+        inset: -2px;
+        padding: 2px;
+        background: linear-gradient(
+          90deg,
+          #7aa2f7 0%,     /* Tokyo Night blue */
+          #bb9af7 16.67%, /* Tokyo Night purple */
+          #7dcfff 33.33%, /* Tokyo Night cyan */
+          #9ece6a 50%,    /* Tokyo Night green */
+          #ff9e64 66.67%, /* Tokyo Night orange */
+          #f7768e 83.33%, /* Tokyo Night red */
+          #9d7cd8 91.67%, /* Transition purple */
+          #7aa2f7 100%    /* Back to blue */
+        );
+        border-radius: calc(1rem + 2px);
+        -webkit-mask: 
+          linear-gradient(#fff 0 0) content-box, 
+          linear-gradient(#fff 0 0);
+        mask: 
+          linear-gradient(#fff 0 0) content-box, 
+          linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        opacity: 0;
+        will-change: opacity, background-position;
+        transition: opacity 0.3s ease;
+        background-size: 200% 100%;
+        z-index: 0;
+      }
+
+      .dev-card::after {
+        content: '';
+        position: absolute;
+        inset: -1px;
+        background: rgba(31, 35, 53, 0.95);
+        border-radius: calc(1rem + 1px);
+        z-index: -1;
+      }
+
+      .dev-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 
+          0 20px 25px -5px rgba(122, 162, 247, 0.1),
+          0 10px 10px -5px rgba(187, 154, 247, 0.04);
+      }
+
+      .dev-card:hover::before {
+        opacity: 1;
+        animation: borderGradient 6s linear infinite;
+      }
+
+      /* Skills Container and Pills */
+      .skills-container {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+      }
+
+      .skill-pill {
+        position: relative;
+        z-index: 2;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.4rem 0.75rem;
+        background: rgba(122, 162, 247, 0.1);
+        border: 1px solid rgba(122, 162, 247, 0.2);
+        border-radius: 9999px;
+        color: #a9b1d6;
+        font-size: 0.875rem;
+        transition: all 0.3s ease;
+        font-family: 'Inter', sans-serif;
+        letter-spacing: 0.01em;
+        pointer-events: auto;
+      }
+
+      .skill-pill:hover {
+        transform: translateY(-2px);
+        background: rgba(187, 154, 247, 0.15);
+        border-color: rgba(187, 154, 247, 0.3);
+      }
+
+      .skill-pill i {
+        color: #9ece6a !important;
+        transition: color 0.3s ease !important;
+      }
+
+      .skill-pill:hover i {
+        color: #bb9af7 !important;
+      }
+
+      /* Card Actions */
+      .card-actions {
+        display: flex;
+        justify-content: center;
+        gap: 2rem;
+        margin-top: auto;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(41, 41, 63, 0.5);
+        position: relative;
+        z-index: 10;
+      }
+
+      .dev-card .card-actions a.card-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #7aa2f7;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        text-decoration: none !important;
+        background: none !important;
+        border: none !important;
+        cursor: pointer !important;
+        padding: 0.5rem 1rem;
+        border-radius: 0.375rem;
+        position: relative;
+        z-index: 20;
+        pointer-events: auto !important;
+      }
+
+      .dev-card .card-actions a.card-link:hover {
+        color: #bb9af7 !important;  /* Tokyo Night pink */
+        transform: translateY(-2px);
+      }
+
+      .dev-card .card-actions a.card-link:hover i,
+      .dev-card .card-actions a.card-link:hover span {
+        color: #bb9af7 !important;  /* Tokyo Night pink */
+      }
+
+      .dev-card .card-actions a.card-link i,
+      .dev-card .card-actions a.card-link span {
+        transition: color 0.3s ease;
+        pointer-events: none;
+      }
+
+      .dev-card .card-actions a.card-link i {
+        font-size: 1.125rem;
+      }
+
+      /* Override any conflicting styles */
+      .dev-card a {
+        pointer-events: auto !important;
+      }
+
+      /* Grid Layout */
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 3.5rem;
+        margin: 0 auto;
+        padding: 1.5rem;
+        width: 100%;
+        max-width: 100%;
+        margin-bottom: 4rem;
+      }
+
+      @media (max-width: 1024px) {
+        .grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 3rem;
+          padding: 1rem;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .grid {
+          grid-template-columns: minmax(0, 1fr);
+          gap: 3rem;
+          padding: 1.5rem;
+          width: calc(100% - 2rem);
+          margin: 0 auto 3rem auto;
+        }
+
+        .dev-card {
+          margin: 0 auto 2rem auto;
+          max-width: 32rem;
+        }
+      }
+
+      /* Container adjustments */
+      .max-w-4xl {
+        width: 100%;
+        max-width: 100%;
+        padding: 0 1rem;
+        margin: 0 auto;
+      }
+
+      @media (min-width: 1024px) {
+        .max-w-4xl {
+          max-width: 72rem;
+        }
+      }
+
+      /* Project Title */
+      .dev-card h2 {
+        color: #7aa2f7;
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+      }
+
+      /* Project Description */
+      .dev-card p {
+        color: #a9b1d6;
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+      }
+
+      @keyframes borderGradient {
+        0% { background-position: 0% 0; }
+        100% { background-position: 200% 0; }
+      }
+    </style>
+
+    <div class="grid">
       <!-- MattKelly.io -->
       <article class="dev-card">
         <div class="p-6">
           <h2 class="text-[#7aa2f7] text-2xl font-bold mb-4">MattKelly.io</h2>
-          <p class="text-[#a9b1d6] mb-6">A modern personal website built with Ruby on Rails and styled with the Tokyo Night theme. Features a responsive design, blog system, and project showcase.</p>
+          <p class="text-[#a9b1d6] mb-6">My personal developer portfolio built with Rails 8 and Tailwind CSS. Features a beautiful Tokyo Night theme, responsive design, and modern web development practices.</p>
           <div class="skills-container">
-            <span class="skill-pill"><i class="devicon-ruby-plain"></i>Ruby</span>
-            <span class="skill-pill"><i class="devicon-rails-plain"></i>Rails</span>
-            <span class="skill-pill"><i class="fab fa-html5"></i>HTML</span>
-            <span class="skill-pill"><i class="fab fa-css3-alt"></i>CSS</span>
-            <span class="skill-pill"><i class="fab fa-js"></i>JavaScript</span>
+            <span class="skill-pill"><i class="devicon-ruby-plain"></i>Ruby on Rails</span>
+            <span class="skill-pill"><i class="devicon-tailwindcss-plain"></i>Tailwind CSS</span>
+            <span class="skill-pill"><i class="fab fa-js"></i>Stimulus.js</span>
+            <span class="skill-pill"><i class="devicon-postgresql-plain"></i>PostgreSQL</span>
           </div>
           <div class="card-actions">
             <a href="https://github.com/mathisto/mattkelly.io" target="_blank" rel="noopener" class="card-link">
               <i class="fab fa-github"></i>
-              <span>View Source</span>
+              <span>GitHub</span>
+            </a>
+            <a href="https://mattkelly.io" target="_blank" rel="noopener" class="card-link">
+              <i class="fas fa-external-link-alt"></i>
+              <span>Live Site</span>
             </a>
           </div>
         </div>
       </article>
 
-      <!-- Faker Tolkien -->
+      <!-- Faker -->
       <article class="dev-card">
         <div class="p-6">
-          <h2 class="text-[#7aa2f7] text-2xl font-bold mb-4">
-            <i class="fas fa-box mr-2"></i>Faker Tolkien
-          </h2>
-          <p class="text-[#a9b1d6] mb-6">A comprehensive overhaul of the Tolkien Legendarium module for the Faker gem, providing rich, lore-accurate data generation for Middle-earth content.</p>
+          <h2 class="text-[#7aa2f7] text-2xl font-bold mb-4">Faker</h2>
+          <p class="text-[#a9b1d6] mb-6">Major contributor to the official Faker library, including a comprehensive overhaul of the Tolkien module. Added an encyclopedic collection of names, locations, and lore from The Silmarillion, The Lord of the Rings, and other works from Tolkien's legendarium.</p>
           <div class="skills-container">
             <span class="skill-pill"><i class="devicon-ruby-plain"></i>Ruby</span>
             <span class="skill-pill"><i class="fas fa-gem"></i>RubyGems</span>
-            <span class="skill-pill"><i class="fas fa-code"></i>Open Source</span>
+            <span class="skill-pill"><i class="fas fa-vial"></i>RSpec</span>
+            <span class="skill-pill"><i class="fas fa-code"></i>API Design</span>
           </div>
           <div class="card-actions">
             <a href="https://github.com/faker-ruby/faker" target="_blank" rel="noopener" class="card-link">
               <i class="fab fa-github"></i>
-              <span>View Project</span>
+              <span>GitHub</span>
+            </a>
+            <a href="https://rubygems.org/gems/faker" target="_blank" rel="noopener" class="card-link">
+              <i class="fas fa-external-link-alt"></i>
+              <span>RubyGems</span>
             </a>
           </div>
         </div>
@@ -49,19 +299,20 @@
       <!-- ytfzf -->
       <article class="dev-card">
         <div class="p-6">
-          <h2 class="text-[#7aa2f7] text-2xl font-bold mb-4">
-            <i class="fas fa-film mr-2"></i>ytfzf
-          </h2>
-          <p class="text-[#a9b1d6] mb-6">A POSIX-compliant shell script that enables watching YouTube videos directly from the command line. Features fuzzy finding, thumbnail previews, and various video quality options.</p>
+          <h2 class="text-[#7aa2f7] text-2xl font-bold mb-4">ytfzf</h2>
+          <p class="text-[#a9b1d6] mb-6">A powerful POSIX-compliant terminal YouTube client featuring fuzzy search, thumbnail previews, and advanced video selection capabilities. Enables browsing and watching YouTube directly from the command line with rich features like async thumbnails, custom scrapers, and multiple interface options.</p>
           <div class="skills-container">
-            <span class="skill-pill"><i class="fas fa-terminal"></i>Shell</span>
+            <span class="skill-pill"><i class="fas fa-terminal"></i>Shell Script</span>
             <span class="skill-pill"><i class="fab fa-linux"></i>POSIX</span>
             <span class="skill-pill"><i class="fas fa-code"></i>CLI</span>
+            <span class="skill-pill"><i class="fas fa-search"></i>FZF</span>
+            <span class="skill-pill"><i class="fas fa-cogs"></i>Unix Tools</span>
+            <span class="skill-pill"><i class="fas fa-network-wired"></i>API Integration</span>
           </div>
           <div class="card-actions">
             <a href="https://github.com/pystardust/ytfzf" target="_blank" rel="noopener" class="card-link">
               <i class="fab fa-github"></i>
-              <span>View Project</span>
+              <span>GitHub</span>
             </a>
           </div>
         </div>
@@ -70,19 +321,19 @@
       <!-- Tangerine -->
       <article class="dev-card">
         <div class="p-6">
-          <h2 class="text-[#7aa2f7] text-2xl font-bold mb-4">
-            <i class="fas fa-orange mr-2"></i>Tangerine
-          </h2>
-          <p class="text-[#a9b1d6] mb-6">A sweet Fennel integration for Neovim, enhancing the editing experience for Fennel Lisp development with seamless integration and powerful features.</p>
+          <h2 class="text-[#7aa2f7] text-2xl font-bold mb-4">Tangerine</h2>
+          <p class="text-[#a9b1d6] mb-6">A blazing-fast Fennel compiler and REPL for Neovim. Features interactive evaluation, precise compilation control, and native support for Neovim configuration in Fennel. Includes advanced features like floating windows, diagnostic feedback, and comprehensive API.</p>
           <div class="skills-container">
+            <span class="skill-pill"><i class="fas fa-moon"></i>Neovim</span>
             <span class="skill-pill"><i class="fas fa-code"></i>Fennel</span>
-            <span class="skill-pill"><i class="fas fa-terminal"></i>Neovim</span>
-            <span class="skill-pill"><i class="fas fa-code"></i>Lisp</span>
+            <span class="skill-pill"><i class="fas fa-terminal"></i>Lua</span>
+            <span class="skill-pill"><i class="fas fa-cogs"></i>Plugin Development</span>
+            <span class="skill-pill"><i class="fas fa-tools"></i>Developer Tools</span>
           </div>
           <div class="card-actions">
-            <a href="https://github.com/mathisto/tangerine" target="_blank" rel="noopener" class="card-link">
+            <a href="https://github.com/udayvir-singh/tangerine.nvim" target="_blank" rel="noopener" class="card-link">
               <i class="fab fa-github"></i>
-              <span>View Project</span>
+              <span>GitHub</span>
             </a>
           </div>
         </div>
@@ -91,20 +342,44 @@
       <!-- VA.gov APIs -->
       <article class="dev-card">
         <div class="p-6">
-          <h2 class="text-[#7aa2f7] text-2xl font-bold mb-4">
-            <i class="fas fa-flag-usa mr-2"></i>VA.gov APIs
-          </h2>
-          <p class="text-[#a9b1d6] mb-6">Contributed to the API backend powering VA.gov, helping veterans access their benefits and services through modern, reliable web services.</p>
+          <h2 class="text-[#7aa2f7] text-2xl font-bold mb-4">VA.gov APIs</h2>
+          <p class="text-[#a9b1d6] mb-6">Core API infrastructure powering VA.gov services for veterans. Provides secure, scalable endpoints for veteran services including healthcare, benefits, and records access. Features comprehensive authentication, monitoring, and documentation.</p>
           <div class="skills-container">
-            <span class="skill-pill"><i class="devicon-ruby-plain"></i>Ruby</span>
-            <span class="skill-pill"><i class="devicon-rails-plain"></i>Rails</span>
-            <span class="skill-pill"><i class="fas fa-server"></i>APIs</span>
-            <span class="skill-pill"><i class="fas fa-shield-alt"></i>OAuth</span>
+            <span class="skill-pill"><i class="devicon-ruby-plain"></i>Ruby on Rails</span>
+            <span class="skill-pill"><i class="fas fa-lock"></i>OAuth</span>
+            <span class="skill-pill"><i class="fas fa-server"></i>API Design</span>
+            <span class="skill-pill"><i class="fas fa-shield-alt"></i>Security</span>
+            <span class="skill-pill"><i class="devicon-postgresql-plain"></i>PostgreSQL</span>
           </div>
           <div class="card-actions">
             <a href="https://github.com/department-of-veterans-affairs/vets-api" target="_blank" rel="noopener" class="card-link">
               <i class="fab fa-github"></i>
-              <span>View Project</span>
+              <span>GitHub</span>
+            </a>
+            <a href="https://developer.va.gov" target="_blank" rel="noopener" class="card-link">
+              <i class="fas fa-external-link-alt"></i>
+              <span>Documentation</span>
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <!-- Eidolon -->
+      <article class="dev-card">
+        <div class="p-6">
+          <h2 class="text-[#7aa2f7] text-2xl font-bold mb-4">Eidolon</h2>
+          <p class="text-[#a9b1d6] mb-6">A custom implementation of MemGPT using vector databases for efficient LLM memory management. Features sophisticated pre/post fetch memory handling, enabling more contextually aware and persistent AI conversations.</p>
+          <div class="skills-container">
+            <span class="skill-pill"><i class="fab fa-python"></i>Python</span>
+            <span class="skill-pill"><i class="fas fa-database"></i>Vector DB</span>
+            <span class="skill-pill"><i class="fas fa-brain"></i>LLM</span>
+            <span class="skill-pill"><i class="fas fa-memory"></i>Memory Management</span>
+            <span class="skill-pill"><i class="fas fa-network-wired"></i>API Integration</span>
+          </div>
+          <div class="card-actions">
+            <a href="https://github.com/mathisto/eidolon" target="_blank" rel="noopener" class="card-link">
+              <i class="fab fa-github"></i>
+              <span>GitHub</span>
             </a>
           </div>
         </div>

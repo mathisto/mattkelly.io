@@ -265,8 +265,21 @@
       margin-top: 2rem;
     }
   }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
 </style>
 
+<h1 class="visually-hidden">Matt Kelly</h1>
 <section class="hero py-8 sm:py-12">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div data-controller="entrance" data-entrance-delay-value="0">

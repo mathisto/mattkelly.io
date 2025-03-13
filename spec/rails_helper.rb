@@ -2,18 +2,21 @@
 require 'spec_helper'
 ENV['RAILS_ENV'] ||= 'test'
 
-# Load Rails without eager loading
-require 'rails'
-require 'action_controller/railtie'
-require 'action_view/railtie'
-require 'rails/test_unit/railtie'
-require 'active_model/railtie'
-require 'propshaft'
-
-# Load the application configuration and routes without eager loading
+# Load the application configuration
 require File.expand_path('../config/application', __dir__)
+
+# Configure Rails Environment
+Rails.env = ENV['RAILS_ENV']
+
+# Explicitly set eager loading to false for test environment
 Rails.application.config.eager_load = false
-require File.expand_path('../config/routes', __dir__)
+
+# Configure test logging
+Rails.application.config.logger = ActiveSupport::Logger.new(STDOUT)
+Rails.logger = Rails.application.config.logger
+
+# Initialize the Rails application
+Rails.application.initialize!
 
 require 'rspec/rails'
 require 'capybara/rspec'

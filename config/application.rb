@@ -38,19 +38,17 @@ module MattkellyIo
     config.log_level = :info
     config.logger = ActiveSupport::TaggedLogging.new(Logger.new(STDOUT))
 
-    # Configure autoloading - this is the proper way to handle autoload paths
-    # as per the Rails guide
-    config.before_initialize do |app|
-      # Remove unnecessary autoload paths before they get frozen
-      paths_to_remove = %w[jobs models mailers].map { |dir| "#{Rails.root}/app/#{dir}" }
-      
-      app.config.autoload_paths.reject! do |path|
-        paths_to_remove.any? { |remove_path| path.to_s.start_with?(remove_path) }
-      end
-      
-      app.config.eager_load_paths.reject! do |path|
-        paths_to_remove.any? { |remove_path| path.to_s.start_with?(remove_path) }
-      end
+    # Configure autoloading paths before they get frozen
+    paths_to_remove = %w[jobs models mailers].map { |dir| "#{Rails.root}/app/#{dir}" }
+    
+    # Remove paths from autoload_paths
+    config.autoload_paths = config.autoload_paths.reject do |path|
+      paths_to_remove.any? { |remove_path| path.to_s.start_with?(remove_path) }
+    end
+
+    # Remove paths from eager_load_paths
+    config.eager_load_paths = config.eager_load_paths.reject do |path|
+      paths_to_remove.any? { |remove_path| path.to_s.start_with?(remove_path) }
     end
 
     # Configure test framework

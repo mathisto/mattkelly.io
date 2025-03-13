@@ -1,28 +1,24 @@
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 require 'spec_helper'
 ENV['RAILS_ENV'] ||= 'test'
-require_relative '../config/environment'
-# Prevent database truncation if the environment is production
-abort("The Rails environment is running in production mode!") if Rails.env.production?
-# Uncomment the line below in case you have `--require rails_helper` in the `.rspec` file
-# that will avoid rails generators crashing because migrations haven't been run yet
-# return unless Rails.env.test?
+
+# Load Rails without eager loading
+require 'rails'
+require 'action_controller/railtie'
+require 'action_view/railtie'
+require 'rails/test_unit/railtie'
+require 'active_model/railtie'
+require 'propshaft'
+
+# Load the application configuration and routes without eager loading
+require File.expand_path('../config/application', __dir__)
+Rails.application.config.eager_load = false
+require File.expand_path('../config/routes', __dir__)
+
 require 'rspec/rails'
 require 'capybara/rspec'
-# Add additional requires below this line. Rails is not loaded until this point!
 
-# Requires supporting ruby files with custom matchers and macros, etc, in
-# spec/support/ and its subdirectories. Files matching `spec/**/*_spec.rb` are
-# run as spec files by default. This means that files in spec/support that end
-# in _spec.rb will both be required and run as specs, causing the specs to be
-# run twice. It is recommended that you do not name files matching this glob to
-# end with _spec.rb. You can configure this pattern with the --pattern
-# option on the command line or in ~/.rspec, .rspec or `.rspec-local`.
-#
-# The following line is provided for convenience purposes. It has the downside
-# of increasing the boot-up time by auto-requiring all files in the support
-# directory. Alternatively, in the individual `*_spec.rb` files, manually
-# require only the support files necessary.
+# Add additional requires below this line. Rails is not loaded until this point!
 Dir[Rails.root.join('spec', 'support', '**', '*.rb')].sort.each { |f| require f }
 
 # Remove ActiveRecord migration check

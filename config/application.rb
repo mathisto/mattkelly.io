@@ -28,5 +28,12 @@ module MattkellyIo
     # These settings can be overridden in specific environments using the files
     # in config/environments, which are processed later.
     config.time_zone = "UTC"
+
+    # Since we're not using ActiveRecord, ActiveJob, or Action Mailer,
+    # we need to customize the autoload paths to exclude those directories
+    initializer :remove_unnecessary_paths, before: :set_autoload_paths do |app|
+      app.config.autoload_paths.reject! { |path| path =~ /\/(jobs|models|mailers)$/ }
+      app.config.eager_load_paths.reject! { |path| path =~ /\/(jobs|models|mailers)$/ }
+    end
   end
 end

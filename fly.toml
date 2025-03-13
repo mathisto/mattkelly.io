@@ -13,7 +13,7 @@ console_command = '/rails/bin/rails console'
   PORT = '8080'
 
 [processes]
-  app = './bin/rails server'
+  app = 'bundle exec puma -C config/puma.rb'
 
 [http_service]
   internal_port = 8080
@@ -24,9 +24,9 @@ console_command = '/rails/bin/rails console'
   processes = ['app']
 
   [[http_service.checks]]
-    interval = '10s'
-    timeout = '2s'
-    grace_period = '5s'
+    interval = '30s'
+    timeout = '10s'
+    grace_period = '30s'
     method = 'GET'
     path = '/up'
     protocol = 'http'

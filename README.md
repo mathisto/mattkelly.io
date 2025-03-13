@@ -2,12 +2,10 @@
 
 <div align="center">
 
-![Tokyo Night Theme](https://img.shields.io/badge/theme-Tokyo%20Night-7aa2f7?style=for-the-badge)
 ![Ruby on Rails](https://img.shields.io/badge/Ruby%20on%20Rails-CC0000?style=for-the-badge&logo=ruby-on-rails&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
-![Hotwire](https://img.shields.io/badge/Hotwire-FF6B6B?style=for-the-badge)
 
-A cyberpunk-inspired personal portfolio and blog powered by modern web technologies.
+A minimalist, high-performance personal site built with boring technology principles.
 
 [Live Site](https://mattkelly.io) · [Blog](https://mattkelly.io/blog) · [Projects](https://mattkelly.io/projects)
 
@@ -15,32 +13,22 @@ A cyberpunk-inspired personal portfolio and blog powered by modern web technolog
 
 ## 🌟 Features
 
-- 🎨 **Tokyo Night Theme** - A stunning dark theme inspired by the neon lights of Tokyo
-- ⚡️ **Lightning Fast** - Built with Hotwire for seamless navigation
+- ⚡️ **Lightning Fast** - Static site generation with minimal JavaScript
 - 📱 **Fully Responsive** - Perfect viewing on any device
-- 🔥 **Modern Stack** - Ruby on Rails 7 with Propshaft and Tailwind CSS
-- 🎭 **Animated UI** - Smooth transitions and eye-catching effects
-- 📝 **Dynamic Blog** - Share your thoughts with syntax-highlighted code blocks
-- 🚀 **Project Showcase** - Highlight your best work
+- 🔥 **Minimalist Stack** - Ruby on Rails 8 stripped down to essentials
+- 📝 **Markdown Blog** - Content management with standard markdown
 
 ## 🛠️ Tech Stack
 
-### Backend
-- Ruby on Rails 7
-- Propshaft Asset Pipeline
-- PostgreSQL
-- Hotwire (Turbo & Stimulus)
-
-### Frontend
-- Tailwind CSS
-- Custom animations
-- Font Awesome icons
-- Tokyo Night color palette
+### Core
+- Ruby on Rails 8.0.2 (minimal configuration)
+- Markdown processing for content
+- Tailwind CSS for styling
 
 ### Development
-- Importmap for JavaScript management
-- Live reload with Rails dev server
-- Modern asset bundling
+- RSpec for testing
+- GitHub Actions for CI/CD
+- Fly.io for deployment
 
 ## 🚀 Getting Started
 
@@ -55,33 +43,52 @@ cd mattkelly.io
 bundle install
 ```
 
-3. Setup database
-```bash
-bin/rails db:create db:migrate
-```
-
-4. Start the development server
+3. Start the development server
 ```bash
 bin/dev
 ```
 
-Visit `http://localhost:3000` and you're ready to go! 🎉
+Visit `http://localhost:8080` and you're ready to go! 🎉
+
+## 📦 Deployment
+
+Deployment is handled automatically through GitHub Actions when pushing to the `trunk` branch:
+
+1. Push changes to trunk:
+```bash
+git push origin trunk
+```
+
+2. GitHub Actions will:
+   - Run the test suite
+   - Deploy to Fly.io if tests pass
+
+Manual deployment (if needed):
+```bash
+fly deploy
+```
+
+### Troubleshooting Deployment
+
+Common issues and solutions:
+
+1. Health Check Failures
+   - Check Fly.io logs: `fly logs`
+   - Verify app is binding to 0.0.0.0:8080
+   - Ensure `/up` endpoint is responding
+
+2. Build Failures
+   - Check GitHub Actions logs
+   - Verify Dockerfile configuration
+   - Check for missing environment variables
 
 ## 🎨 Design Philosophy
 
-MattKelly.io embraces modern web development practices while maintaining a unique cyberpunk aesthetic. The site features:
-
-- 🌃 **Tokyo Night Theme** - A carefully curated color palette that's easy on the eyes
-- 🎯 **Purposeful Animations** - Subtle effects that enhance user experience
-- 📱 **Mobile-First Design** - Responsive layouts that work seamlessly across devices
-- ⚡️ **Performance Focus** - Fast load times and smooth navigation
-
-## 📦 Key Components
-
-- 🎨 **Asset Pipeline** - Managed by Propshaft for efficient asset delivery
-- 🔄 **Hotwire Integration** - Real-time updates without full page reloads
-- 🎯 **Tailwind CSS** - Utility-first CSS framework for rapid styling
-- 🌈 **Custom Animations** - Hand-crafted animations for a unique feel
+This site embraces boring technology principles:
+- Minimal dependencies
+- Standard patterns over novelty
+- Focus on content and performance
+- No unnecessary complexity
 
 ## 🤝 Contributing
 
@@ -89,7 +96,7 @@ Found a bug? Want to contribute? Feel free to:
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+3. Commit your changes (following conventional commit message format)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 

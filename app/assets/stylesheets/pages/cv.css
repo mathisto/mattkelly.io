@@ -1,0 +1,112 @@
+/* CV Page Styles */
+.cv-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: var(--spacing-xl) var(--spacing-md);
+}
+
+/* CV Sections */
+.cv-section {
+  margin-bottom: var(--spacing-xl);
+}
+
+.cv-section-title {
+  color: var(--tokyo-blue);
+  border-bottom: 2px solid var(--tokyo-purple);
+  padding-bottom: var(--spacing-xs);
+  margin-bottom: var(--spacing-lg);
+}
+
+/* CV Job Entries */
+.cv-job-entry {
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-md);
+  border-radius: 8px;
+  background-color: var(--tokyo-bg-darker);
+  border: 1px solid rgba(122, 162, 247, 0.1);
+  transition: transform var(--transition-base) var(--ease-spring),
+              box-shadow var(--transition-base) var(--ease-default);
+}
+
+.cv-job-entry:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Job Entry Header */
+.cv-job-entry .header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-sm);
+}
+
+.cv-job-entry .date-container {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  color: var(--tokyo-cyan);
+  font-size: 0.9em;
+}
+
+.cv-job-entry .location-container {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-bottom: var(--spacing-md);
+  font-size: 0.95em;
+}
+
+/* Job Entry Content */
+.cv-job-entry ul {
+  list-style: none;
+  padding: 0;
+}
+
+.cv-bullet {
+  position: relative;
+  padding-left: var(--spacing-lg);
+  margin-bottom: var(--spacing-sm);
+  color: var(--tokyo-fg);
+}
+
+.cv-bullet::before {
+  content: '•';
+  position: absolute;
+  left: var(--spacing-sm);
+  color: var(--tokyo-blue);
+}
+
+/* CV Skills */
+.cv-skills-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+}
+
+.cv-skill-category {
+  margin-bottom: var(--spacing-lg);
+}
+
+.cv-skill-title {
+  color: var(--tokyo-purple);
+  margin-bottom: var(--spacing-sm);
+}
+
+.cv-skill-list {
+  list-style: none;
+  padding: 0;
+}
+
+.cv-skill-item {
+  color: var(--tokyo-fg);
+  margin-bottom: var(--spacing-xs);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.cv-skill-item::before {
+  content: '•';
+  color: var(--tokyo-blue);
+} 

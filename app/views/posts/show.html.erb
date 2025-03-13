@@ -1,4 +1,111 @@
 <%# Blog Post Show %>
+<style>
+  /* Tokyo Night theme for prose content */
+  .prose-tokyo-night {
+    --tw-prose-body: #a9b1d6;
+    --tw-prose-headings: #7aa2f7;
+    --tw-prose-links: #7dcfff;
+    --tw-prose-bold: #bb9af7;
+    --tw-prose-counters: #565f89;
+    --tw-prose-bullets: #565f89;
+    --tw-prose-hr: #29293f;
+    --tw-prose-quotes: #9ece6a;
+    --tw-prose-quote-borders: #29293f;
+    --tw-prose-captions: #565f89;
+    --tw-prose-code: #7dcfff;
+    --tw-prose-pre-code: #a9b1d6;
+    --tw-prose-pre-bg: #1a1b26;
+    --tw-prose-th-borders: #29293f;
+    --tw-prose-td-borders: #29293f;
+  }
+
+  /* Enhanced tag hover effect */
+  .hover\:shadow-glow:hover {
+    box-shadow: 0 0 15px rgba(125, 207, 255, 0.15);
+    transform: translateY(-1px);
+  }
+
+  /* Hide the first h1 in the content since we already show it in the header */
+  .prose-tokyo-night h1:first-child {
+    display: none;
+  }
+
+  .prose-tokyo-night a:hover {
+    color: var(--tokyo-purple);
+  }
+
+  /* Enhanced code block styles */
+  .prose-tokyo-night .code-block {
+    margin: 1.5rem 0;
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+
+  .prose-tokyo-night .code-block pre {
+    margin: 0 !important;
+    padding: 1rem !important;
+    background-color: #1f2335 !important;
+    border: 1px solid #29293f !important;
+    overflow-x: auto;
+  }
+
+  .prose-tokyo-night .code-block code {
+    background-color: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    font-size: 0.875rem !important;
+    line-height: 1.6 !important;
+    font-family: 'JetBrains Mono', monospace !important;
+    text-shadow: none !important;
+    color: #a9b1d6 !important;
+  }
+
+  /* Inline code styles */
+  .prose-tokyo-night :not(pre) > code {
+    background-color: #24283b !important;
+    color: #7dcfff !important;
+    padding: 0.2em 0.4em !important;
+    border-radius: 0.3em !important;
+    font-size: 0.925em !important;
+    font-family: 'JetBrains Mono', monospace !important;
+    border: 1px solid #29293f !important;
+  }
+
+  /* Token colors for syntax highlighting */
+  .prose-tokyo-night .token.comment { color: #565f89 !important; }
+  .prose-tokyo-night .token.punctuation { color: #89ddff !important; }
+  .prose-tokyo-night .token.property,
+  .prose-tokyo-night .token.tag,
+  .prose-tokyo-night .token.constant,
+  .prose-tokyo-night .token.symbol { color: #ff9e64 !important; }
+  .prose-tokyo-night .token.string,
+  .prose-tokyo-night .token.char { color: #9ece6a !important; }
+  .prose-tokyo-night .token.operator,
+  .prose-tokyo-night .token.entity,
+  .prose-tokyo-night .token.url { color: #7dcfff !important; }
+  .prose-tokyo-night .token.keyword { color: #bb9af7 !important; }
+  .prose-tokyo-night .token.function { color: #7aa2f7 !important; }
+  .prose-tokyo-night .token.variable { color: #f7768e !important; }
+
+  /* List styles */
+  .prose-tokyo-night .list-unordered,
+  .prose-tokyo-night .list-ordered {
+    margin: 1.5rem 0;
+    padding-left: 1.5rem;
+  }
+
+  .prose-tokyo-night .list-item {
+    margin: 0.5rem 0;
+    color: var(--tw-prose-body);
+  }
+
+  /* Heading styles */
+  .prose-tokyo-night .heading-1 { font-size: 2.25rem; font-weight: 700; margin: 2.5rem 0 1.5rem; }
+  .prose-tokyo-night .heading-2 { font-size: 1.875rem; font-weight: 600; margin: 2rem 0 1rem; }
+  .prose-tokyo-night .heading-3 { font-size: 1.5rem; font-weight: 600; margin: 1.5rem 0 0.75rem; }
+  .prose-tokyo-night .heading-4 { font-size: 1.25rem; font-weight: 600; margin: 1.25rem 0 0.5rem; }
+</style>
+
 <article class="py-12">
   <%# Post Header - Enhanced styling %>
   <header class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
@@ -52,114 +159,4 @@
     <i class="fas fa-arrow-left text-sm transition-transform duration-300 group-hover:-translate-x-1"></i>
     <span class="font-medium">Back to Blog</span>
   <% end %>
-</article>
-
-<%# Add Tailwind Typography styles for markdown content %>
-<% content_for :head do %>
-  <style>
-    /* Tokyo Night theme for prose content */
-    .prose-tokyo-night {
-      --tw-prose-body: #a9b1d6;
-      --tw-prose-headings: #7aa2f7;
-      --tw-prose-links: #7dcfff;
-      --tw-prose-bold: #bb9af7;
-      --tw-prose-counters: #565f89;
-      --tw-prose-bullets: #565f89;
-      --tw-prose-hr: #29293f;
-      --tw-prose-quotes: #9ece6a;
-      --tw-prose-quote-borders: #29293f;
-      --tw-prose-captions: #565f89;
-      --tw-prose-code: #7dcfff;
-      --tw-prose-pre-code: #a9b1d6;
-      --tw-prose-pre-bg: #1a1b26;
-      --tw-prose-th-borders: #29293f;
-      --tw-prose-td-borders: #29293f;
-    }
-
-    /* Enhanced tag hover effect */
-    .hover\:shadow-glow:hover {
-      box-shadow: 0 0 15px rgba(125, 207, 255, 0.15);
-      transform: translateY(-1px);
-    }
-
-    /* Hide the first h1 in the content since we already show it in the header */
-    .prose-tokyo-night h1:first-child {
-      display: none;
-    }
-
-    .prose-tokyo-night a:hover {
-      color: var(--tokyo-purple);
-    }
-
-    /* Enhanced code block styles */
-    .prose-tokyo-night .code-block {
-      margin: 1.5rem 0;
-      border-radius: 0.5rem;
-      overflow: hidden;
-    }
-
-    .prose-tokyo-night .code-block pre {
-      margin: 0 !important;
-      padding: 1rem !important;
-      background-color: #1f2335 !important;
-      border: 1px solid #29293f !important;
-      overflow-x: auto;
-    }
-
-    .prose-tokyo-night .code-block code {
-      background-color: transparent !important;
-      border: none !important;
-      padding: 0 !important;
-      font-size: 0.875rem !important;
-      line-height: 1.6 !important;
-      font-family: 'JetBrains Mono', monospace !important;
-      text-shadow: none !important;
-      color: #a9b1d6 !important;
-    }
-
-    /* Inline code styles */
-    .prose-tokyo-night :not(pre) > code {
-      background-color: #24283b !important;
-      color: #7dcfff !important;
-      padding: 0.2em 0.4em !important;
-      border-radius: 0.3em !important;
-      font-size: 0.925em !important;
-      font-family: 'JetBrains Mono', monospace !important;
-      border: 1px solid #29293f !important;
-    }
-
-    /* Token colors for syntax highlighting */
-    .prose-tokyo-night .token.comment { color: #565f89 !important; }
-    .prose-tokyo-night .token.punctuation { color: #89ddff !important; }
-    .prose-tokyo-night .token.property,
-    .prose-tokyo-night .token.tag,
-    .prose-tokyo-night .token.constant,
-    .prose-tokyo-night .token.symbol { color: #ff9e64 !important; }
-    .prose-tokyo-night .token.string,
-    .prose-tokyo-night .token.char { color: #9ece6a !important; }
-    .prose-tokyo-night .token.operator,
-    .prose-tokyo-night .token.entity,
-    .prose-tokyo-night .token.url { color: #7dcfff !important; }
-    .prose-tokyo-night .token.keyword { color: #bb9af7 !important; }
-    .prose-tokyo-night .token.function { color: #7aa2f7 !important; }
-    .prose-tokyo-night .token.variable { color: #f7768e !important; }
-
-    /* List styles */
-    .prose-tokyo-night .list-unordered,
-    .prose-tokyo-night .list-ordered {
-      margin: 1.5rem 0;
-      padding-left: 1.5rem;
-    }
-
-    .prose-tokyo-night .list-item {
-      margin: 0.5rem 0;
-      color: var(--tw-prose-body);
-    }
-
-    /* Heading styles */
-    .prose-tokyo-night .heading-1 { font-size: 2.25rem; font-weight: 700; margin: 2.5rem 0 1.5rem; }
-    .prose-tokyo-night .heading-2 { font-size: 1.875rem; font-weight: 600; margin: 2rem 0 1rem; }
-    .prose-tokyo-night .heading-3 { font-size: 1.5rem; font-weight: 600; margin: 1.5rem 0 0.75rem; }
-    .prose-tokyo-night .heading-4 { font-size: 1.25rem; font-weight: 600; margin: 1.25rem 0 0.5rem; }
-  </style>
-<% end %> 
+</article> 

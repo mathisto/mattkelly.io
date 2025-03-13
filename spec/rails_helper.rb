@@ -8,11 +8,11 @@ require File.expand_path('../config/application', __dir__)
 # Configure Rails Environment
 Rails.env = ENV['RAILS_ENV']
 
-# Explicitly set eager loading to false for test environment
-Rails.application.config.eager_load = false
+# Prevent database connection attempts
+Rails.application.config.database_configuration = nil if defined?(ActiveRecord)
 
 # Configure test logging
-config.logger = ActiveSupport::TaggedLogging.new(Logger.new(STDOUT))
+Rails.application.config.logger = ActiveSupport::TaggedLogging.new(Logger.new(STDOUT))
 Rails.logger = Rails.application.config.logger
 
 # Initialize the Rails application
@@ -45,6 +45,11 @@ RSpec.configure do |config|
   Capybara.default_driver = :rack_test
   Capybara.javascript_driver = :selenium_chrome_headless
   Capybara.default_max_wait_time = 5
+
+  # RSpec Rails can automatically mix in different behaviours to your tests
+  # based on their file location, for example enabling you to call `get` and
+  # `post` in specs under `spec/controllers`.
+  config.infer_spec_type_from_file_location!
 
   # Filter lines from Rails gems in backtraces
   config.filter_rails_from_backtrace!

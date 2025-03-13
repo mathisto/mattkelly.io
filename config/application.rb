@@ -52,5 +52,16 @@ module MattkellyIo
         paths_to_remove.any? { |remove_path| path.to_s.start_with?(remove_path) }
       end
     end
+
+    # Configure test framework
+    config.generators do |g|
+      g.test_framework :rspec,
+        view_specs: true,
+        helper_specs: false,
+        routing_specs: false,
+        request_specs: true,
+        controller_specs: true
+      g.fixture_replacement :factory_bot, dir: "spec/factories"
+    end
   end
 end

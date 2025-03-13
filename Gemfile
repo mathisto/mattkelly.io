@@ -19,6 +19,8 @@ gem "stimulus-rails"
 gem "tailwindcss-rails"
 # Use Redis adapter to run Action Cable in production
 gem "redis", "~> 5.0"
+# HTTP client for making API requests
+gem "httparty"
 # Use Kredis to get higher-level data types in Redis [https://github.com/rails/kredis]
 # gem "kredis"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
@@ -59,6 +61,7 @@ group :development, :test do
   gem "capybara"
   gem "selenium-webdriver", "~> 4.10.0"
   gem "webdrivers", "~> 5.3.0"
+  gem 'dotenv-rails'
 end
 
 group :development do

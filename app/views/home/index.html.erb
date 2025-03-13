@@ -267,7 +267,7 @@
   }
 </style>
 
-<section class="hero py-8 sm:py-10">
+<section class="hero py-8 sm:py-12">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div data-controller="entrance" data-entrance-delay-value="0">
       <div class="dev-card terminal-container">
@@ -306,7 +306,7 @@
 </section>
 
 <%# Core Skills %>
-<section class="py-2 sm:py-4">
+<section class="py-16">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="section-header text-center mb-6 sm:mb-8" data-controller="entrance" data-entrance-delay-value="100">
       <h2>Core Expertise</h2>
@@ -382,13 +382,13 @@
 </section>
 
 <%# Technologies %>
-<section class="py-4">
+<section class="py-16">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="section-header text-center mb-8" data-controller="entrance" data-entrance-delay-value="300">
       <h2>Technical Arsenal</h2>
     </div>
 
-    <div class="grid gap-8" data-controller="entrance" data-entrance-delay-value="400">
+    <div class="grid gap-8" data-controller="entrance" data-entrance-delay-value="500">
       <div class="dev-card animate-slide-in-left">
         <h3 class="card-title text-center">Languages</h3>
         <div class="skills-container justify-center">
@@ -424,13 +424,34 @@
         </div>
       </div>
     </div>
+
+    <%# GitHub Activity %>
+    <div class="mt-24">
+      <div class="section-header text-center mb-8" data-controller="entrance" data-entrance-delay-value="300">
+        <h2>GitHub Activity</h2>
+        <p>My open source contributions over the last year</p>
+      </div>
+
+      <% if @github_data %>
+        <div class="dev-card animate-fade-in" data-controller="github-heatmap"
+             data-github-heatmap-data-value="<%= @github_data[:contributions].to_json %>"
+             data-github-heatmap-total-value="<%= @github_data[:total] %>">
+          <div data-github-heatmap-target="heatmap" class="github-heatmap"></div>
+        </div>
+      <% else %>
+        <div class="dev-card animate-fade-in text-center py-8">
+          <p class="text-gray-400">GitHub contribution data is currently unavailable.</p>
+          <p class="text-sm text-gray-500 mt-2">Check out my <a href="https://github.com/mathisto" class="text-blue-400 hover:text-blue-300" target="_blank" rel="noopener noreferrer">GitHub profile</a> directly.</p>
+        </div>
+      <% end %>
+    </div>
   </div>
 </section>
 
 <%# Call to Action %>
-<section class="py-4 pb-12 sm:pb-16 cta-section">
+<section class="py-16 pb-24 sm:pb-32 cta-section">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div data-controller="entrance" data-entrance-delay-value="500" class="flex justify-center">
+    <div data-controller="entrance" data-entrance-delay-value="600" class="flex justify-center">
       <div class="dev-card animate-fade-in">
         <h2 class="card-title text-2xl mb-4">Let's Build Something Together</h2>
         <p class="card-content">
@@ -473,6 +494,58 @@
     /* Ensure the grid gaps are more pronounced on mobile */
     .grid.gap-8 {
       gap: 4rem !important;
+    }
+  }
+
+  /* GitHub Heatmap Styles */
+  .github-heatmap {
+    padding: 1rem;
+  }
+
+  .github-heatmap-grid {
+    display: flex;
+    gap: 3px;
+    overflow-x: auto;
+    padding-bottom: 1rem;
+  }
+
+  .github-heatmap-week {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .github-heatmap-day {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    transition: transform 0.2s ease;
+  }
+
+  .github-heatmap-day:hover {
+    transform: scale(1.2);
+  }
+
+  .github-heatmap-total {
+    text-align: center;
+    margin-top: 1rem;
+    color: #7aa2f7;
+    font-size: 0.875rem;
+  }
+
+  /* Mobile optimizations */
+  @media (max-width: 639px) {
+    .github-heatmap {
+      padding: 0.5rem;
+    }
+
+    .github-heatmap-grid {
+      gap: 2px;
+    }
+
+    .github-heatmap-day {
+      width: 8px;
+      height: 8px;
     }
   }
 </style>

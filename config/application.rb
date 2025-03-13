@@ -4,12 +4,8 @@ require_relative "boot"
 require "rails"
 
 %w(
-  active_record/railtie
   action_controller/railtie
   action_view/railtie
-  action_mailer/railtie
-  active_job/railtie
-  action_cable/engine
   rails/test_unit/railtie
   active_model/railtie
   propshaft
@@ -37,8 +33,6 @@ module MattkellyIo
     #
     # These settings can be overridden in specific environments using the files
     # in config/environments, which are processed later.
-    #
-    # config.time_zone = "Central Time (US & Canada)"
-    # config.eager_load_paths << Rails.root.join("extras")
+    config.time_zone = "UTC"
   end
 end

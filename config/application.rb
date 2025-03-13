@@ -8,8 +8,7 @@ require "action_controller/railtie"
 require "action_view/railtie"
 require "rails/test_unit/railtie"
 require "active_model/railtie"
-require "rails/log_subscriber"
-require "active_support/logger"
+require "rails/all"
 require "propshaft"
 
 # Require the gems listed in Gemfile
@@ -37,8 +36,7 @@ module MattkellyIo
 
     # Configure logging
     config.log_level = :info
-    config.logger = ActiveSupport::Logger.new(STDOUT)
-    Rails.logger = config.logger
+    config.logger = Logger.new(STDOUT)
 
     # Configure autoloading - this is the proper way to handle autoload paths
     # as per the Rails guide

@@ -12,7 +12,7 @@ Rails.env = ENV['RAILS_ENV']
 Rails.application.config.eager_load = false
 
 # Configure test logging
-Rails.application.config.logger = ActiveSupport::Logger.new(STDOUT)
+Rails.application.config.logger = Logger.new(STDOUT)
 Rails.logger = Rails.application.config.logger
 
 # Initialize the Rails application

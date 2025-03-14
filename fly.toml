@@ -25,7 +25,7 @@ console_command = '/rails/bin/rails console'
 
   [[http_service.checks]]
     interval = '30s'
-    timeout = '10s'
+    timeout = '15s'
     grace_period = '60s'
     method = 'GET'
     path = '/up'
@@ -34,7 +34,7 @@ console_command = '/rails/bin/rails console'
 
     [http_service.checks.headers]
       X-Forwarded-Proto = 'https'
-      Host = 'localhost'
+      Host = 'mattkelly.io'
 
 [[vm]]
   memory = '1gb'

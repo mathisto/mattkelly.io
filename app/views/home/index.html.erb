@@ -385,20 +385,35 @@
     /* Mobile GitHub Heatmap */
     .github-heatmap {
       padding: 0.5rem;
-      overflow-x: auto;
+      overflow-x: hidden;
       max-height: none;
       display: flex;
       flex-direction: column;
       margin-bottom: 0;
+      width: 100%;
+      align-items: center;
     }
 
     .github-heatmap-grid {
       gap: 2px;
       max-width: 100%;
-      overflow-x: auto;
+      overflow-x: visible;
       -webkit-overflow-scrolling: touch;
       padding-bottom: 0.25rem;
       min-height: fit-content;
+      transform-origin: center;
+      transform: scale(0.8);
+      margin: 0 auto;
+      width: fit-content;
+    }
+
+    .github-heatmap-week {
+      gap: 2px;
+    }
+
+    .github-heatmap-day {
+      width: 8px;
+      height: 8px;
     }
 
     /* Ensure proper card separation and corners */
@@ -411,6 +426,7 @@
       padding-bottom: 0.5rem !important;
       min-height: 0;
       height: auto;
+      align-items: center;
     }
 
     .dev-card[data-controller="github-heatmap"] {
@@ -420,6 +436,7 @@
       flex-direction: column;
       overflow: visible !important;
       padding: 1rem !important;
+      align-items: center;
     }
 
     /* Ensure bottom corners and border are visible */

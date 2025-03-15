@@ -49,6 +49,14 @@ RSpec.configure do |config|
   Capybara.default_driver = :rack_test
   Capybara.javascript_driver = :selenium_chrome_headless
   Capybara.default_max_wait_time = 5
+  
+  # Disable Capybara's automatic screenshot feature
+  config.after(:each, type: :system) do
+    nil
+  end
+  config.after(:each, type: :feature) do
+    nil
+  end
 
   # Filter lines from Rails gems in backtraces
   config.filter_rails_from_backtrace!

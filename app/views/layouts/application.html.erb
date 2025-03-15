@@ -462,26 +462,32 @@
 
       footer .max-w-7xl {
         width: 100%;
+        max-width: 80rem;
+        margin: 0 auto;
+        padding: 0 1rem;
+      }
+
+      footer .flex-col {
         display: flex;
-        justify-content: center;
+        flex-direction: column;
         align-items: center;
+        justify-content: center;
+        gap: 1.5rem;
+        width: 100%;
       }
 
       footer p.text-sm {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        margin: 0 auto;
+        text-align: center;
+        margin: 0;
         line-height: 1.5;
       }
 
-      footer .rainbow-text {
-        background: linear-gradient(45deg, #7aa2f7, #bb9af7, #7dcfff);
-        -webkit-background-clip: text;
-        background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-weight: 500;
+      footer .social-links {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1.5rem;
+        margin: 0 auto;
       }
 
       /* Lists */
@@ -583,6 +589,19 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
+        padding: 0 1rem;
+      }
+
+      .main-nav {
+        width: 100%;
+      }
+
+      .nav-links {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 2rem;
       }
 
       /* Navigation */
@@ -1155,33 +1174,19 @@
     <header class="main-header">
       <div class="max-w-7xl">
         <div class="header-content">
-          <div class="flex-none">
+          <div class="flex-none w-[24px]">
             <%= link_to root_path, class: "social-icon", title: "Home" do %>
               <span class="sr-only">Home</span>
               <i class="fas fa-home text-xl"></i>
             <% end %>
           </div>
           
-          <nav>
-            <%= link_to "Projects", projects_path, class: "nav-link" %>
-            <%= link_to "Blog", posts_path, class: "nav-link" %>
-            <%= link_to "CV", cv_path, class: "nav-link" %>
-          </nav>
-
-          <div class="social-icons">
-            <a href="https://github.com/mathisto" target="_blank" rel="noopener noreferrer" class="social-icon">
-              <span class="sr-only">GitHub</span>
-              <i class="fab fa-github text-xl"></i>
-            </a>
-            <a href="https://www.linkedin.com/in/themattkellyshow/" target="_blank" rel="noopener noreferrer" class="social-icon">
-              <span class="sr-only">LinkedIn</span>
-              <i class="fab fa-linkedin text-xl"></i>
-            </a>
-            <a href="mailto:matthew.ryan.kelly@gmail.com" class="social-icon">
-              <span class="sr-only">Email</span>
-              <i class="fas fa-envelope text-xl"></i>
-            </a>
+          <div class="flex-grow flex justify-center items-center w-full">
+            <%= render "shared/nav" %>
           </div>
+
+          <%# Empty div for symmetry %>
+          <div class="flex-none w-[24px]"></div>
         </div>
       </div>
     </header>

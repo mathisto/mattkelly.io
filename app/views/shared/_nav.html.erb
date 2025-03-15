@@ -1,30 +1,9 @@
-<%# Main navigation - three sections: title (already in layout), center links, and social icons %>
-<div class="flex items-center space-x-8">
-  <%# Center navigation links %>
-  <div class="flex items-center space-x-8">
-    <%= link_to "Projects", projects_path, class: "nav-link font-medium text-[#a9b1d6]" %>
-    <%= link_to "Blog", posts_path, class: "nav-link font-medium text-[#a9b1d6]" %>
-    <%= link_to "CV", cv_path, class: "nav-link font-medium text-[#a9b1d6]" %>
+<%# Main navigation - centered links %>
+<nav class="main-nav">
+  <div class="nav-links flex items-center justify-center gap-6">
+    <%= link_to "Projects", projects_path, class: "nav-link font-medium text-[#a9b1d6] hover:text-[#bb9af7] transition-colors duration-200" %>
+    <%= link_to "Blog", posts_path, class: "nav-link font-medium text-[#a9b1d6] hover:text-[#bb9af7] transition-colors duration-200" %>
+    <%= link_to "CV", cv_path, class: "nav-link font-medium text-[#a9b1d6] hover:text-[#bb9af7] transition-colors duration-200" %>
+    <%= link_to "References", references_path, class: "nav-link font-medium text-[#a9b1d6] hover:text-[#bb9af7] transition-colors duration-200" %>
   </div>
-
-  <%# Social links %>
-  <div class="flex items-center space-x-6">
-    <%# GitHub %>
-    <a href="https://github.com/mathisto" target="_blank" rel="noopener noreferrer" class="nav-link text-[#7aa2f7] hover:text-[#bb9af7] transition-colors duration-200">
-      <span class="sr-only">GitHub</span>
-      <i class="fab fa-github text-xl"></i>
-    </a>
-
-    <%# LinkedIn %>
-    <a href="https://www.linkedin.com/in/themattkellyshow/" target="_blank" rel="noopener noreferrer" class="nav-link text-[#7aa2f7] hover:text-[#bb9af7] transition-colors duration-200">
-      <span class="sr-only">LinkedIn</span>
-      <i class="fab fa-linkedin text-xl"></i>
-    </a>
-
-    <%# Email %>
-    <a href="mailto:matthew.ryan.kelly@gmail.com" class="nav-link text-[#7aa2f7] hover:text-[#bb9af7] transition-colors duration-200">
-      <span class="sr-only">Email</span>
-      <i class="fas fa-envelope text-xl"></i>
-    </a>
-  </div>
-</div> 
+</nav> 

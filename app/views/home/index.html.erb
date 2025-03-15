@@ -212,13 +212,38 @@
     color: #7aa2f7;
   }
 
+  /* Base command output styles */
   .command-output {
     color: #a9b1d6;
     margin-left: 1.5rem;
     margin-bottom: 1rem;
+  }
+
+  /* ASCII art specific styling */
+  .ascii-art {
+    font-family: 'Fira Code', monospace;
     white-space: pre;
     font-size: 0.7rem;
     line-height: 1.2;
+    padding: 0.5rem 0;
+    display: inline-block;
+    background: transparent;
+  }
+
+  /* Ensure the pre tag inside terminal matches the container */
+  .terminal-content .command-output pre.ascii-art {
+    margin: 0;
+    background: transparent;
+    border: none;
+    padding: 0.5rem 0;
+  }
+
+  /* Role text specific styling */
+  .role-text {
+    white-space: normal;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    padding-right: 1.5rem;
   }
 
   /* Blinking cursor */
@@ -300,19 +325,22 @@
               <span class="prompt-symbol">❯</span>
               <span class="command-text">whoami</span>
             </div>
-            <div class="command-output"> 
- __  __       _   _     _  __    _ _      
-|  \/  | __ _| |_| |_  | |/ /___| | |_   _
- | |\/| |/ _` | __| __| | ' // _ \ | | | | |
- | |  | | (_| | |_| |_  | . \  __/ | | |_| |
- |_|  |_|\__,_|\__|\__| |_|\_\___|_|_|\__, |
-                                      |___/ </div>
+            <div class="command-output">
+              <pre class="ascii-art">__  __       _   _    _  __    _ _ 
+     |  \/  | __ _| |_| |_ | |/ /___| | |_   _ 
+     | |\/| |/ _` | __| __|| ' // _ \ | | | | |
+     | |  | | (_| | |_| |_ | . \  __/ | | |_| |
+     |_|  |_|\__,_|\__|\__||_|\_\___|_|_|\__, |
+                                         |___/</pre>
+            </div>
             <div class="command-prompt">
               <span class="prompt-symbol">❯</span>
               <span class="command-text">cat role.txt</span>
             </div>
             <div class="command-output">
-              Staff Engineer building scalable systems and fostering excellence.
+              <div class="role-text">
+                Polyglot problem solver who bridges the gap between complex architecture and human-centered leadership.
+              </div>
             </div>
             <div class="command-prompt">
               <span class="prompt-symbol">❯</span>

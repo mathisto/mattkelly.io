@@ -56,8 +56,6 @@ MattKelly.io is a minimalist personal website that prioritizes performance, main
 
 ### Prerequisites
 - Ruby 3.3.0+
-- Node.js 18+
-- PostgreSQL 14+
 
 ### Installation
 
@@ -70,16 +68,9 @@ cd mattkelly.io
 2. Install dependencies
 ```bash
 bundle install
-npm install
 ```
 
-3. Set up environment
-```bash
-cp .env.example .env
-# Configure your environment variables
-```
-
-4. Start the development server
+3. Start the development server
 ```bash
 bin/dev
 ```

@@ -18,6 +18,12 @@
     display: grid;
   }
 
+  .dev-card {
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
   .grid-cols-1 {
     grid-template-columns: repeat(1, minmax(0, 1fr));
   }
@@ -102,7 +108,7 @@
   /* Terminal Styles */
   .terminal-container {
     max-width: 800px;
-    margin: 2rem auto;
+    margin: 0 auto;
   }
 
   .terminal-header {
@@ -287,11 +293,11 @@
   /* Mobile Optimizations */
   @media (max-width: 639px) {
     .hero {
-      padding: 2rem 1rem;
+      padding: 1rem;
     }
 
     .hero h1 {
-      margin-bottom: 1rem;
+      margin-bottom: 0.5rem;
     }
 
     .hero p {
@@ -301,8 +307,9 @@
     }
 
     .dev-card {
-      padding: 1.5rem;
-      margin-bottom: 3rem !important;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem !important;
+      max-width: 100%;
     }
 
     .dev-card .card-title {
@@ -319,18 +326,18 @@
       padding: 0.5rem;
     }
 
-    .grid.gap-8 {
-      gap: 4rem !important;
+    .grid.gap-6 {
+      gap: 1.5rem !important;
     }
 
     .py-2 {
-      padding-top: 2rem;
-      padding-bottom: 2rem;
+      padding-top: 1rem;
+      padding-bottom: 1rem;
     }
 
     .py-4 {
-      padding-top: 4rem !important;
-      padding-bottom: 4rem !important;
+      padding-top: 1rem !important;
+      padding-bottom: 1rem !important;
     }
 
     /* Mobile CTA Adjustments */
@@ -356,7 +363,7 @@
       font-size: 1rem;
     }
 
-    .cta-section .card-content {
+    .cta-section .card-actions a span {
       font-size: 0.9375rem;
       margin-bottom: 0.5rem;
     }
@@ -364,15 +371,15 @@
     /* Mobile GitHub Heatmap */
     .github-heatmap {
       padding: 0.5rem;
+      overflow-x: auto;
+      max-height: 200px;  /* Limit height on mobile */
     }
 
     .github-heatmap-grid {
       gap: 2px;
-    }
-
-    .github-heatmap-day {
-      width: 8px;
-      height: 8px;
+      max-width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     .mt-8 {
@@ -387,12 +394,38 @@
     .dev-card:hover {
       transform: none !important;
     }
+
+    /* Adjust spacing between sections */
+    section.py-16 {
+      padding-top: 2rem;
+      padding-bottom: 2rem;
+    }
+
+    /* Ensure GitHub card doesn't overflow */
+    .dev-card[data-controller="github-heatmap"] {
+      margin-bottom: 2rem !important;
+      overflow: hidden;
+    }
+
+    /* Fix CTA section spacing */
+    .cta-section {
+      position: relative;
+      z-index: 2;
+      padding-top: 2rem !important;
+    }
+
+    .cta-section .dev-card {
+      position: relative;
+      z-index: 2;
+      background: var(--background-color, #1a1b26);
+      margin-bottom: 0 !important;
+    }
   }
 </style>
 
 <%# Hero Section %>
 <h1 class="visually-hidden">Matt Kelly</h1>
-<section class="hero py-8 sm:py-12">
+<section class="hero py-4 sm:py-8">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div data-controller="entrance" data-entrance-delay-value="0">
       <div class="dev-card terminal-container">
@@ -438,13 +471,13 @@
 </section>
 
 <%# Core Skills %>
-<section class="py-16">
+<section class="py-4">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="section-header text-center mb-6 sm:mb-8" data-controller="entrance" data-entrance-delay-value="100">
+    <div class="section-header text-center mb-4 sm:mb-6" data-controller="entrance" data-entrance-delay-value="100">
       <h2>Core Expertise</h2>
     </div>
 
-    <div class="grid gap-8" data-controller="entrance" data-entrance-delay-value="200">
+    <div class="grid gap-6" data-controller="entrance" data-entrance-delay-value="200">
       <div class="dev-card animate-slide-in-left">
         <h3 class="card-title text-center">System Architecture</h3>
         <p class="card-content">
@@ -556,14 +589,18 @@
         </div>
       </div>
     </div>
+  </div>
+</section>
 
-    <%# GitHub Activity %>
-    <div class="mt-24">
-      <div class="section-header text-center mb-8" data-controller="entrance" data-entrance-delay-value="300">
-        <h2>GitHub Activity</h2>
-        <p>My open source contributions over the last year</p>
-      </div>
+<%# GitHub Activity %>
+<section class="py-16">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="section-header text-center mb-8" data-controller="entrance" data-entrance-delay-value="300">
+      <h2>GitHub Activity</h2>
+      <p>My open source contributions over the last year</p>
+    </div>
 
+    <div class="grid grid-cols-1">
       <% if @github_data %>
         <div class="dev-card animate-fade-in" data-controller="github-heatmap"
              data-github-heatmap-data-value="<%= @github_data[:contributions].to_json %>"
@@ -583,22 +620,24 @@
 <%# Call to Action %>
 <section class="py-16 pb-24 sm:pb-32 cta-section">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div data-controller="entrance" data-entrance-delay-value="600" class="flex justify-center">
-      <div class="dev-card animate-fade-in">
-        <h2 class="card-title text-2xl mb-4">Let's Build Something Together</h2>
-        <p class="card-content">
-          Whether you're looking to scale your infrastructure, mentor your team, or build something new,
-          I'd love to help you achieve your goals.
-        </p>
-        <div class="card-actions">
-          <a href="mailto:matthew.ryan.kelly@gmail.com">
-            <i class="fas fa-envelope"></i>
-            <span>Get in Touch</span>
-          </a>
-          <a href="/CV.pdf">
-            <i class="fas fa-file-pdf"></i>
-            <span>Download CV</span>
-          </a>
+    <div class="grid grid-cols-1">
+      <div data-controller="entrance" data-entrance-delay-value="600">
+        <div class="dev-card animate-fade-in text-center">
+          <h2 class="card-title text-2xl mb-4">Let's Build Something Together</h2>
+          <p class="card-content">
+            Whether you're looking to scale your infrastructure, mentor your team, or build something new,
+            I'd love to help you achieve your goals.
+          </p>
+          <div class="card-actions">
+            <a href="mailto:matthew.ryan.kelly@gmail.com">
+              <i class="fas fa-envelope"></i>
+              <span>Get in Touch</span>
+            </a>
+            <a href="/CV.pdf">
+              <i class="fas fa-file-pdf"></i>
+              <span>Download CV</span>
+            </a>
+          </div>
         </div>
       </div>
     </div>

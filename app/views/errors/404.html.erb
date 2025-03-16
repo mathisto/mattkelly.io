@@ -1,79 +1,35 @@
 <%# 4th Dimension 404 Page %>
-<div class="min-h-[80vh] flex items-center justify-center bg-[#1a1b26]" data-controller="tesseract">
-  <canvas id="hypercubeCanvas" class="absolute inset-0 w-full h-full"></canvas>
-  
-  <div class="text-center px-4 relative z-10">
-    <%# Glitch Effect %>
-    <div class="relative mb-8 select-none" data-controller="glitch">
-      <h1 class="text-[12rem] font-bold leading-none tracking-tighter text-[#7aa2f7] opacity-75 glitch-base"
-          data-glitch="404">
+<div class="min-h-[100vh] flex flex-col items-center bg-[#1a1b26]" data-controller="tesseract">
+  <%# Header Content %>
+  <div class="container max-w-3xl mx-auto flex items-center justify-center px-4 py-12 relative z-10 min-h-[30vh]">
+    <div class="flex flex-col items-center justify-center w-full">
+      <h1 class="text-[12rem] font-bold leading-[1] tracking-tighter text-[#7aa2f7] mb-8">
         404
       </h1>
-      <div class="absolute inset-0 text-[12rem] font-bold leading-none tracking-tighter text-[#bb9af7] glitch-layer-1"
-           aria-hidden="true"
-           data-glitch="404">
-        404
-      </div>
-      <div class="absolute inset-0 text-[12rem] font-bold leading-none tracking-tighter text-[#7dcfff] glitch-layer-2"
-           aria-hidden="true"
-           data-glitch="404">
-        404
-      </div>
+
+      <%# Message %>
+      <h2 class="text-2xl font-heading font-semibold text-[#7aa2f7] mb-4">
+        Lost Between Dimensions
+      </h2>
+      <p class="text-[#a9b1d6] mb-8 text-lg max-w-xl mx-auto">
+        This page has slipped through a tear in the fabric between our three-dimensional space 
+        and the fourth dimension. Here's where you might glimpse it in the hypercube below. 🌌
+      </p>
+
+      <%# Action Button %>
+      <%= link_to root_path, 
+          class: "inline-flex items-center px-6 py-3 rounded-lg bg-[#7aa2f7] hover:bg-[#bb9af7] text-white font-medium transition-all duration-300 transform hover:scale-105 hover:rotate-1 shadow-[0_0_15px_rgba(122,162,247,0.5)] hover:shadow-[0_0_25px_rgba(187,154,247,0.5)]" do %>
+        <i class="ph ph-house mr-2 text-white"></i>
+        <span class="text-white">Return to Our Dimension</span>
+      <% end %>
     </div>
+  </div>
 
-    <%# Message %>
-    <h2 class="text-2xl font-heading font-semibold text-[#7aa2f7] mb-4">
-      Oops! Page Lost in the 4th Dimension
-    </h2>
-    <p class="text-[#a9b1d6] mb-8 max-w-md mx-auto">
-      It seems this page has slipped into a hypercube and vanished into the fourth dimension. 
-      Watch out for the tesseract, it tends to consume wayward URLs! 🌌
-    </p>
-
-    <%# Action Button %>
-    <%= link_to root_path, 
-        class: "inline-flex items-center px-6 py-3 rounded-lg bg-[#7aa2f7] hover:bg-[#bb9af7] text-white font-medium transition-all duration-300 transform hover:scale-105 hover:rotate-1 shadow-[0_0_15px_rgba(122,162,247,0.5)] hover:shadow-[0_0_25px_rgba(187,154,247,0.5)]" do %>
-      <i class="ph ph-house mr-2 text-white"></i>
-      <span class="text-white">Return to Our Dimension</span>
-    <% end %>
+  <%# Tesseract Canvas %>
+  <div class="flex-1 w-full relative">
+    <canvas id="hypercubeCanvas" class="absolute inset-0 w-full h-full"></canvas>
   </div>
 </div>
-
-<style>
-  /* Glitch Effect Styles */
-  .glitch-base {
-    position: relative;
-    z-index: 1;
-  }
-
-  .glitch-layer-1 {
-    z-index: 0;
-    animation: glitch-1 2s infinite linear alternate-reverse;
-  }
-
-  .glitch-layer-2 {
-    z-index: -1;
-    animation: glitch-2 3s infinite linear alternate-reverse;
-  }
-
-  @keyframes glitch-1 {
-    0% { transform: translate(0); }
-    20% { transform: translate(-2px, 2px); }
-    40% { transform: translate(-2px, -2px); }
-    60% { transform: translate(2px, 2px); }
-    80% { transform: translate(2px, -2px); }
-    100% { transform: translate(0); }
-  }
-
-  @keyframes glitch-2 {
-    0% { transform: translate(0); }
-    20% { transform: translate(2px, -2px); }
-    40% { transform: translate(2px, 2px); }
-    60% { transform: translate(-2px, -2px); }
-    80% { transform: translate(-2px, 2px); }
-    100% { transform: translate(0); }
-  }
-</style>
 
 <%# Tesseract Animation Script %>
 <script>
@@ -85,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Set canvas to full window size
   function resizeCanvas() {
     canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
+    canvas.height = window.innerHeight * 0.7; // Take up lower portion of screen
   }
   
   resizeCanvas();
@@ -185,9 +141,11 @@ document.addEventListener('DOMContentLoaded', function() {
       .map(projectTo3D)
       .map(projectTo2D);
     
-    // Draw edges
+    // Draw edges with glow effect
     ctx.strokeStyle = '#7aa2f7';
     ctx.lineWidth = 1.5;
+    ctx.shadowColor = '#7aa2f7';
+    ctx.shadowBlur = 10;
     ctx.beginPath();
     
     edges.forEach(([i, j]) => {
@@ -197,7 +155,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     ctx.stroke();
     
-    // Draw vertices
+    // Reset shadow for vertices
+    ctx.shadowBlur = 0;
+    
+    // Draw vertices with glow
     ctx.fillStyle = '#bb9af7';
     projectedVertices.forEach(([x, y]) => {
       ctx.beginPath();

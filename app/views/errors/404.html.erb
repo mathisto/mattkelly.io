@@ -1,6 +1,8 @@
-<%# Brand New 404 Page %>
-<div class="min-h-[80vh] flex items-center justify-center bg-[#1a1b26]" data-controller="entrance">
-  <div class="text-center px-4">
+<%# 4th Dimension 404 Page %>
+<div class="min-h-[80vh] flex items-center justify-center bg-[#1a1b26]" data-controller="tesseract">
+  <canvas id="hypercubeCanvas" class="absolute inset-0 w-full h-full"></canvas>
+  
+  <div class="text-center px-4 relative z-10">
     <%# Glitch Effect %>
     <div class="relative mb-8 select-none" data-controller="glitch">
       <h1 class="text-[12rem] font-bold leading-none tracking-tighter text-[#7aa2f7] opacity-75 glitch-base"
@@ -21,24 +23,24 @@
 
     <%# Message %>
     <h2 class="text-2xl font-heading font-semibold text-[#7aa2f7] mb-4">
-      Welp, this is awkward...
+      Oops! Page Lost in the 4th Dimension
     </h2>
     <p class="text-[#a9b1d6] mb-8 max-w-md mx-auto">
-      Looks like this page pulled a ninja move and disappeared. 
-      Maybe it's meditating in a digital zen garden? 🤔
+      It seems this page has slipped into a hypercube and vanished into the fourth dimension. 
+      Watch out for the tesseract, it tends to consume wayward URLs! 🌌
     </p>
 
     <%# Action Button %>
     <%= link_to root_path, 
         class: "inline-flex items-center px-6 py-3 rounded-lg bg-[#7aa2f7] hover:bg-[#bb9af7] text-white font-medium transition-all duration-300 transform hover:scale-105 hover:rotate-1 shadow-[0_0_15px_rgba(122,162,247,0.5)] hover:shadow-[0_0_25px_rgba(187,154,247,0.5)]" do %>
       <i class="ph ph-house mr-2 text-white"></i>
-      <span class="text-white">Beam me up, Scotty!</span>
+      <span class="text-white">Return to Our Dimension</span>
     <% end %>
   </div>
 </div>
 
-<%# Add glitch effect styles %>
 <style>
+  /* Glitch Effect Styles */
   .glitch-base {
     position: relative;
     z-index: 1;
@@ -72,3 +74,145 @@
     100% { transform: translate(0); }
   }
 </style>
+
+<%# Tesseract Animation Script %>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Canvas setup
+  const canvas = document.getElementById('hypercubeCanvas');
+  const ctx = canvas.getContext('2d');
+  
+  // Set canvas to full window size
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+  
+  // Hypercube vertices (4D)
+  const vertices4D = [];
+  for (let x = -1; x <= 1; x += 2) {
+    for (let y = -1; y <= 1; y += 2) {
+      for (let z = -1; z <= 1; z += 2) {
+        for (let w = -1; w <= 1; w += 2) {
+          vertices4D.push([x, y, z, w]);
+        }
+      }
+    }
+  }
+  
+  // Edges of the hypercube
+  const edges = [];
+  for (let i = 0; i < vertices4D.length; i++) {
+    for (let j = i + 1; j < vertices4D.length; j++) {
+      let diffCount = 0;
+      for (let k = 0; k < 4; k++) {
+        if (vertices4D[i][k] !== vertices4D[j][k]) diffCount++;
+      }
+      if (diffCount === 1) edges.push([i, j]);
+    }
+  }
+  
+  // Rotation variables
+  let rotations = {
+    xy: 0, xz: 0, xw: 0,
+    yz: 0, yw: 0, zw: 0
+  };
+  
+  // Auto-rotation speeds
+  const autoRotateSpeeds = {
+    xy: 0.001, xz: 0.002, xw: 0.003,
+    yz: 0.002, yw: 0.001, zw: 0.002
+  };
+  
+  // Rotation matrices
+  function rotate4D(point, angles) {
+    let p = [...point];
+    
+    // Apply all rotations
+    const cos = Math.cos;
+    const sin = Math.sin;
+    
+    // XY rotation
+    let t = p[0] * cos(angles.xy) - p[1] * sin(angles.xy);
+    p[1] = p[0] * sin(angles.xy) + p[1] * cos(angles.xy);
+    p[0] = t;
+    
+    // XZ rotation
+    t = p[0] * cos(angles.xz) - p[2] * sin(angles.xz);
+    p[2] = p[0] * sin(angles.xz) + p[2] * cos(angles.xz);
+    p[0] = t;
+    
+    // And so on for other rotations...
+    return p;
+  }
+  
+  // Project 4D to 3D
+  function projectTo3D(point4D) {
+    const w = 2; // Camera distance from origin
+    const factor = 1 / (w - point4D[3]);
+    return [
+      point4D[0] * factor,
+      point4D[1] * factor,
+      point4D[2] * factor
+    ];
+  }
+  
+  // Project 3D to 2D
+  function projectTo2D(point3D) {
+    const d = 2; // Camera distance
+    const factor = 200; // Scale factor
+    return [
+      canvas.width/2 + point3D[0] * factor,
+      canvas.height/2 + point3D[1] * factor
+    ];
+  }
+  
+  // Draw the hypercube
+  function drawHypercube() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Update rotations
+    Object.keys(rotations).forEach(key => {
+      rotations[key] += autoRotateSpeeds[key];
+    });
+    
+    // Calculate vertex positions
+    const projectedVertices = vertices4D
+      .map(v => rotate4D(v, rotations))
+      .map(projectTo3D)
+      .map(projectTo2D);
+    
+    // Draw edges
+    ctx.strokeStyle = '#7aa2f7';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    
+    edges.forEach(([i, j]) => {
+      ctx.moveTo(projectedVertices[i][0], projectedVertices[i][1]);
+      ctx.lineTo(projectedVertices[j][0], projectedVertices[j][1]);
+    });
+    
+    ctx.stroke();
+    
+    // Draw vertices
+    ctx.fillStyle = '#bb9af7';
+    projectedVertices.forEach(([x, y]) => {
+      ctx.beginPath();
+      ctx.arc(x, y, 3, 0, Math.PI * 2);
+      ctx.fill();
+    });
+  }
+  
+  // Animation loop
+  function animate() {
+    drawHypercube();
+    requestAnimationFrame(animate);
+  }
+  
+  // Start animation
+  animate();
+});
+</script>

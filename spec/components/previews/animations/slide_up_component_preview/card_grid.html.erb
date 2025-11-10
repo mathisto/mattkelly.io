@@ -1,0 +1,10 @@
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+  <% 6.times do |i| %>
+    <%= render Animations::SlideUpComponent.new(delay: i * 100) do %>
+      <%= render Card::BaseComponent.new do %>
+        <h4 class="text-[#7aa2f7] text-lg font-semibold mb-2">Card <%= i + 1 %></h4>
+        <p class="text-[#a9b1d6] text-sm">Slides up with <%= i * 100 %>ms delay</p>
+      <% end %>
+    <% end %>
+  <% end %>
+</div>

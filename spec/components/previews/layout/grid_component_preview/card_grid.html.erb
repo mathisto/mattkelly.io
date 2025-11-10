@@ -1,0 +1,14 @@
+<%= render Layout::GridComponent.new(
+  columns: "grid-cols-1 md:grid-cols-2 lg:grid-cols-3",
+  gap: "gap-6"
+) do %>
+  <% 6.times do |i| %>
+    <%= render Card::BaseComponent.new do %>
+      <h4 class="text-[#7aa2f7] text-lg font-semibold mb-2">Card <%= i + 1 %></h4>
+      <p class="text-[#a9b1d6] text-sm">Grid item in responsive layout</p>
+      <%= render UI::BadgeComponent.new(variant: :skill) do %>
+        Item <%= i + 1 %>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>

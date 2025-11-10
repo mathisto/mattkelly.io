@@ -1,0 +1,26 @@
+<div class="p-8 bg-[#1a1b26] space-y-6">
+  <div class="space-y-2">
+    <h3 class="text-[#7aa2f7] font-semibold">Primary Buttons</h3>
+    <div class="flex gap-4">
+      <%= render UI::ButtonComponent.new(variant: :primary, size: :sm) do %>Small<% end %>
+      <%= render UI::ButtonComponent.new(variant: :primary, size: :md) do %>Medium<% end %>
+      <%= render UI::ButtonComponent.new(variant: :primary, size: :lg) do %>Large<% end %>
+    </div>
+  </div>
+  <div class="space-y-2">
+    <h3 class="text-[#7aa2f7] font-semibold">Ghost Buttons</h3>
+    <div class="flex gap-4">
+      <%= render UI::ButtonComponent.new(variant: :ghost, size: :sm) do %>Small<% end %>
+      <%= render UI::ButtonComponent.new(variant: :ghost, size: :md) do %>Medium<% end %>
+      <%= render UI::ButtonComponent.new(variant: :ghost, size: :lg) do %>Large<% end %>
+    </div>
+  </div>
+  <div class="space-y-2">
+    <h3 class="text-[#7aa2f7] font-semibold">Link Buttons</h3>
+    <div class="flex gap-4">
+      <%= render UI::ButtonComponent.new(variant: :link, size: :sm) do %>Small<% end %>
+      <%= render UI::ButtonComponent.new(variant: :link, size: :md) do %>Medium<% end %>
+      <%= render UI::ButtonComponent.new(variant: :link, size: :lg) do %>Large<% end %>
+    </div>
+  </div>
+</div>

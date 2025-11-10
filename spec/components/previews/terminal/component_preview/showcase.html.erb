@@ -1,0 +1,30 @@
+<div class="p-8 bg-[#1a1b26]">
+  <%= render Terminal::Component.new do |terminal| %>
+    <% terminal.with_header(title: "~/mattkelly.io") %>
+    <% terminal.with_prompt(command: "ls -la") do |prompt| %>
+      <% prompt.with_output do %>
+        <div class="space-y-1">
+          <div>drwxr-xr-x  12 matt  staff    384 Jan 22 14:30 .</div>
+          <div>drwxr-xr-x   8 matt  staff    256 Jan 20 10:15 ..</div>
+          <div>-rw-r--r--   1 matt  staff   1234 Jan 22 14:25 README.md</div>
+          <div>drwxr-xr-x  15 matt  staff    480 Jan 22 14:30 app</div>
+          <div>drwxr-xr-x   8 matt  staff    256 Jan 20 09:00 config</div>
+        </div>
+      <% end %>
+    <% end %>
+    <% terminal.with_prompt(command: "git status") do |prompt| %>
+      <% prompt.with_output do %>
+        <div class="space-y-1">
+          <div class="text-[#9ece6a]">On branch main</div>
+          <div class="text-[#9ece6a]">Your branch is up to date with 'origin/main'.</div>
+          <div class="mt-2">Changes not staged for commit:</div>
+          <div class="text-[#f7768e] ml-4">modified:   app/components/terminal/component.rb</div>
+        </div>
+      <% end %>
+    <% end %>
+    <div class="command-prompt flex items-center mt-4">
+      <span class="prompt-symbol text-[#9ece6a] mr-2">❯</span>
+      <%= render Terminal::CursorComponent.new %>
+    </div>
+  <% end %>
+</div>

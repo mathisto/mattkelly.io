@@ -1,0 +1,10 @@
+<div class="space-y-4">
+  <% 4.times do |i| %>
+    <%= render Animations::FadeInComponent.new(delay: i * 150) do %>
+      <div class="bg-[#1f2335] p-6 rounded-lg border border-[#29293f]">
+        <h4 class="text-[#7aa2f7] font-semibold">Item <%= i + 1 %></h4>
+        <p class="text-[#a9b1d6] text-sm">Delay: <%= i * 150 %>ms</p>
+      </div>
+    <% end %>
+  <% end %>
+</div>

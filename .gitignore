@@ -116,3 +116,9 @@ package-lock.json
 
 # Ignore tailwind compiled css
 /app/assets/stylesheets/application.tailwind.css
+
+# DragonRuby WASM binaries (large files)
+public/dragonruby/*.wasm
+public/dragonruby/*.data
+public/dragonruby/dragonruby*.js
+!public/dragonruby/game.html

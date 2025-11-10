@@ -1,0 +1,30 @@
+<div class="p-8 bg-[#1a1b26] grid grid-cols-1 md:grid-cols-2 gap-6">
+  <% 
+    posts = [
+      OpenStruct.new(
+        title: "ViewComponent Best Practices",
+        description: "Discover patterns and techniques for building maintainable component libraries.",
+        date: Date.new(2025, 1, 20),
+        tags: ["ViewComponent", "Rails"],
+        slug: "viewcomponent-best-practices"
+      ),
+      OpenStruct.new(
+        title: "Hotwire Turbo Frames Deep Dive",
+        description: "Master Turbo Frames for building fast, modern web applications.",
+        date: Date.new(2025, 1, 18),
+        tags: ["Hotwire", "Turbo", "Rails"],
+        slug: "turbo-frames-deep-dive"
+      ),
+      OpenStruct.new(
+        title: "Stimulus Controllers for Beginners",
+        description: "Get started with Stimulus JavaScript framework and reactive UIs.",
+        date: Date.new(2025, 1, 15),
+        tags: ["Stimulus", "JavaScript"],
+        slug: "stimulus-for-beginners"
+      )
+    ]
+  %>
+  <% posts.each do |post| %>
+    <%= render Card::PostComponent.new(post: post) %>
+  <% end %>
+</div>

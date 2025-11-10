@@ -33,13 +33,12 @@ threads min_threads_count, max_threads_count
 worker_timeout 3600 if ENV.fetch("RAILS_ENV", "development") == "development"
 
 # Specifies the `port` that Puma will listen on to receive requests; default is 3000.
-port = ENV.fetch("PORT") { 8080 }
+# In production/Docker (fly.io), use 8080. In development, use 3000.
+default_port = ENV.fetch("RAILS_ENV", "development") == "production" ? 8080 : 3000
+port ENV.fetch("PORT") { default_port }
 
 # Specifies the `environment` that Puma will run in.
 environment ENV.fetch("RAILS_ENV") { "development" }
-
-# Bind to all network interfaces
-bind "tcp://0.0.0.0:#{ENV.fetch('PORT', '8080')}"
 
 # Specifies the `pidfile` that Puma will use.
 pidfile ENV.fetch("PIDFILE") { "tmp/pids/server.pid" }

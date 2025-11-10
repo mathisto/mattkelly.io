@@ -40,8 +40,14 @@ Rails.application.configure do
   # Don't log any deprecations.
   config.active_support.report_deprecations = false
 
-  # Use memory store for caching in production
-  config.cache_store = :memory_store
+  # Use SolidCache for persistent caching backed by SQLite
+  config.cache_store = :solid_cache_store
+
+  # Configure SolidQueue database connection
+  config.solid_queue.connects_to = { database: { writing: :queue } }
+
+  # Configure SolidCache database connection
+  config.solid_cache.connects_to = { database: { writing: :cache } }
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation cannot be found).

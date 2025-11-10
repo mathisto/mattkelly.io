@@ -25,8 +25,14 @@ Rails.application.configure do
     config.action_controller.perform_caching = false
   end
 
-  # Change to :null_store to avoid any caching.
-  config.cache_store = :memory_store
+  # Use SolidCache for persistent caching backed by SQLite
+  config.cache_store = :solid_cache_store
+
+  # Configure SolidQueue database connection
+  config.solid_queue.connects_to = { database: { writing: :queue } }
+
+  # Configure SolidCache database connection
+  config.solid_cache.connects_to = { database: { writing: :cache } }
 
   # Print deprecation notices to the Rails logger.
   config.active_support.deprecation = :log
@@ -36,4 +42,7 @@ Rails.application.configure do
 
   # Raise error when a before_action's only/except options reference missing actions.
   config.action_controller.raise_on_missing_callback_actions = true
+
+  # Mission Control Jobs - Disable HTTP basic auth in development
+  config.mission_control.jobs.http_basic_auth_enabled = false
 end

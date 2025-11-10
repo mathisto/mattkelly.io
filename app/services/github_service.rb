@@ -1,12 +1,12 @@
 class GithubService
   include HTTParty
-  base_uri 'https://api.github.com'
+  base_uri "https://api.github.com"
 
   def initialize
     @headers = {
-      'Authorization' => "token #{ENV['GITHUB_API_TOKEN']}",
-      'Content-Type' => 'application/json',
-      'Accept' => 'application/vnd.github.v4+json'
+      "Authorization" => "token #{ENV['GITHUB_API_TOKEN']}",
+      "Content-Type" => "application/json",
+      "Accept" => "application/vnd.github.v4+json"
     }
   end
 
@@ -29,7 +29,7 @@ class GithubService
       }
     GRAPHQL
 
-    response = self.class.post('/graphql',
+    response = self.class.post("/graphql",
       body: { query: query }.to_json,
       headers: @headers
     )
@@ -37,18 +37,17 @@ class GithubService
     Rails.logger.info "GitHub API Response Status: #{response.code}"
     Rails.logger.info "GitHub API Response Body: #{response.body}"
 
-    data = response.dig('data', 'user', 'contributionsCollection', 'contributionCalendar')
+    data = response.dig("data", "user", "contributionsCollection", "contributionCalendar")
     return nil unless data
 
     {
-      total: data['totalContributions'],
-      contributions: data['weeks'].flat_map do |week|
-        week['contributionDays'].map do |day|
-          count = day['contributionCount']
+      total: data["totalContributions"],
+      contributions: data["weeks"].map do |week|
+        week["contributionDays"].map do |day|
           {
-            count: count,
-            date: day['date'],
-            color: contribution_color(count)
+            count: day["contributionCount"],
+            date: day["date"],
+            color: contribution_color(day["contributionCount"])
           }
         end
       end
@@ -59,11 +58,11 @@ class GithubService
 
   def contribution_color(count)
     case count
-    when 0 then '#24283b'
-    when 1 then '#7aa2f7'
-    when 2 then '#7dcfff'
-    when 3 then '#2ac3de'
-    else '#73daca'
+    when 0 then "#24283b"
+    when 1 then "#7aa2f7"
+    when 2 then "#7dcfff"
+    when 3 then "#2ac3de"
+    else "#73daca"
     end
   end
-end 
+end

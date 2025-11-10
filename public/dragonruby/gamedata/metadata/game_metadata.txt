@@ -1,0 +1,6 @@
+devid=testdev
+devtitle=Test Developer
+gameid=drtest
+gametitle=DragonRuby Test
+version=0.1
+icon=metadata/icon.png

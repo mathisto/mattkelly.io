@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+    <title>DragonRuby</title>
+    <style>
+      body {
+        font-family: 'Inter', -apple-system, sans-serif;
+        margin: 0;
+        padding: 0;
+        background: #1a1b26; /* Tokyo Night dark */
+        overflow: hidden;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      html {
+        background: #1a1b26; /* Tokyo Night dark */
+        width: 100%;
+        height: 100%;
+      }
+
+      .emscripten { 
+        padding-right: 0; 
+        margin-left: auto; 
+        margin-right: auto; 
+        display: block; 
+      }
+      
+      div.emscripten { 
+        text-align: center; 
+      }
+      
+      .emscripten_border {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      canvas.emscripten { 
+        border: none;
+        background-color: #1a1b26;
+        image-rendering: auto;
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+      
+      body, .emscripten_border {
+        background-color: #1a1b26; /* Tokyo Night dark */
+      }
+
+      #status {
+        display: inline-block;
+        font-weight: 500;
+        color: #7aa2f7;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 1rem;
+        z-index: 1000;
+        pointer-events: none;
+      }
+
+      #progress {
+        height: 24px;
+        width: 200px;
+      }
+
+      #progressdiv {
+        position: absolute;
+        top: 55%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      #output {
+        width: 100%;
+        height: 200px;
+        margin: 0 auto;
+        margin-top: 10px;
+        border: none;
+        padding: 1rem;
+        display: none;
+        background-color: #24283b;
+        color: #a9b1d6;
+        font-family: 'JetBrains Mono', 'Courier New', monospace;
+        outline: none;
+        font-size: 12px;
+      }
+
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.6; }
+      }
+
+      #status {
+        animation: pulse 2s ease-in-out infinite;
+      }
+    </style>
+  </head>
+  <body id='toplevel'>
+    <div class="emscripten_border" id='borderdiv'>
+      <canvas class="emscripten" id="canvas" width="720" height="720" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
+    </div>
+    <textarea style="display: none;" id="output" rows="8"></textarea>
+
+    <div class="emscripten" id="status">Loading DragonRuby...</div>
+    <div class="emscripten" id='progressdiv'>
+      <progress value="0" max="100" id="progress"></progress>
+    </div>
+
+    <script>
+      // Override DragonRuby window dimensions to force 1:1 aspect ratio (720x720)
+      window.dragonruby_window_width = 720;
+      window.dragonruby_window_height = 720;
+      window.dragonruby_logical_width = 720;
+      window.dragonruby_logical_height = 720;
+      console.log("[Game.html] DragonRuby dimensions set to 720x720 (1:1 aspect ratio)");
+      
+      // DISABLE service worker - Rails middleware provides COOP/COEP headers directly
+      // This prevents the reload loop that was breaking SharedArrayBuffer
+      console.log("[Game.html] Service worker disabled - using Rails COOP/COEP headers");
+      
+      // Prevent the HTML5 loader from registering the service worker
+      Object.defineProperty(navigator, 'serviceWorker', {
+        get: function() { return undefined; },
+        configurable: true
+      });
+
+      // Use official DragonRuby HTML5 loader
+      var statusElement = document.getElementById('status');
+      var progressElement = document.getElementById('progress');
+
+      var Module = {
+        preRun: [function() {
+          console.log("[Game.html] preRun - Setting up filesystem for DragonRuby...");
+          
+          try {
+            // Wait for loader to finish syncing files
+            console.log("[Game.html] Waiting for file sync to complete...");
+          } catch (e) {
+            console.error("[Game.html] ✗ Error in preRun:", e);
+          }
+        }],
+        postRun: [function() {
+          console.log("[Game.html] postRun callback - DragonRuby initialized!");
+          
+          // Setup window.gtk for parent communication
+          window.gtk = window.gtk || {};
+          window.gtk.module = Module;
+          
+          // Create saveMain function for dynamic code updates
+          // Note: DragonRuby's write dir is /dragonruby-hello-SDL, not /testdev-drtest
+          window.gtk.saveMain = function(code) {
+            try {
+              console.log("[SaveMain] Called with code length:", code.length);
+              
+              // Create app directory if it doesn't exist
+              try {
+                FS.mkdir('/dragonruby-hello-SDL/app');
+              } catch (e) {
+                // Directory might already exist
+              }
+              
+              // Write to DragonRuby's actual write directory
+              FS.writeFile('/dragonruby-hello-SDL/app/main.rb', code);
+              console.log("[SaveMain] ✓ Code written to /dragonruby-hello-SDL/app/main.rb");
+              
+              // Verify
+              const readBack = FS.readFile('/dragonruby-hello-SDL/app/main.rb', { encoding: 'utf8' });
+              console.log("[SaveMain] ✓ Verified:", readBack.length, "chars");
+            } catch (e) {
+              console.error("[SaveMain] ✗ Error:", e);
+            }
+          };
+          
+          // Expose to parent window
+          if (window.parent && window.parent !== window) {
+            console.log("[Game.html] Exposing gtk.saveMain to parent window");
+            window.parent.dragonRubyIframe = window;
+          }
+          
+          console.log("[Game.html] ✓ window.gtk.saveMain function created");
+          
+          statusElement.innerHTML = "Ready!";
+          setTimeout(function() {
+            statusElement.style.display = 'none';
+            progressElement.parentElement.style.display = 'none';
+          }, 1000);
+        }],
+        print: (function() {
+          var element = document.getElementById('output');
+          if (element) element.value = '';
+          return function(text) {
+            if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+            console.log("[DragonRuby] " + text);
+            if (element) {
+              element.value += text + "\n";
+              element.scrollTop = element.scrollHeight;
+            }
+          };
+        })(),
+        printErr: function(text) {
+          if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+          console.error("[DragonRuby Error]", text);
+        },
+        canvas: (function() {
+          var canvas = document.getElementById('canvas');
+          
+          console.log("[Module.canvas] Initialized:", {
+            canvas: canvas,
+            width: canvas.width,
+            height: canvas.height
+          });
+          
+          canvas.addEventListener("webglcontextlost", function(e) { 
+            alert('WebGL context lost. You will need to reload the page.'); 
+            e.preventDefault(); 
+          }, false);
+          
+          return canvas;
+        })(),
+        setStatus: function(text) {
+          if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
+          if (text === Module.setStatus.text) return;
+          var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+          var now = Date.now();
+          if (m && now - Date.now() < 30) return;
+          if (m) {
+            text = m[1];
+            progressElement.value = parseInt(m[2])*100;
+            progressElement.max = parseInt(m[4])*100;
+            progressElement.hidden = false;
+          } else {
+            progressElement.value = null;
+            progressElement.max = null;
+            progressElement.hidden = true;
+          }
+          statusElement.innerHTML = text;
+        },
+        totalDependencies: 0,
+        monitorRunDependencies: function(left) {
+          this.totalDependencies = Math.max(this.totalDependencies, left);
+          Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+        }
+      };
+      
+      Module.setStatus('Downloading...');
+      window.onerror = function(event) {
+        Module.setStatus('Exception thrown, see JavaScript console');
+        Module.setStatus = function(text) {
+          if (text) Module.printErr('[post-exception status] ' + text);
+        };
+      };
+      
+      // Setup window.gtk immediately (don't wait for postRun)
+      window.gtk = window.gtk || {};
+      window.gtk.module = Module;
+      
+      // Poll for FS to become available, then create saveMain
+      var pollAttempts = 0;
+      var setupSaveMain = function() {
+        pollAttempts++;
+        console.log("[Game.html Polling] Attempt", pollAttempts, "- FS available:", typeof FS !== 'undefined', "FS.writeFile:", typeof FS !== 'undefined' && FS.writeFile);
+        
+        if (typeof FS !== 'undefined' && FS.writeFile) {
+          console.log("[Game.html] ✓ FS available, creating saveMain function...");
+          
+          window.gtk.saveMain = function(code) {
+            try {
+              console.log("[SaveMain] Called with code length:", code.length);
+              
+              // Write to GAMEDATA directory (where DragonRuby actually reads from)
+              // NOT the write directory - that's for persistent saves
+              var gamePath = 'app/main.rb';  // Relative to gamedata root
+              
+              console.log("[SaveMain] Writing to gamedata:", gamePath);
+              FS.writeFile(gamePath, code);
+              console.log("[SaveMain] ✓ Code written to", gamePath);
+              
+              // Verify
+              var readBack = FS.readFile(gamePath, { encoding: 'utf8' });
+              console.log("[SaveMain] ✓ Verified:", readBack.length, "chars");
+              console.log("[SaveMain] ✓ Code preview:", readBack.substring(0, 100) + "...");
+            } catch (e) {
+              console.error("[SaveMain] ✗ Error:", e);
+              console.error("[SaveMain] ✗ Stack:", e.stack);
+            }
+          };
+          
+          // Expose to parent window
+          if (window.parent && window.parent !== window) {
+            console.log("[Game.html] Exposing gtk.saveMain to parent window via window.parent.dragonRubyIframe");
+            window.parent.dragonRubyIframe = window;
+          }
+          
+          console.log("[Game.html] ✓ window.gtk.saveMain function created and exposed!");
+        } else {
+          // FS not ready yet, try again soon (max 200 attempts = 20 seconds)
+          if (pollAttempts < 200) {
+            setTimeout(setupSaveMain, 100);
+          } else {
+            console.error("[Game.html Polling] ✗ Failed after 200 attempts - FS never became available");
+          }
+        }
+      };
+      
+      // Start polling after DragonRuby has time to initialize
+      console.log("[Game.html] Starting FS polling in 1 second...");
+      setTimeout(setupSaveMain, 1000);
+
+      // Check for WebAssembly and SharedArrayBuffer support
+      console.log("[Game.html] Checking browser support...");
+      console.log("[Game.html] WebAssembly available:", typeof WebAssembly === "object");
+      console.log("[Game.html] SharedArrayBuffer available:", typeof SharedArrayBuffer !== "undefined");
+      
+      if (typeof WebAssembly !== "object" || typeof WebAssembly.Memory !== "function") {
+        Module.setStatus("Your browser doesn't have WebAssembly support. Please upgrade.");
+      } else if (typeof SharedArrayBuffer === "undefined") {
+        Module.setStatus("SharedArrayBuffer not available. Check COOP/COEP headers.");
+        console.error("[Game.html] SharedArrayBuffer is undefined - COOP/COEP headers may be missing");
+      } else {
+        console.log("[Game.html] ✓ All browser features available, loading DragonRuby...");
+        
+        // FORCE CLEAR OLD INDEXEDDB - manifest was broken before, need fresh download
+        console.log("[Game.html] Clearing old IndexedDB databases...");
+        var dbNamesToClear = ['drtest', 'drtest-v2'];
+        var clearedCount = 0;
+        
+        dbNamesToClear.forEach(function(dbName) {
+          var deleteRequest = indexedDB.deleteDatabase(dbName);
+          deleteRequest.onsuccess = function() {
+            console.log("[Game.html] ✓ Deleted database:", dbName);
+            clearedCount++;
+            if (clearedCount === dbNamesToClear.length) {
+              loadDragonRuby();
+            }
+          };
+          deleteRequest.onerror = function() {
+            console.log("[Game.html] No database to delete:", dbName);
+            clearedCount++;
+            if (clearedCount === dbNamesToClear.length) {
+              loadDragonRuby();
+            }
+          };
+        });
+        
+        function loadDragonRuby() {
+          console.log("[Game.html] Loading DragonRuby with fresh cache...");
+          // Load the official HTML5 loader which handles file syncing
+          var loaderScript = document.createElement('script');
+          loaderScript.src = 'dragonruby-html5-loader.js?v=' + Date.now(); // Cache-bust for manifest fix
+          loaderScript.async = false; // Load synchronously
+          document.body.appendChild(loaderScript);
+        }
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,4 @@
+<% content_for :title, @tutorial.title %>
+<turbo-frame id="tutorial-content" class="tutorial-frame">
+  <%= render "frame_content", tutorial: @tutorial %>
+</turbo-frame>

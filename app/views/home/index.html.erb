@@ -109,6 +109,12 @@
   .terminal-container {
     max-width: 800px;
     margin: 0 auto;
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+    text-align: left !important;
+    background: #1f2335;
+    min-height: 400px;
   }
 
   .terminal-header {
@@ -117,6 +123,7 @@
     margin-bottom: 1rem;
     padding-bottom: 0.5rem;
     border-bottom: 1px solid rgba(122, 162, 247, 0.2);
+    text-align: left;
   }
 
   .terminal-dots {
@@ -134,68 +141,69 @@
   .dot-yellow { background: #e0af68; }
   .dot-green { background: #9ece6a; }
 
-  .terminal-content {
+  .terminal-output {
+    flex: 1;
+    overflow-y: auto;
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 1rem;
     font-family: 'Fira Code', monospace;
     color: #a9b1d6;
+    text-align: left;
   }
 
-  .command-prompt {
+  .terminal-output > div {
+    white-space: pre-wrap;
+    word-break: normal;
+    overflow-wrap: break-word;
+    text-align: left;
+  }
+
+  .terminal-output a {
+    word-break: keep-all;
+    white-space: nowrap;
+    pointer-events: auto;
+    position: relative;
+    z-index: 10;
+  }
+
+  .terminal-output a:hover {
+    opacity: 0.8;
+  }
+
+  .terminal-input-line {
     display: flex;
     align-items: center;
-    margin-bottom: 0.5rem;
-  }
-
-  .prompt-symbol {
-    color: #9ece6a;
-    margin-right: 0.5rem;
-  }
-
-  .command-text {
-    color: #7aa2f7;
-  }
-
-  .command-output {
-    color: #a9b1d6;
-    margin-left: 1.5rem;
-    margin-bottom: 1rem;
-  }
-
-  .ascii-art {
+    font-size: 14px;
     font-family: 'Fira Code', monospace;
+    text-align: left;
+  }
+
+  .terminal-prompt {
+    margin-right: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  .terminal-input {
+    flex: 1;
+    outline: none;
+    color: #a9b1d6;
     white-space: pre;
-    font-size: 0.7rem;
-    line-height: 1.2;
-    padding: 0.5rem 0;
-    display: inline-block;
-    background: transparent;
+    min-width: 0;
   }
 
-  .terminal-content .command-output pre.ascii-art {
-    margin: 0;
-    background: transparent;
-    border: none;
-    padding: 0.5rem 0;
-  }
-
-  .role-text {
-    white-space: normal;
-    font-size: 0.9rem;
-    line-height: 1.5;
-    padding-right: 1.5rem;
-  }
-
-  /* Cursor Animation */
   .cursor {
-    display: inline-block;
-    width: 0.5rem;
-    height: 1.2rem;
-    background: #bb9af7;
-    margin-left: 0.25rem;
-    animation: blink 1s infinite;
+    display: inline;
+    background: rgba(187, 154, 247, 0.4);
+    animation: blink 1.5s ease-in-out infinite;
+  }
+
+  .cursor:empty::before {
+    content: '\00a0';
   }
 
   @keyframes blink {
-    0%, 100% { opacity: 0; }
+    0%, 100% { opacity: 0.3; }
     50% { opacity: 1; }
   }
 
@@ -286,7 +294,7 @@
     .sm\:gap-8 {
       gap: 2rem;
     }
-    
+
     .sm\:gap-6 {
       gap: 1.5rem;
     }
@@ -537,61 +545,39 @@
     }
   }
 </style>
-
 <%# Hero Section %>
 <h1 class="visually-hidden">Matt Kelly</h1>
 <section class="hero py-4 sm:py-8">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div data-controller="entrance" data-entrance-delay-value="0">
-      <div class="dev-card terminal-container">
-        <div class="terminal-inner">
-          <div class="terminal-header">
-            <div class="terminal-dots">
-              <div class="terminal-dot dot-red"></div>
-              <div class="terminal-dot dot-yellow"></div>
-              <div class="terminal-dot dot-green"></div>
-            </div>
+      <div 
+        class="dev-card terminal-container" 
+        data-controller="interactive-terminal"
+        data-action="keydown->interactive-terminal#handleKeydown"
+        tabindex="0"
+        >
+        <div class="terminal-header">
+          <div class="terminal-dots">
+            <div class="terminal-dot dot-red"></div>
+            <div class="terminal-dot dot-yellow"></div>
+            <div class="terminal-dot dot-green"></div>
           </div>
-          <div class="terminal-content">
-            <div class="command-prompt">
-              <span class="prompt-symbol">❯</span>
-              <span class="command-text">whoami</span>
-            </div>
-            <div class="command-output">
-              <pre class="ascii-art">__  __       _   _    _  __    _ _ 
-     |  \/  | __ _| |_| |_ | |/ /___| | |_   _ 
-     | |\/| |/ _` | __| __|| ' // _ \ | | | | |
-     | |  | | (_| | |_| |_ | . \  __/ | | |_| |
-     |_|  |_|\__,_|\__|\__||_|\_\___|_|_|\__, |
-                                         |___/</pre>
-            </div>
-            <div class="command-prompt">
-              <span class="prompt-symbol">❯</span>
-              <span class="command-text">cat role.txt</span>
-            </div>
-            <div class="command-output">
-              <div class="role-text">
-                Polyglot problem solver who bridges the gap between complex architecture and human-centered leadership.
-              </div>
-            </div>
-            <div class="command-prompt">
-              <span class="prompt-symbol">❯</span>
-              <span class="cursor"></span>
-            </div>
-          </div>
+        </div>
+        <div class="terminal-output" data-interactive-terminal-target="output"></div>
+        <div class="terminal-input-line">
+          <span class="terminal-prompt" data-interactive-terminal-target="prompt"></span>
+          <span class="terminal-input" data-interactive-terminal-target="input"></span>
         </div>
       </div>
     </div>
   </div>
 </section>
-
 <%# Core Skills %>
 <section class="py-4">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="section-header text-center mb-4 sm:mb-6" data-controller="entrance" data-entrance-delay-value="100">
       <h2>Core Expertise</h2>
     </div>
-
     <div class="grid gap-6" data-controller="entrance" data-entrance-delay-value="200">
       <div class="dev-card animate-slide-in-left">
         <h3 class="card-title text-center">System Architecture</h3>
@@ -614,7 +600,6 @@
           </span>
         </div>
       </div>
-
       <div class="dev-card animate-fade-in">
         <h3 class="card-title text-center">Technical Leadership</h3>
         <p class="card-content">
@@ -636,7 +621,6 @@
           </span>
         </div>
       </div>
-
       <div class="dev-card animate-slide-in-right">
         <h3 class="card-title text-center">Cloud & DevOps</h3>
         <p class="card-content">
@@ -660,14 +644,12 @@
     </div>
   </div>
 </section>
-
 <%# Technologies %>
 <section class="py-16">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="section-header text-center mb-8" data-controller="entrance" data-entrance-delay-value="300">
       <h2>Technical Arsenal</h2>
     </div>
-
     <div class="grid gap-8" data-controller="entrance" data-entrance-delay-value="500">
       <div class="dev-card animate-slide-in-left">
         <h3 class="card-title text-center">Languages</h3>
@@ -680,7 +662,6 @@
           <span class="skill-pill"><i class="fas fa-moon"></i> Lua</span>
         </div>
       </div>
-
       <div class="dev-card animate-fade-in">
         <h3 class="card-title text-center">Frameworks & Tools</h3>
         <div class="skills-container justify-center">
@@ -692,7 +673,6 @@
           <span class="skill-pill"><i class="fab fa-git-alt"></i> Git</span>
         </div>
       </div>
-
       <div class="dev-card animate-slide-in-right">
         <h3 class="card-title text-center">Databases & Storage</h3>
         <div class="skills-container justify-center">
@@ -706,7 +686,6 @@
     </div>
   </div>
 </section>
-
 <%# GitHub Activity %>
 <section class="py-16">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -714,24 +693,20 @@
       <h2>GitHub Activity</h2>
       <p>My open source contributions over the last year</p>
     </div>
-
     <div class="grid grid-cols-1">
-      <% if @github_data %>
-        <div class="dev-card animate-fade-in" data-controller="github-heatmap"
-             data-github-heatmap-data-value="<%= @github_data[:contributions].to_json %>"
-             data-github-heatmap-total-value="<%= @github_data[:total] %>">
-          <div data-github-heatmap-target="heatmap" class="github-heatmap"></div>
-        </div>
-      <% else %>
-        <div class="dev-card animate-fade-in text-center py-8">
-          <p class="text-gray-400">GitHub contribution data is currently unavailable.</p>
-          <p class="text-sm text-gray-500 mt-2">Check out my <a href="https://github.com/mathisto" class="text-blue-400 hover:text-blue-300" target="_blank" rel="noopener noreferrer">GitHub profile</a> directly.</p>
-        </div>
-      <% end %>
+      <div class="dev-card animate-fade-in">
+        <% if @github_data %>
+          <%= render Github::HeatmapComponent.new(data: @github_data) %>
+        <% else %>
+          <div class="text-center py-8">
+            <p class="text-gray-400">GitHub contribution data is currently unavailable.</p>
+            <p class="text-sm text-gray-500 mt-2">Check out my <a href="https://github.com/mathisto" class="text-blue-400 hover:text-blue-300" target="_blank" rel="noopener noreferrer">GitHub profile</a> directly.</p>
+          </div>
+        <% end %>
+      </div>
     </div>
   </div>
 </section>
-
 <%# Call to Action %>
 <section class="py-16 pb-24 sm:pb-32 cta-section">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

@@ -1,0 +1,11 @@
+<% content_for(:title, page_title) if @title %>
+<%= hero if hero? %>
+<main class="flex-grow pt-20">
+  <div class="max-w-7xl mx-auto">
+    <% if sections? %>
+      <%= sections %>
+    <% else %>
+      <%= content %>
+    <% end %>
+  </div>
+</main>

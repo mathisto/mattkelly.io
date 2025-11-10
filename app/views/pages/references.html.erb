@@ -1,261 +1,58 @@
-<%# References Page with Tokyo Night theme %>
-<style>
-  .reference-card {
-    background: rgba(31, 35, 53, 0.8);
-    border: 1px solid transparent;
-    border-radius: 1rem;
-    padding: 2rem;
-    margin-bottom: 2rem;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    backdrop-filter: blur(8px);
-    position: relative;
-    isolation: isolate;
-    z-index: 1;
-    width: 100%;
-    max-width: 1200px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .reference-card::before {
-    content: '';
-    position: absolute;
-    inset: -2px;
-    padding: 2px;
-    background: linear-gradient(
-      90deg,
-      #7aa2f7 0%,     /* Tokyo Night blue */
-      #bb9af7 16.67%, /* Tokyo Night purple */
-      #7dcfff 33.33%, /* Tokyo Night cyan */
-      #9ece6a 50%,    /* Tokyo Night green */
-      #ff9e64 66.67%, /* Tokyo Night orange */
-      #f7768e 83.33%, /* Tokyo Night red */
-      #9d7cd8 91.67%, /* Transition purple */
-      #7aa2f7 100%    /* Back to blue */
-    );
-    border-radius: calc(1rem + 2px);
-    -webkit-mask: 
-      linear-gradient(#fff 0 0) content-box, 
-      linear-gradient(#fff 0 0);
-    mask: 
-      linear-gradient(#fff 0 0) content-box, 
-      linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    opacity: 0;
-    will-change: opacity, background-position;
-    transition: opacity 0.3s ease;
-    background-size: 200% 100%;
-    z-index: 0;
-  }
-
-  .reference-card::after {
-    content: '';
-    position: absolute;
-    inset: -1px;
-    background: rgba(31, 35, 53, 0.95);
-    border-radius: calc(1rem + 1px);
-    z-index: -1;
-  }
-
-  .reference-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 
-      0 20px 25px -5px rgba(122, 162, 247, 0.1),
-      0 10px 10px -5px rgba(187, 154, 247, 0.04);
-  }
-
-  .reference-card:hover::before {
-    opacity: 1;
-    animation: borderGradient 6s linear infinite;
-  }
-
-  @keyframes borderGradient {
-    0% { background-position: 0 0; }
-    100% { background-position: 200% 0; }
-  }
-
-  .avatar {
-    width: 6rem;
-    height: 6rem;
-    border-radius: 9999px;
-    object-fit: cover;
-    border: 2px solid #7aa2f7;
-    box-shadow: 0 0 15px rgba(122, 162, 247, 0.3);
-    transition: all 0.3s ease;
-    margin-bottom: 1rem;
-    position: relative;
-  }
-
-  .reference-card:hover .avatar {
-    border-color: #bb9af7;
-    box-shadow: 0 0 20px rgba(187, 154, 247, 0.4);
-  }
-
-  .profile-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 1rem;
-    width: 25%;
-    border-right: 1px solid rgba(122, 162, 247, 0.2);
-    position: relative;
-    z-index: 2;
-  }
-
-  .profile-section.right {
-    border-right: none;
-    border-left: 1px solid rgba(122, 162, 247, 0.2);
-  }
-
-  .content-section {
-    width: 75%;
-    padding: 1rem 2rem;
-    display: flex;
-    align-items: center;
-    position: relative;
-    z-index: 1;
-  }
-
-  .reference-flex {
-    display: flex;
-    min-height: 100%;
-    align-items: center;
-    position: relative;
-    z-index: 2;
-  }
-
-  .profile-link {
-    display: block;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    position: relative;
-    z-index: 3;
-  }
-
-  .profile-link:hover {
-    transform: translateY(-2px);
-  }
-
-  .profile-link:hover .avatar {
-    border-color: #bb9af7;
-    transform: scale(1.05);
-  }
-
-  .profile-link:hover h3 {
-    color: #bb9af7;
-  }
-
-  .profile-link h3 {
-    transition: all 0.3s ease;
-    margin-top: 0.5rem;
-    position: relative;
-  }
-
-  .profile-title {
-    text-align: center;
-    max-width: 90%;
-    line-height: 1.4;
-  }
-</style>
-
 <div class="py-12 px-4">
   <h1 class="text-4xl font-bold mb-12 text-[#7aa2f7] text-center">References</h1>
-  
-  <%# Janus Chung - Left Profile %>
-  <div class="reference-card">
-    <div class="reference-flex">
-      <div class="profile-section">
-        <a href="https://www.linkedin.com/in/janus" target="_blank" rel="noopener noreferrer" class="profile-link">
-          <img src="/images/references/janus-chung.jpg" alt="Janus Chung" class="avatar">
-          <h3 class="text-2xl font-semibold text-[#7aa2f7]">Janus Chung</h3>
-        </a>
-        <p class="text-[#bb9af7] text-base mt-1 profile-title">Senior Software Engineer, DevOps</p>
-      </div>
-      <div class="content-section">
-        <div class="text-gray-300 space-y-4 text-lg leading-relaxed">
-          <p>Matt Kelly is an outstanding technical leader with deep expertise in cloud architecture and modern DevOps practices. Working with him on the AWS Kubernetes migration, including S3 and SNS ACK controllers, was an incredibly smooth experience thanks to his well-structured designs and clear requirements.</p>
-          <p>He has a rare ability to break down complex challenges into actionable steps, making development both efficient and scalable. His leadership in infrastructure modernization, coupled with his strong focus on security and reliability, has been instrumental in improving deployment workflows and system performance.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <%# Kristen Brown - Right Profile %>
-  <div class="reference-card">
-    <div class="reference-flex">
-      <div class="content-section">
-        <div class="text-gray-300 space-y-4 text-lg leading-relaxed">
-          <p>I highly recommend Matt for his engineering talent and strong leadership. Over the past two years, I have been fortunate to have Matt as my tech lead and direct manager. In that time, I have seen Matt successfully tackle some of the toughest engineering and organizational challenges at our organization.</p>
-          <p>He is a strong asset to the team because of his ability to get to the bottom of things and communicate clearly to drive results. His curiosity fuels him to explore potential solutions and make timely recommendations to improve the software that we work on every day.</p>
-        </div>
-      </div>
-      <div class="profile-section right">
-        <a href="https://www.linkedin.com/in/kristen-brown-software" target="_blank" rel="noopener noreferrer" class="profile-link">
-          <img src="/images/references/kristen-brown.jpg" alt="Kristen Brown" class="avatar">
-          <h3 class="text-2xl font-semibold text-[#7aa2f7]">Kristen Brown</h3>
-        </a>
-        <p class="text-[#bb9af7] text-base mt-1 profile-title">Senior Software Engineer</p>
-      </div>
-    </div>
-  </div>
-
-  <%# A. Gia Antoniades - Left Profile %>
-  <div class="reference-card">
-    <div class="reference-flex">
-      <div class="profile-section">
-        <a href="https://www.linkedin.com/in/agxantoniades" target="_blank" rel="noopener noreferrer" class="profile-link">
-          <img src="/images/references/gia-antoniades.jpg" alt="A. Gia Antoniades" class="avatar">
-          <h3 class="text-2xl font-semibold text-[#7aa2f7]">A. Gia Antoniades</h3>
-        </a>
-        <p class="text-[#bb9af7] text-base mt-1 profile-title">Backend Engineering Lead</p>
-      </div>
-      <div class="content-section">
-        <div class="text-gray-300 space-y-4 text-lg leading-relaxed">
-          <p>I've had the privilege of working alongside some exceptional engineers, and Matt is among the best. He's a highly skilled technical lead, a master of backend architecture, and a relentless problem solver who takes pride in architecting elegant and scalable solutions.</p>
-          <p>What sets Matt apart isn't just his technical expertise—it's his ability to tackle complex engineering challenges with precision and efficiency. Whether he's optimizing database performance or refining backend systems, he's able to see the big picture and the fine details.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <%# Heather Roy - Right Profile %>
-  <div class="reference-card">
-    <div class="reference-flex">
-      <div class="content-section">
-        <div class="text-gray-300 space-y-4 text-lg leading-relaxed">
-          <p>I work with Matt as the researcher for the API team he is leading as the staff engineer. Matt is an incredibly talented and inventive engineer with a unique ability to approach problems in creative and effective ways. What sets Matt apart, though, is his leadership.</p>
-          <p>He fosters an environment of openness and vulnerability, leading by example and creating a space where learning flows both ways. His approachable and collaborative style makes him not only a great technical leader but also a great mentor.</p>
-        </div>
-      </div>
-      <div class="profile-section right">
-        <a href="https://www.linkedin.com/in/heatherroy3" target="_blank" rel="noopener noreferrer" class="profile-link">
-          <img src="/images/references/heather-roy.jpg" alt="Heather Roy, PhD" class="avatar">
-          <h3 class="text-2xl font-semibold text-[#7aa2f7]">Heather Roy, PhD</h3>
-        </a>
-        <p class="text-[#bb9af7] text-base mt-1 profile-title">Senior UX Researcher</p>
-      </div>
-    </div>
-  </div>
-
-  <%# Eli Mellen - Left Profile %>
-  <div class="reference-card">
-    <div class="reference-flex">
-      <div class="profile-section">
-        <a href="https://www.linkedin.com/in/eli-mellen" target="_blank" rel="noopener noreferrer" class="profile-link">
-          <img src="/images/references/eli-mellen.jpg" alt="Eli Mellen" class="avatar">
-          <h3 class="text-2xl font-semibold text-[#7aa2f7]">Eli Mellen</h3>
-        </a>
-        <p class="text-[#bb9af7] text-base mt-1 profile-title">Product Manager</p>
-      </div>
-      <div class="content-section">
-        <div class="text-gray-300 space-y-4 text-lg leading-relaxed">
-          <p>Matt is an engineer's engineer with a keen sense for how to decompose challenges into their component, more approachable parts, he is able to guide teams to clear and achievable solutions that directly address whatever problem is at hand.</p>
-          <p>His positivity and curiosity are infectious, helping to elevate any team. He fosters an environment that promotes learning, and this in turn empowers his teams to achieve amazing outcomes.</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</div> 
+  <%= render Reference::CardComponent.new(profile_position: :left) do |card| %>
+    <% card.with_profile(
+      name: "Janus Chung",
+      title: "Senior Software Engineer, DevOps",
+      image: "/images/references/janus-chung.jpg",
+      url: "https://www.linkedin.com/in/janus",
+      position: :left
+    ) %>
+    <p>Matt Kelly is an outstanding technical leader with deep expertise in cloud architecture and modern DevOps practices. Working with him on the AWS Kubernetes migration, including S3 and SNS ACK controllers, was an incredibly smooth experience thanks to his well-structured designs and clear requirements.</p>
+    <p>He has a rare ability to break down complex challenges into actionable steps, making development both efficient and scalable. His leadership in infrastructure modernization, coupled with his strong focus on security and reliability, has been instrumental in improving deployment workflows and system performance.</p>
+  <% end %>
+  <%= render Reference::CardComponent.new(profile_position: :right) do |card| %>
+    <% card.with_profile(
+      name: "Kristen Brown",
+      title: "Senior Software Engineer",
+      image: "/images/references/kristen-brown.jpg",
+      url: "https://www.linkedin.com/in/kristen-brown-software",
+      position: :right
+    ) %>
+    <p>I highly recommend Matt for his engineering talent and strong leadership. Over the past two years, I have been fortunate to have Matt as my tech lead and direct manager. In that time, I have seen Matt successfully tackle some of the toughest engineering and organizational challenges at our organization.</p>
+    <p>He is a strong asset to the team because of his ability to get to the bottom of things and communicate clearly to drive results. His curiosity fuels him to explore potential solutions and make timely recommendations to improve the software that we work on every day.</p>
+  <% end %>
+  <%= render Reference::CardComponent.new(profile_position: :left) do |card| %>
+    <% card.with_profile(
+      name: "A. Gia Antoniades",
+      title: "Backend Engineering Lead",
+      image: "/images/references/gia-antoniades.jpg",
+      url: "https://www.linkedin.com/in/agxantoniades",
+      position: :left
+    ) %>
+    <p>I've had the privilege of working alongside some exceptional engineers, and Matt is among the best. He's a highly skilled technical lead, a master of backend architecture, and a relentless problem solver who takes pride in architecting elegant and scalable solutions.</p>
+    <p>What sets Matt apart isn't just his technical expertise—it's his ability to tackle complex engineering challenges with precision and efficiency. Whether he's optimizing database performance or refining backend systems, he's able to see the big picture and the fine details.</p>
+  <% end %>
+  <%= render Reference::CardComponent.new(profile_position: :right) do |card| %>
+    <% card.with_profile(
+      name: "Heather Roy, PhD",
+      title: "Senior UX Researcher",
+      image: "/images/references/heather-roy.jpg",
+      url: "https://www.linkedin.com/in/heatherroy3",
+      position: :right
+    ) %>
+    <p>I work with Matt as the researcher for the API team he is leading as the staff engineer. Matt is an incredibly talented and inventive engineer with a unique ability to approach problems in creative and effective ways. What sets Matt apart, though, is his leadership.</p>
+    <p>He fosters an environment of openness and vulnerability, leading by example and creating a space where learning flows both ways. His approachable and collaborative style makes him not only a great technical leader but also a great mentor.</p>
+  <% end %>
+  <%= render Reference::CardComponent.new(profile_position: :left) do |card| %>
+    <% card.with_profile(
+      name: "Eli Mellen",
+      title: "Product Manager",
+      image: "/images/references/eli-mellen.jpg",
+      url: "https://www.linkedin.com/in/eli-mellen",
+      position: :left
+    ) %>
+    <p>Matt is an engineer's engineer with a keen sense for how to decompose challenges into their component, more approachable parts, he is able to guide teams to clear and achievable solutions that directly address whatever problem is at hand.</p>
+    <p>His positivity and curiosity are infectious, helping to elevate any team. He fosters an environment that promotes learning, and this in turn empowers his teams to achieve amazing outcomes.</p>
+  <% end %>
+</div>

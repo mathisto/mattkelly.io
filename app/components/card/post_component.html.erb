@@ -1,0 +1,30 @@
+<%= link_to post_path(@post), class: "block no-underline" do %>
+  <article class="<%= card_classes %>">
+    <div class="relative z-10 bg-[#1f2335] rounded-lg p-6">
+      <div class="flex items-start justify-between gap-4 mb-3">
+        <h2 class="text-[#7aa2f7] text-xl font-semibold font-heading flex-grow">
+          <%= @post.title %>
+        </h2>
+        <div class="flex items-center gap-2 text-[#7dcfff] text-sm whitespace-nowrap flex-shrink-0">
+          <i class="far fa-calendar-alt text-[#bb9af7]"></i>
+          <time datetime="<%= @post.date.strftime('%Y-%m-%d') %>">
+            <%= @post.date.strftime('%b %d, %Y') %>
+          </time>
+        </div>
+      </div>
+      <p class="text-[#a9b1d6] mb-4 leading-relaxed">
+        <%= @post.description %>
+      </p>
+      <% if @post.tags.any? %>
+        <div class="flex flex-wrap gap-2">
+          <% @post.tags.each do |tag| %>
+            <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium bg-[#bb9af7]/10 border border-[#bb9af7]/20 text-[#bb9af7]">
+              <i class="fas fa-tag"></i>
+              <%= tag %>
+            </span>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </article>
+<% end %>

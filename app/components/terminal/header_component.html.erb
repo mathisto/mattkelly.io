@@ -1,0 +1,13 @@
+<div class="<%= header_classes %>">
+  <div class="terminal-dots flex gap-2">
+    <div class="terminal-dot w-3 h-3 rounded-full bg-[#f7768e]"></div>
+    <div class="terminal-dot w-3 h-3 rounded-full bg-[#e0af68]"></div>
+    <div class="terminal-dot w-3 h-3 rounded-full bg-[#9ece6a]"></div>
+  </div>
+  <% if @title %>
+    <div class="flex-grow text-center text-[#565f89] text-sm">
+      <%= @title %>
+    </div>
+  <% end %>
+  <%= content if content? %>
+</div>

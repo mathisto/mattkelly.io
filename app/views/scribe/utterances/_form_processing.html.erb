@@ -1,0 +1,29 @@
+<div class="fixed top-4 right-4 z-[9999]" 
+     data-controller="auto-dismiss"
+     data-auto-dismiss-delay-value="5000"
+     style="max-width: 320px; animation: slideInRight 0.3s ease-out;">
+  <div class="bg-[#7aa2f7]/10 backdrop-blur-sm border border-[#7aa2f7]/30 rounded-lg px-4 py-3 shadow-xl">
+    <div class="flex items-center gap-2">
+      <div style="width: 16px; height: 16px; min-width: 16px; min-height: 16px; max-width: 16px; max-height: 16px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="width: 16px; height: 16px; display: block; animation: spin 1s linear infinite;" class="text-[#7dcfff]">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="31.4 31.4" opacity="0.3"/>
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-dasharray="15.7 47.1"/>
+        </svg>
+      </div>
+      <div style="flex: 1; min-width: 0;">
+        <p class="text-xs font-medium text-[#7dcfff]">Processing your entry...</p>
+        <p class="text-[10px] text-[#a9b1d6] mt-0.5">This may take a few seconds.</p>
+      </div>
+    </div>
+  </div>
+</div>
+<style>
+  @keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+</style>

@@ -1,0 +1,9 @@
+<div class="<%= terminal_classes %>">
+  <div class="<%= terminal_inner_classes %>">
+    <%= header if header? %>
+    <div class="terminal-content">
+      <%= prompts if prompts? %>
+      <%= content if content? %>
+    </div>
+  </div>
+</div>

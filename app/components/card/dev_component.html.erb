@@ -1,0 +1,4 @@
+<%# Inherits from Card::BaseComponent template via super %>
+<%= render Card::BaseComponent.new(variant: :dev, hoverable: @hoverable, **@options) do %>
+  <%= content %>
+<% end %>

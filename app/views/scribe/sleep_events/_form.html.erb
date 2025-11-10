@@ -1,0 +1,67 @@
+<%= form_with model: [:scribe, @sleep_event], local: true do |form| %>
+  <% if @sleep_event.errors.any? %>
+    <div class="mb-6 p-4 bg-[#f7768e]/10 border border-[#f7768e]/30 rounded-lg">
+      <h3 class="text-[#f7768e] font-medium mb-2">Please fix the following errors:</h3>
+      <ul class="list-disc list-inside text-[#c0caf5] text-sm">
+        <% @sleep_event.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+  <div class="space-y-6">
+    <!-- Event Type Field -->
+    <div>
+      <%= form.label :event_type, class: "block text-[#7aa2f7] font-medium mb-2" %>
+      <%= form.select :event_type, 
+            options_for_select([
+              ["😴 Went to bed", "went_to_bed"],
+              ["💤 Fell asleep", "fell_asleep"],
+              ["☀️ Woke up", "woke_up"],
+              ["🌅 Got up", "got_up"]
+            ], @sleep_event.event_type),
+            { prompt: "Select event type..." },
+            class: "px-4 py-3 bg-[#1a1b26] border border-[#3b4261] rounded-lg text-[#c0caf5] placeholder-[#565f89] focus:outline-none focus:ring-2 focus:ring-[#7aa2f7] focus:border-transparent w-full" %>
+    </div>
+    <!-- Occurred At Field -->
+    <div>
+      <%= form.label :occurred_at, "When did this happen?", class: "block text-[#7aa2f7] font-medium mb-2" %>
+      <%= form.datetime_local_field :occurred_at, 
+            value: (@sleep_event.occurred_at || Time.current).strftime("%Y-%m-%dT%H:%M"),
+            class: "px-4 py-3 bg-[#1a1b26] border border-[#3b4261] rounded-lg text-[#c0caf5] placeholder-[#565f89] focus:outline-none focus:ring-2 focus:ring-[#7aa2f7] focus:border-transparent w-full" %>
+    </div>
+    <!-- Quality Score Field (optional) -->
+    <div>
+      <%= form.label :quality_score, "Sleep Quality (0-10)", class: "block text-[#7aa2f7] font-medium mb-2" %>
+      <%= form.number_field :quality_score, 
+            step: 0.1,
+            min: 0,
+            max: 10,
+            placeholder: "Optional: Rate your sleep quality...",
+            class: "px-4 py-3 bg-[#1a1b26] border border-[#3b4261] rounded-lg text-[#c0caf5] placeholder-[#565f89] focus:outline-none focus:ring-2 focus:ring-[#7aa2f7] focus:border-transparent w-full" %>
+      <p class="mt-1 text-xs text-[#565f89]">0 = terrible, 10 = excellent</p>
+    </div>
+    <!-- Notes Field -->
+    <div>
+      <%= form.label :notes, class: "block text-[#7aa2f7] font-medium mb-2" %>
+      <%= form.text_area :notes, 
+            rows: 3,
+            placeholder: "Optional notes about your sleep...",
+            class: "px-4 py-3 bg-[#1a1b26] border border-[#3b4261] rounded-lg text-[#c0caf5] placeholder-[#565f89] focus:outline-none focus:ring-2 focus:ring-[#7aa2f7] focus:border-transparent w-full resize-none" %>
+    </div>
+    <!-- Info Message -->
+    <div class="p-4 bg-[#7aa2f7]/10 border border-[#7aa2f7]/30 rounded-lg">
+      <p class="text-[#7dcfff] text-sm">
+        <span class="font-medium">💡 Tip:</span> Wake events will automatically pair with the most recent unpaired sleep event to calculate duration.
+      </p>
+    </div>
+    <!-- Form Actions -->
+    <div class="flex items-center gap-4 pt-4">
+      <%= form.submit @sleep_event.persisted? ? "Update Sleep Event" : "Save Sleep Event", 
+            class: "px-6 py-3 bg-gradient-to-r from-[#7aa2f7] to-[#bb9af7] text-white font-medium rounded-lg hover:from-[#7dcfff] hover:to-[#e0af68] transition-all duration-200 cursor-pointer" %>
+      <%= link_to "Cancel", 
+            scribe_dashboard_path,
+            class: "px-6 py-3 bg-[#1f2335] text-[#c0caf5] font-medium rounded-lg border border-[#3b4261] hover:bg-[#292e42] hover:border-[#7aa2f7] transition-all duration-200" %>
+    </div>
+  </div>
+<% end %>

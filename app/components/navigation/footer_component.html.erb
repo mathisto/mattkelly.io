@@ -1,0 +1,14 @@
+<footer class="bg-[#1f2335] border-t border-[#29293f]">
+  <div class="max-w-7xl">
+    <div class="flex-col">
+      <p class="text-sm text-[#7aa2f7] flex items-center justify-center gap-2">
+        &copy;&nbsp;
+        <%= current_year %>&nbsp;
+        <%= mail_to "matthew.ryan.kelly@gmail.com", "Matt Kelly", subject: "mattkelly.io", class: "text-[#7aa2f7] hover:text-[#bb9af7] transition-colors duration-200" %>. 
+        Built&nbsp;with&nbsp;<i class="devicon-rails-plain text-sm"></i>&nbsp;and&nbsp;
+        <span class="rainbow-text font-medium">Tokyo Night</span>.
+      </p>
+      <%= social_links %>
+    </div>
+  </div>
+</footer>

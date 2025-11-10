@@ -1,0 +1,4 @@
+<%= link_to @href, class: link_classes, **@options.except(:class) do %>
+  <%= icon if icon? %>
+  <%= content %>
+<% end %>

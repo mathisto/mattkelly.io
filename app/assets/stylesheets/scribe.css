@@ -1,0 +1,161 @@
+/* Scribe - Natural Language Habit Tracking Styles */
+
+/* Animated gradient for headers */
+@keyframes gradient {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient 8s ease infinite;
+}
+
+/* Smooth focus states for form inputs */
+textarea:focus,
+input:focus {
+  outline: none;
+  transform: translateY(-1px);
+}
+
+/* Custom scrollbar for workout/ingestion lists */
+.scribe-scrollable::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scribe-scrollable::-webkit-scrollbar-track {
+  background: #1a1b26;
+  border-radius: 4px;
+}
+
+.scribe-scrollable::-webkit-scrollbar-thumb {
+  background: #3b4261;
+  border-radius: 4px;
+}
+
+.scribe-scrollable::-webkit-scrollbar-thumb:hover {
+  background: #7aa2f7;
+}
+
+/* Pulse animation for "needs review" badges */
+@keyframes pulse-yellow {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.pulse-yellow {
+  animation: pulse-yellow 2s ease-in-out infinite;
+}
+
+/* Shimmer effect for loading states */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(
+    to right,
+    #24283b 4%,
+    #3b4261 25%,
+    #24283b 36%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Hover effects for stat cards */
+.stat-card-hover:hover .stat-value {
+  transform: scale(1.05);
+  transition: transform 0.2s ease;
+}
+
+/* Fade in animation for new workouts */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Typewriter effect for examples (optional enhancement) */
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.cursor-blink::after {
+  content: '|';
+  animation: blink 1s infinite;
+  margin-left: 2px;
+}
+
+/* Fade-in animation for new table rows inserted via Turbo */
+@keyframes fadeInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Apply animation to newly inserted rows */
+#ingestions-body > tr.fade-in-row {
+  animation: fadeInFromTop 0.5s ease-out;
+}
+
+/* Table styling - alternating rows */
+#ingestions-body > tr:nth-child(even) {
+  background-color: rgba(58, 66, 97, 0.3);
+}
+
+#ingestions-body > tr:nth-child(odd) {
+  background-color: rgba(26, 27, 38, 0.5);
+}
+
+/* Hover effect overrides alternating colors */
+#ingestions-body > tr:hover {
+  background-color: rgba(122, 162, 247, 0.15) !important;
+  transform: scale(1.001);
+  box-shadow: 0 2px 8px rgba(122, 162, 247, 0.1);
+}
+
+/* Table cell padding and alignment */
+#ingestions-body td {
+  padding: 1rem;
+  vertical-align: middle;
+}
+
+/* Header sticky on scroll */
+thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}

@@ -7,12 +7,9 @@
     <meta name="mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
-
     <%= yield :head %>
-
     <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
     <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
-
     <%# Favicons and Icons %>
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -21,20 +18,18 @@
     <link rel="icon" type="image/svg+xml" href="/icon.svg">
     <link rel="icon" type="image/png" href="/icon.png">
     <link rel="manifest" href="/manifest.json">
-
+    <!-- Filer.js - Browser filesystem (UMD module, must load before importmap) -->
+    <script src="https://cdn.jsdelivr.net/npm/filer@1.4.1/dist/filer.min.js"></script>
     <%= javascript_importmap_tags %>
-
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
     <!-- Devicon -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@latest/devicon.min.css">
-
     <!-- Custom Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-
     <!-- Prism.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-ruby.min.js"></script>
@@ -42,9 +37,85 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
-
     <!-- Custom Styles -->
     <style>
+      /* ========================================
+         CRITICAL: Button Reset Styles
+         Remove browser defaults but keep text visible
+         ======================================== */
+      button,
+      input[type="submit"],
+      input[type="button"],
+      input[type="reset"] {
+        /* Remove unwanted browser defaults */
+        background: none;
+        background-color: transparent;
+        border: none;
+        box-shadow: none;
+
+        /* Remove default appearance */
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+
+        /* Keep these for functionality */
+        cursor: pointer;
+        font: inherit;
+        line-height: inherit;
+      }
+
+      /* Form buttons - style like links */
+      form button,
+      form input[type="submit"] {
+        background: none;
+        border: none;
+        padding: 0;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline;
+      }
+
+      /* Transitions for interactivity */
+      button,
+      input[type="submit"] {
+        transition: color 0.2s ease;
+      }
+
+      /* Disabled state */
+      button:disabled,
+      input[type="submit"]:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      /* Scribe component button colors */
+      .text-\[\#9ece6a\] { color: #9ece6a; }
+      .text-\[\#7aa2f7\] { color: #7aa2f7; }
+      .text-\[\#f7768e\] { color: #f7768e; }
+      .text-\[\#7dcfff\] { color: #7dcfff; }
+      .text-\[\#ff9e9e\] { color: #ff9e9e; }
+      .text-\[\#565f89\] { color: #565f89; }
+
+      /* Button hover states */
+      button.text-\[\#9ece6a\]:hover,
+      a.text-\[\#9ece6a\]:hover { color: #7dcfff !important; }
+
+      button.text-\[\#7aa2f7\]:hover,
+      a.text-\[\#7aa2f7\]:hover { color: #7dcfff !important; }
+
+      button.text-\[\#f7768e\]:hover,
+      a.text-\[\#f7768e\]:hover { color: #ff9e9e !important; }
+
+      /* Utility classes */
+      .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+      .text-xs { font-size: 0.75rem; line-height: 1rem; }
+      .px-4 { padding-left: 1rem; padding-right: 1rem; }
+      .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+      .mt-1 { margin-top: 0.25rem; }
+      .font-medium { font-weight: 500; }
+      .italic { font-style: italic; }
+      .transition-all { transition: all 0.3s ease; }
+
       /* Base Styles */
       html {
         height: 100%;
@@ -298,7 +369,7 @@
       .container:hover {
         transform: translateY(-6px);
         border-color: transparent;
-        box-shadow: 
+        box-shadow:
           0 20px 25px -5px rgba(122, 162, 247, 0.1),
           0 10px 10px -5px rgba(187, 154, 247, 0.04),
           0 0 15px rgba(122, 162, 247, 0.2);
@@ -367,11 +438,11 @@
           #7aa2f7 100%    /* Back to blue */
         );
         border-radius: calc(1rem + 2px);
-        -webkit-mask: 
-          linear-gradient(#fff 0 0) content-box, 
+        -webkit-mask:
+          linear-gradient(#fff 0 0) content-box,
           linear-gradient(#fff 0 0);
-        mask: 
-          linear-gradient(#fff 0 0) content-box, 
+        mask:
+          linear-gradient(#fff 0 0) content-box,
           linear-gradient(#fff 0 0);
         -webkit-mask-composite: xor;
         mask-composite: exclude;
@@ -393,7 +464,7 @@
 
       .card-base:hover {
         transform: translateY(-4px) scale(1.01);
-        box-shadow: 
+        box-shadow:
           0 20px 25px -5px rgba(122, 162, 247, 0.1),
           0 10px 10px -5px rgba(187, 154, 247, 0.04);
       }
@@ -945,11 +1016,11 @@
           #7aa2f7 100%    /* Back to blue */
         );
         border-radius: calc(1rem + 2px);
-        -webkit-mask: 
-          linear-gradient(#fff 0 0) content-box, 
+        -webkit-mask:
+          linear-gradient(#fff 0 0) content-box,
           linear-gradient(#fff 0 0);
-        mask: 
-          linear-gradient(#fff 0 0) content-box, 
+        mask:
+          linear-gradient(#fff 0 0) content-box,
           linear-gradient(#fff 0 0);
         -webkit-mask-composite: xor;
         mask-composite: exclude;
@@ -1301,9 +1372,13 @@
           justify-content: center;
         }
       }
+
+      /* Blog Post Prose Container */
+      .blog-prose-container {
+        max-width: 42rem;
+      }
     </style>
   </head>
-
   <body>
     <header class="main-header">
       <div class="max-w-7xl">
@@ -1314,23 +1389,23 @@
               <i class="fas fa-home text-xl"></i>
             <% end %>
           </div>
-          
           <div class="flex-grow flex justify-center items-center w-full">
             <%= render "shared/nav" %>
           </div>
-
           <%# Empty div for symmetry %>
           <div class="flex-none w-[24px]"></div>
         </div>
       </div>
     </header>
-
-    <main class="flex-grow pt-20">
-      <div class="max-w-7xl">
-        <%= yield %>
-      </div>
-    </main>
-
-    <%= render "shared/footer" %>
+    <% if controller_name == 'dragonruby' %>
+      <%= yield %>
+    <% else %>
+      <main class="flex-grow pt-20">
+        <div class="max-w-7xl">
+          <%= yield %>
+        </div>
+      </main>
+      <%= render "shared/footer" %>
+    <% end %>
   </body>
 </html>

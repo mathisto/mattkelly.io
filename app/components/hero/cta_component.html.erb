@@ -1,0 +1,20 @@
+<section class="<%= cta_classes %>">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <%= render Card::DevComponent.new(class: "max-w-3xl mx-auto text-center") do %>
+      <h2 class="text-2xl sm:text-3xl font-bold text-[#7aa2f7] font-heading mb-4">
+        <%= @title %>
+      </h2>
+      <% if @description %>
+        <p class="text-base sm:text-lg text-[#a9b1d6] mb-6 leading-relaxed">
+          <%= @description %>
+        </p>
+      <% end %>
+      <%= content if content? %>
+      <% if actions? %>
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
+          <%= actions %>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+</section>

@@ -4,4 +4,8 @@ class PagesController < ApplicationController
 
   def projects
   end
-end 
+
+  def terminal_test
+    render layout: "terminal_test"
+  end
+end

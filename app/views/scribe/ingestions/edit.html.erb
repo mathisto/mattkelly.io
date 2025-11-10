@@ -1,0 +1,60 @@
+<div class="min-h-screen bg-[#1a1b26] text-[#a9b1d6] p-4 sm:p-8">
+  <div class="max-w-2xl mx-auto">
+    <div class="dev-card">
+      <div class="p-6">
+        <h2 class="text-[#7aa2f7] text-2xl font-bold mb-6">Edit Ingestion</h2>
+        <!-- Current Status Card -->
+        <div class="mb-6 p-4 bg-[#24283b] rounded-lg border border-[#3b4261]">
+          <div class="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <span class="text-[#565f89]">Status:</span>
+              <span class="text-[#c0caf5] font-medium ml-2"><%= @ingestion.status.titleize %></span>
+            </div>
+            <div>
+              <span class="text-[#565f89]">Confidence:</span>
+              <span class="text-[#c0caf5] font-medium ml-2">
+                <%= @ingestion.confidence_score ? "#{(@ingestion.confidence_score * 100).round}%" : "—" %>
+              </span>
+            </div>
+            <div class="col-span-2">
+              <span class="text-[#565f89]">Parsed as:</span>
+              <span class="text-[#c0caf5] ml-2"><%= @ingestion.parsed_summary || "Not parsed yet" %></span>
+            </div>
+          </div>
+        </div>
+        <!-- Edit Form -->
+        <%= form_with model: @ingestion, url: scribe_ingestion_path(@ingestion), method: :patch, local: true do |f| %>
+          <div class="mb-4">
+            <%= f.label :raw_utterance, "Utterance", class: "block text-[#7aa2f7] font-medium mb-2" %>
+            <%= f.text_area :raw_utterance, 
+                  rows: 4,
+                  class: "w-full px-4 py-3 bg-[#1a1b26] border border-[#3b4261] rounded-lg text-[#c0caf5] placeholder-[#565f89] focus:outline-none focus:ring-2 focus:ring-[#7aa2f7] focus:border-transparent resize-y" %>
+          </div>
+          <!-- Warning Message -->
+          <div class="mb-6 p-3 bg-[#e0af68]/10 border border-[#e0af68]/30 rounded-lg">
+            <p class="text-[#e0af68] text-sm">
+              ⚠️ Changing the utterance will trigger automatic re-parsing. The existing parsed data will be updated (not duplicated).
+            </p>
+          </div>
+          <!-- Action Buttons -->
+          <div class="flex gap-3">
+            <%= f.submit "Save & Re-parse", 
+                  class: "px-6 py-3 bg-gradient-to-r from-[#7aa2f7] to-[#bb9af7] text-white font-medium rounded-lg hover:opacity-90 transition-all duration-200 transform hover:scale-105" %>
+            <%= link_to "Cancel", scribe_dashboard_path, 
+                  class: "px-6 py-3 bg-[#24283b] text-[#a9b1d6] font-medium rounded-lg hover:bg-[#292e42] transition-colors border border-[#3b4261]" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+<style>
+  /* Reuse dev-card styles from dashboard */
+  .dev-card {
+    background: rgba(31, 35, 53, 0.8);
+    border: 1px solid transparent;
+    border-radius: 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(8px);
+  }
+</style>

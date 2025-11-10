@@ -1,7 +1,7 @@
 source "https://rubygems.org"
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby "3.3.1"
+ruby "3.4.6"
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 8.0.2"
@@ -17,17 +17,29 @@ gem "turbo-rails"
 gem "stimulus-rails"
 # Use Tailwind CSS [https://github.com/rails/tailwindcss-rails]
 gem "tailwindcss-rails"
-# Use Redis adapter to run Action Cable in production
-gem "redis", "~> 5.0"
 # HTTP client for making API requests
 gem "httparty"
-# Use Kredis to get higher-level data types in Redis [https://github.com/rails/kredis]
-# gem "kredis"
+
+# Rails 8 Solid* stack for caching, jobs, and cable
+gem "solid_cache"
+gem "solid_queue"
+gem "solid_cable"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
 gem "jbuilder"
 
 # Markdown processing
 gem "redcarpet", "~> 3.6"
+# ViewComponent for view layer architecture
+gem "view_component"
+# Lookbook for component previews and documentation
+gem "lookbook"
+
+# Scribe dependencies
+gem "ransack"  # Search and filtering
+gem "kaminari"  # Pagination
+
+# Mission Control - Jobs UI (development only)
+gem "mission_control-jobs"
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ mingw mswin x64_mingw jruby ]

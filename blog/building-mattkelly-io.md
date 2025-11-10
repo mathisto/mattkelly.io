@@ -9,8 +9,6 @@ status: "published"
 cover_image: "/images/blog/tokyo-night-cover.png"
 ---
 
-# 🏗️ Building mattkelly.io: A Journey in Modern Web Development
-
 What began as a simple Rails application evolved into a thoughtfully crafted digital space, emphasizing clean design, performance, and user experience. This post chronicles the journey from initial concept to polished implementation, exploring the technical decisions and design philosophies that shaped the final result.
 
 ## 🎯 Foundation and Philosophy

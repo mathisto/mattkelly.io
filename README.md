@@ -75,7 +75,7 @@ bundle install
 bin/dev
 ```
 
-Your site should now be running at `http://localhost:8080` 🎉
+Your site should now be running at `http://localhost:3000` 🎉
 
 ## 📦 Deployment
 

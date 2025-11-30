@@ -1,0 +1,108 @@
+#!/bin/bash
+
+# Deploy script for mattkelly.io
+# Deploys to Loveless machine via SCP over Tailscale
+
+set -e
+
+# Configuration - customize these for your setup
+LOVELACE_HOST="${LOVELACE_HOST:-lovelace}"  # SSH hostname (Tailscale name)
+LOVELACE_PATH="${LOVELACE_PATH:-/home/mathisto/mattkelly.io}"  # Deployment path on Lovelace
+LOVELACE_USER="${LOVELACE_USER:-mathisto}"  # SSH user
+
+echo "🚀 Starting deployment to $LOVELACE_HOST..."
+
+# Build the application
+echo "📦 Building application..."
+export RAILS_ENV=production
+export SECRET_KEY_BASE_DUMMY=1
+
+# Precompile assets
+echo "🎨 Precompiling assets..."
+bundle exec rails assets:precompile
+
+# Create deployment package
+echo "📁 Creating deployment package..."
+DEPLOY_TMP=$(mktemp -d)
+DEPLOY_FILE="$DEPLOY_TMP/mattkelly-deploy.tar.gz"
+
+# Create archive of necessary files
+tar -czf "$DEPLOY_FILE" \
+  --exclude='.git' \
+  --exclude='tmp/*' \
+  --exclude='log/*' \
+  --exclude='storage/*' \
+  --exclude='node_modules' \
+  --exclude='.kamal' \
+  --exclude='fly.toml' \
+  --exclude='.github' \
+  .
+
+# Copy to Lovelace
+echo "📤 Copying to $LOVELACE_HOST:$LOVELACE_PATH..."
+scp "$DEPLOY_FILE" "$LOVELACE_USER@$LOVELACE_HOST:/tmp/"
+
+# Deploy on Lovelace
+echo "🔄 Deploying on $LOVELACE_HOST..."
+ssh "$LOVELACE_USER@$LOVELACE_HOST" << EOF
+  set -e
+  echo "Extracting deployment package..."
+  mkdir -p "$LOVELACE_PATH"
+  tar -xzf "/tmp/$(basename "$DEPLOY_FILE")" -C "$LOVELACE_PATH"
+
+  cd "$LOVELACE_PATH"
+
+  printf '%s\n' \
+    '❌ Ruby is not installed on lovelace' \
+    'Please install Ruby 3.4.7 on lovelace first' \
+    '' \
+    'You can install Ruby using one of these methods:' \
+    '' \
+    '1. Using apt (Ubuntu/Debian):' \
+    '   sudo apt update' \
+    '   sudo apt install ruby-full ruby-dev build-essential' \
+    '' \
+    '2. Using mise (recommended, matches your local setup):' \
+    '   curl https://mise.jdx.dev/install.sh | sh' \
+    '   echo '\''eval "$($HOME/.local/bin/mise activate bash)"'\'' >> ~/.bashrc' \
+    '   source ~/.bashrc' \
+    '   mise install ruby@3.4.7' \
+    '   mise global ruby@3.4.7' \
+    '' \
+    '3. Using rbenv:' \
+    '   git clone https://github.com/rbenv/rbenv.git ~/.rbenv' \
+    '   echo '\''export PATH="$HOME/.rbenv/bin:$PATH"'\'' >> ~/.bashrc' \
+    '   echo '\''eval "$(rbenv init -)"'\'' >> ~/.bashrc' \
+    '   source ~/.bashrc' \
+    '   mkdir -p ~/.rbenv/plugins' \
+    '   git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build' \
+    '   rbenv install 3.4.7' \
+    '   rbenv global 3.4.7' \
+    '' \
+    'After installing Ruby, run the deployment again.'
+  exit 1
+
+  if ! command -v bundle &> /dev/null; then
+    echo "❌ Bundler is not installed on $LOVELACE_HOST"
+    echo "Installing bundler..."
+    gem install bundler
+  fi
+
+  echo "Installing dependencies..."
+  bundle install --deployment --without development test
+
+  echo "Running database migrations..."
+  bundle exec rails db:migrate
+
+  echo "Restarting application..."
+  systemctl --user restart mattkelly-io || true
+
+  echo "Cleaning up..."
+  rm "/tmp/$(basename "$DEPLOY_FILE")"
+EOF
+
+# Clean up local temp files
+rm -rf "$DEPLOY_TMP"
+
+echo "✅ Deployment complete!"
+echo "🌐 Your app should be available at: http://$LOVELACE_HOST"

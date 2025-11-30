@@ -1,0 +1,135 @@
+/* Reuse the beautiful card styles from projects page */
+  .dev-card {
+    background: rgba(31, 35, 53, 0.8);
+    border: 1px solid transparent;
+    border-radius: 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(8px);
+    position: relative;
+    isolation: isolate;
+  }
+
+  .dev-card::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    padding: 2px;
+    background: linear-gradient(
+      90deg,
+      #7aa2f7 0%,
+      #bb9af7 33.33%,
+      #7dcfff 66.67%,
+      #7aa2f7 100%
+    );
+    border-radius: calc(1rem + 2px);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    background-size: 200% 100%;
+    z-index: -2;
+    pointer-events: none;
+  }
+
+  .dev-card::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    background: rgba(31, 35, 53, 0.95);
+    border-radius: calc(1rem + 1px);
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  /* Ensure card content is above pseudo-elements */
+  .dev-card > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .dev-card:hover::before {
+    opacity: 1;
+    animation: borderGradient 3s linear infinite;
+  }
+
+  @keyframes borderGradient {
+    0% { background-position: 0% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  /* Tab Styles */
+  .tab-button {
+    color: #565f89;
+    border: none;
+    border-bottom: 3px solid transparent;
+    background: transparent;
+    cursor: pointer;
+    position: relative;
+    z-index: 10;
+    border-radius: 0;
+    padding-bottom: 0.75rem;
+  }
+
+  .tab-button.active {
+    color: #7aa2f7;
+    border-bottom-color: #7aa2f7;
+    font-weight: 600;
+  }
+
+  .tab-button.inactive {
+    color: #565f89;
+  }
+
+  .tab-button:hover:not(.active) {
+    color: #a9b1d6;
+    background: transparent;
+  }
+
+  /* Tab container */
+  .flex.gap-2.mb-6.border-b {
+    position: relative;
+    z-index: 10;
+  }
+
+  /* Table row styles */
+  tbody tr {
+    transition: all 0.2s ease;
+  }
+
+  /* Odd rows - medium tone */
+  tbody tr:nth-child(odd) {
+    background-color: #24283b;
+  }
+
+  /* Even rows - lighter tone for clear contrast */
+  tbody tr:nth-child(even) {
+    background-color: #2a2e45;
+  }
+
+  tbody tr:hover {
+    background-color: rgba(122, 162, 247, 0.2) !important;
+    transform: translateX(4px);
+  }
+
+  tbody td {
+    padding: 1rem;
+    vertical-align: middle;
+  }
+
+  /* Fade-in animation for new rows */
+  @keyframes fadeInFromTop {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  tbody > tr.fade-in-row {
+    animation: fadeInFromTop 0.5s ease-out;
+  }

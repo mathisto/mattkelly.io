@@ -1,0 +1,51 @@
+# fly.toml app configuration file generated for mattkelly-io-silent-river-7285 on 2025-03-10T21:14:48-04:00
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'mattkelly-io'
+primary_region = 'ewr'
+console_command = '/rails/bin/rails console'
+
+[build]
+
+[env]
+  PORT = '8080'
+
+[processes]
+  app = 'bundle exec puma -C config/puma.rb'
+  jobs = 'bundle exec rake solid_queue:start'
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ['app']
+
+  [[http_service.checks]]
+    interval = '30s'
+    timeout = '15s'
+    grace_period = '60s'
+    method = 'GET'
+    path = '/up'
+    protocol = 'http'
+    tls_skip_verify = false
+
+    [http_service.checks.headers]
+      X-Forwarded-Proto = 'https'
+      Host = 'mattkelly.io'
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1
+
+[[statics]]
+  guest_path = '/rails/public'
+  url_prefix = '/'
+
+[mounts]
+  source = "data"
+  destination = "/data"

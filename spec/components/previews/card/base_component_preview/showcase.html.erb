@@ -1,0 +1,27 @@
+<div class="p-8 bg-[#1a1b26] grid grid-cols-1 md:grid-cols-2 gap-6">
+  <%= render Card::BaseComponent.new do %>
+    <h3 class="text-[#7aa2f7] text-xl font-semibold mb-2">Card One</h3>
+    <p class="text-[#a9b1d6]">First example card with hover effect.</p>
+  <% end %>
+  <%= render Card::BaseComponent.new do %>
+    <h3 class="text-[#7aa2f7] text-xl font-semibold mb-2">Card Two</h3>
+    <p class="text-[#a9b1d6]">Second example card with hover effect.</p>
+  <% end %>
+  <%= render Card::DevComponent.new do |card|
+    card.with_badge(variant: :skill) do |b|
+      b.with_icon(name: "gem", style: :solid, class: "text-[#9ece6a]")
+      "Ruby"
+    end
+    card.with_badge(variant: :skill) do |b|
+      b.with_icon(name: "python", style: :brands, class: "text-[#9ece6a]")
+      "Python"
+    end
+  %>
+  <h3 class="text-[#7aa2f7] text-xl font-semibold mb-2">Dev Card with Skills</h3>
+  <p class="text-[#a9b1d6]">Developer card with animated border and skill badges.</p>
+<% end %>
+<%= render Card::BaseComponent.new(hoverable: false) do %>
+  <h3 class="text-[#7aa2f7] text-xl font-semibold mb-2">Static Card</h3>
+  <p class="text-[#a9b1d6]">This card doesn't respond to hover.</p>
+<% end %>
+</div>

@@ -1,0 +1,13 @@
+/* Card Components */
+.card {
+  background-color: rgba(31, 35, 53, 0.8);
+  border: 1px solid #3b4261;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  border-color: #7aa2f7;
+  box-shadow: 0 4px 12px rgba(122, 162, 247, 0.1);
+}

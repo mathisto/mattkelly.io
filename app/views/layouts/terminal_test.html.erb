@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Interactive Terminal Test</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <script src="https://cdn.jsdelivr.net/npm/filer@1.4.1/dist/filer.min.js"></script>
+    <%= javascript_importmap_tags %>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Fira Code', 'Courier New', monospace;
+        background: #1a1b26;
+        color: #a9b1d6;
+        padding: 2rem;
+        min-height: 100vh;
+      }
+
+      h1 {
+        text-align: center;
+        color: #7aa2f7;
+        margin-bottom: 1rem;
+      }
+
+      .instructions {
+        max-width: 800px;
+        margin: 0 auto 1rem;
+        padding: 1rem;
+        background: #1f2335;
+        border: 1px solid #29293f;
+        border-radius: 4px;
+        font-size: 14px;
+      }
+
+      .instructions h2 {
+        color: #bb9af7;
+        font-size: 16px;
+        margin-bottom: 0.5rem;
+      }
+
+      .instructions ul {
+        margin-left: 1.5rem;
+      }
+
+      .instructions li {
+        margin: 0.25rem 0;
+      }
+
+      .instructions code {
+        background: #24283b;
+        padding: 2px 6px;
+        border-radius: 2px;
+        color: #9ece6a;
+      }
+
+      .terminal-container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: #1f2335;
+        border: 1px solid #29293f;
+        border-radius: 8px;
+        padding: 1.5rem;
+        height: 500px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .terminal-header {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #29293f;
+      }
+
+      .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+      }
+
+      .dot-red { background: #f7768e; }
+      .dot-yellow { background: #e0af68; }
+      .dot-green { background: #9ece6a; }
+
+      .terminal-output {
+        flex: 1;
+        overflow-y: auto;
+        font-size: 14px;
+        line-height: 1.6;
+        margin-bottom: 1rem;
+      }
+
+      .terminal-output > div {
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      .terminal-input-line {
+        display: flex;
+        align-items: center;
+        font-size: 14px;
+      }
+
+      .terminal-prompt {
+        margin-right: 0.5rem;
+        flex-shrink: 0;
+      }
+
+      .terminal-input {
+        flex: 1;
+        outline: none;
+        color: #a9b1d6;
+        white-space: pre;
+        min-width: 0;
+      }
+
+      .cursor {
+        display: inline;
+        background: rgba(187, 154, 247, 0.4);
+        animation: blink 1.5s ease-in-out infinite;
+      }
+
+      .cursor:empty::before {
+        content: '\00a0';
+      }
+
+      @keyframes blink {
+        0%, 100% { opacity: 0.3; }
+        50% { opacity: 1; }
+      }
+
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: #1a1b26;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: #565f89;
+        border-radius: 4px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: #7aa2f7;
+      }
+    </style>
+  </head>
+  <body>
+    <%= yield %>
+  </body>
+</html>

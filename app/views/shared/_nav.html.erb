@@ -1,9 +1,9 @@
-<%# Main navigation - centered links %>
-<nav class="main-nav">
-  <div class="nav-links flex items-center justify-center gap-6">
-    <%= link_to "Projects", projects_path, class: "nav-link font-medium text-[#a9b1d6] hover:text-[#bb9af7] transition-colors duration-200" %>
-    <%= link_to "Blog", posts_path, class: "nav-link font-medium text-[#a9b1d6] hover:text-[#bb9af7] transition-colors duration-200" %>
-    <%= link_to "CV", cv_path, class: "nav-link font-medium text-[#a9b1d6] hover:text-[#bb9af7] transition-colors duration-200" %>
-    <%= link_to "References", references_path, class: "nav-link font-medium text-[#a9b1d6] hover:text-[#bb9af7] transition-colors duration-200" %>
-  </div>
-</nav> 
+<%= render Navigation::NavComponent.new do |nav| %>
+  <% nav.with_link(href: projects_path, label: "Projects") %>
+  <% nav.with_link(href: dragonruby_path, label: "DragonRuby") %>
+  <% nav.with_link(href: cv_path, label: "CV") %>
+  <% if Rails.env.development? %>
+    <% nav.with_link(href: scribe_dashboard_path, label: "Scribe") %>
+    <% nav.with_link(href: "/jobs", label: "Jobs") %>
+  <% end %>
+<% end %>

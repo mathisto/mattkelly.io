@@ -1,0 +1,23 @@
+<section class="hero py-4 sm:py-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <%= render Terminal::Component.new do |terminal| %>
+      <% terminal.with_header %>
+      <% terminal.with_prompt(command: "whoami") do |prompt| %>
+        <% prompt.with_output(type: :ascii) do %>
+          <pre class="text-xs sm:text-sm"><%= ascii_art %></pre>
+        <% end %>
+      <% end %>
+      <% terminal.with_prompt(command: "cat role.txt") do |prompt| %>
+        <% prompt.with_output do %>
+          <div class="role-text text-sm sm:text-base leading-relaxed">
+            <%= @role %>
+          </div>
+        <% end %>
+      <% end %>
+      <div class="command-prompt flex items-center mt-4">
+        <span class="prompt-symbol text-[#9ece6a] mr-2">❯</span>
+        <%= render Terminal::CursorComponent.new %>
+      </div>
+    <% end %>
+  </div>
+</section>

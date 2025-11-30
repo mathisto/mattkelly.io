@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>DragonRuby Direct Test</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #1a1b26;
+      color: #a9b1d6;
+      font-family: monospace;
+    }
+    
+    #canvas {
+      border: 2px solid #7aa2f7;
+      background: #000;
+      display: block;
+      margin: 20px 0;
+    }
+    
+    #log {
+      background: #24283b;
+      padding: 10px;
+      border: 1px solid #565f89;
+      max-height: 400px;
+      overflow-y: auto;
+      font-size: 12px;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <h2>DragonRuby WASM Direct Test</h2>
+  <canvas id="canvas" width="1280" height="720"></canvas>
+  
+  <button id="testBtn" style="padding: 10px 20px; font-size: 14px; margin: 10px 0;">
+    Update Code
+  </button>
+  
+  <div id="log"></div>
+  
+  <script>
+    const logDiv = document.getElementById('log');
+    const log = (msg) => {
+      console.log(msg);
+      logDiv.textContent += msg + '\n';
+      logDiv.scrollTop = logDiv.scrollHeight;
+    };
+    
+    log('[Test] Starting DragonRuby WASM test');
+    log('[Test] Canvas: ' + document.getElementById('canvas'));
+    
+    var Module = {
+      preRun: [function() {
+        log('[PreRun] Setting up filesystem');
+        
+        // Create /app directory
+        FS.mkdir('/app');
+        log('[PreRun] Created /app directory');
+        
+        // Preload font
+        FS.createPreloadedFile('/', 'font.ttf', 'font.ttf', true, false);
+        log('[PreRun] Preloaded font.ttf');
+        
+        // Create initial main.rb
+        const initialCode = 'def tick args\n  args.outputs.solids << [0, 0, 1280, 720, 26, 27, 38]\n  args.outputs.labels << [640, 360, "DragonRuby Running!", 10, 1, 255, 255, 255]\nend\n';
+        FS.writeFile('/app/main.rb', initialCode);
+        log('[PreRun] Created /app/main.rb');
+        log('[PreRun] Code: ' + initialCode);
+      }],
+      
+      postRun: [function() {
+        log('[PostRun] DragonRuby WASM loaded!');
+        
+        // Setup saveMain function
+        window.saveMain = function(code) {
+          log('[SaveMain] Called with code length: ' + code.length);
+          log('[SaveMain] Code: ' + code);
+          
+          try {
+            FS.writeFile('/app/main.rb', code);
+            log('[SaveMain] ✓ File written successfully');
+            
+            // Verify
+            const readBack = FS.readFile('/app/main.rb', { encoding: 'utf8' });
+            log('[SaveMain] ✓ Verified: ' + readBack.length + ' chars');
+          } catch (e) {
+            log('[SaveMain] ✗ Error: ' + e.message);
+          }
+        };
+        
+        log('[PostRun] saveMain() function ready');
+        log('[PostRun] Try clicking "Update Code" button');
+      }],
+      
+      print: function(text) {
+        log('[DR] ' + text);
+      },
+      
+      printErr: function(text) {
+        log('[DR ERROR] ' + text);
+      },
+      
+      canvas: document.getElementById('canvas'),
+      
+      setStatus: function(text) {
+        if (text) {
+          log('[Status] ' + text);
+        }
+      }
+    };
+    
+    // Test button
+    document.getElementById('testBtn').onclick = function() {
+      log('[Test] Button clicked - updating code');
+      
+      const newCode = 'def tick args\n  args.outputs.solids << [0, 0, 1280, 720, 255, 0, 0]\n  args.outputs.labels << [640, 360, "CODE UPDATED!", 10, 1, 255, 255, 0]\nend\n';
+      
+      if (window.saveMain) {
+        window.saveMain(newCode);
+        log('[Test] ✓ saveMain() called');
+      } else {
+        log('[Test] ✗ saveMain() not available yet');
+      }
+    };
+    
+    // Load DragonRuby WASM
+    log('[Test] Loading dragonruby-wasm.js...');
+    const script = document.createElement('script');
+    script.src = 'dragonruby-wasm.js';
+    script.onload = () => log('[Test] ✓ dragonruby-wasm.js loaded');
+    script.onerror = () => log('[Test] ✗ Failed to load dragonruby-wasm.js');
+    document.body.appendChild(script);
+  </script>
+</body>
+</html>

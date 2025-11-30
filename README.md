@@ -1,36 +1,63 @@
-# MattKelly.io 🚀
+# MattKelly.io
 
 <div align="center">
 
-![Ruby on Rails](https://img.shields.io/badge/Ruby%20on%20Rails-CC0000?style=for-the-badge&logo=ruby-on-rails&logoColor=white)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+[![Ruby on Rails](https://img.shields.io/badge/Ruby%20on%20Rails-CC0000?style=for-the-badge&logo=ruby-on-rails&logoColor=white)](https://rubyonrails.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+[![Tailscale + local deployment to Lovelace](https://img.shields.io/badge/Tailscale + local deployment to Lovelace-8E5BC3?style=for-the-badge&logo=fly.io&logoColor=white)](https://fly.io/)
+[![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)](https://github.com/features/actions)
 
-A minimalist, high-performance personal site built with boring technology principles.
+A high-performance personal website embracing boring technology principles and modern development practices.
 
-[Live Site](https://mattkelly.io) · [Blog](https://mattkelly.io/blog) · [Projects](https://mattkelly.io/projects)
+[🌐 Live Site](https://mattkelly.io) · [📝 Blog](https://mattkelly.io/blog) · [🛠️ Projects](https://mattkelly.io/projects)
 
 </div>
 
-## 🌟 Features
+## ✨ Overview
 
-- ⚡️ **Lightning Fast** - Static site generation with minimal JavaScript
-- 📱 **Fully Responsive** - Perfect viewing on any device
-- 🔥 **Minimalist Stack** - Ruby on Rails 8 stripped down to essentials
-- 📝 **Markdown Blog** - Content management with standard markdown
+MattKelly.io is a minimalist personal website that prioritizes performance, maintainability, and user experience. Built with Ruby on Rails 8 and styled with Tailwind CSS, it demonstrates how traditional technologies can create modern, lightning-fast web experiences.
 
-## 🛠️ Tech Stack
+### Key Features
 
-### Core
-- Ruby 3.4.7 on Rails 8.0.2 (minimal configuration)
-- Markdown processing for content
-- Tailwind CSS for styling
+- 🚀 **Blazing Fast Performance**
+  - Static site generation
+  - Minimal JavaScript footprint
+  - Optimized asset delivery
 
-### Development
-- RSpec for testing
-- GitHub Actions for CI/CD
-- Tailscale + local deployment to Lovelace
+- 🎯 **Content-First Design**
+  - Markdown-based blog system
+  - Clean, responsive layouts
+  - Accessibility-focused UI
+
+- 🛡️ **Modern Development Practices**
+  - Comprehensive test coverage
+  - Automated CI/CD pipeline
+  - Container-based deployment
+
+## 🔧 Technology Stack
+
+### Core Technologies
+| Technology | Purpose |
+|------------|---------|
+| Ruby 3.4.7 on Rails 8.0.2 | Web framework |
+| Tailwind CSS | Styling |
+| Markdown | Content management |
+
+### Development & Operations
+| Category | Tools |
+|----------|--------|
+| Testing | RSpec |
+| CI/CD | GitHub Actions |
+| Hosting | Tailscale + local deployment to Lovelace |
+| Monitoring | Tailscale + local deployment to Lovelace Dashboard |
 
 ## 🚀 Getting Started
+
+### Prerequisites
+- Ruby 3.3.0+
+
+### Installation
 
 1. Clone the repository
 ```bash
@@ -48,94 +75,70 @@ bundle install
 bin/dev
 ```
 
-Visit `http://localhost:8080` and you're ready to go! 🎉
+Your site should now be running at `http://localhost:3000` 🎉
 
 ## 📦 Deployment
 
-Deployment is handled automatically through GitHub Actions when pushing to the `main` or `trunk` branch:
+### Automated Deployment
+The site automatically deploys to Tailscale + local deployment to Lovelace through GitHub Actions when changes are pushed to the `trunk` branch.
 
-1. Push changes to main/trunk:
 ```bash
-git push origin main
+git push origin trunk
 ```
 
-2. GitHub Actions will:
-    - Run the test suite
-    - Deploy to Lovelace via SCP if tests pass
+### Manual Deployment
+If needed, you can deploy manually:
 
-Manual deployment:
 ```bash
-# Set environment variables (or add to ~/.bashrc)
-export LOVELACE_HOST=lovelace
-export LOVELACE_PATH=/home/mathisto/mattkelly.io
-export LOVELACE_USER=mathisto
-
-# Deploy
-./bin/deploy
+fly deploy
 ```
 
-### Environment Variables
+### Deployment Checklist
+- ✅ Tests passing locally
+- ✅ Environment variables configured
+- ✅ Database migrations ready
+- ✅ Assets precompiled
 
-Configure these for deployment:
+## 🔍 Development Guidelines
 
-- `LOVELACE_HOST`: SSH hostname (default: `lovelace`)
-- `LOVELACE_PATH`: Deployment path on Lovelace (default: `/home/deploy/mattkelly.io`)
-- `LOVELACE_USER`: SSH user (default: `mathisto`)
+### Code Style
+- Follow Ruby style guide
+- Use conventional commit messages
+- Write tests for new features
 
-### GitHub Secrets (for CI/CD)
+### Testing
+```bash
+# Run the full test suite
+bundle exec rspec
 
-Add these to your repository secrets:
-- `LOVELACE_SSH_KEY`: Private SSH key for deployment
-- `LOVELACE_KNOWN_HOSTS`: SSH known hosts entry for Lovelace
-- `LOVELACE_HOST`: SSH hostname
-- `LOVELACE_PATH`: Deployment path
-- `LOVELACE_USER`: SSH user
-
-### Troubleshooting Deployment
-
-Common issues and solutions:
-
-1. SSH Connection Issues
-    - Verify Tailscale is running and connected
-    - Check SSH key permissions: `chmod 600 ~/.ssh/id_rsa`
-    - Test connection: `ssh mathisto@lovelace`
-
-2. Permission Issues
-    - Ensure mathisto user can write to `/home/mathisto/mattkelly.io`
-    - For application restart, ensure user-level systemd service exists: `systemctl --user status mattkelly-io`
-    - Check that `/home/deploy/mattkelly.io` is writable
-
-3. Build Failures
-    - Check GitHub Actions logs
-    - Verify Ruby version matches `.ruby-version`
-    - Ensure all dependencies are in Gemfile.lock
-
-## 🎨 Design Philosophy
-
-This site embraces boring technology principles:
-- Minimal dependencies
-- Standard patterns over novelty
-- Focus on content and performance
-- No unnecessary complexity
+# Run specific tests
+bundle exec rspec spec/path/to/test
+```
 
 ## 🤝 Contributing
 
-Found a bug? Want to contribute? Feel free to:
+We welcome contributions! Please follow these steps:
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (following conventional commit message format)
+3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📝 License
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 📫 Contact
+
+Matt Kelly - [@mathisto](https://github.com/mathisto)
+
+Project Link: [https://github.com/mathisto/mattkelly.io](https://github.com/mathisto/mattkelly.io)
 
 ---
 
 <div align="center">
 
-Made with 💜 by [Matt Kelly](https://github.com/mathisto)
+[![Made with Ruby on Rails](https://img.shields.io/badge/Made%20with-Ruby%20on%20Rails-red?style=for-the-badge&logo=ruby-on-rails)](https://rubyonrails.org)
 
 </div>

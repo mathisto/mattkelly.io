@@ -15,6 +15,8 @@
 @import "components/navigation.css";
 @import "components/code.css";
 @import "components/social.css";
+@import "components/prose.css";
+@import "components/scribe_form.css";
 
 /* Animations */
 @import "animations/transitions.css";
@@ -31,6 +33,9 @@
 @import "vendor.css";
 @import "github_heatmap.css";
 
+/* Scribe habit tracking */
+@import "scribe.css";
+
 /* Tokyo Night Theme Colors */
 :root {
   --tokyo-bg: #1a1b26;
@@ -42,6 +47,61 @@
   --tokyo-green: #9ece6a;
   --tokyo-orange: #ff9e64;
   --tokyo-red: #f7768e;
+}
+
+/* ============================================
+   CRITICAL: Button Reset Styles
+   Propshaft doesn't process @import, so button
+   styles must be inline here
+   ============================================ */
+
+/* Reset all default browser button styles */
+button,
+input[type="submit"],
+input[type="button"],
+input[type="reset"] {
+  /* Remove browser defaults */
+  background: none;
+  background-color: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  line-height: inherit;
+  text-align: inherit;
+  
+  /* Remove default focus styling */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* Form buttons specifically (from button_to helper) */
+form button,
+form input[type="submit"] {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* Preserve transitions for interactive elements */
+button,
+input[type="submit"],
+input[type="button"] {
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+/* Disabled state */
+button:disabled,
+input[type="submit"]:disabled,
+input[type="button"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* Base styles */
@@ -453,6 +513,21 @@ nav {
 
 .hover\:translate-y-1:hover {
   transform: translateY(-4px);
+}
+
+/* Utility Classes */
+.hidden {
+  display: none !important;
+}
+
+/* Tab Panels - ensure they're block-level and isolated */
+[data-tabs-target="panel"] {
+  display: block;
+  width: 100%;
+}
+
+[data-tabs-target="panel"].hidden {
+  display: none !important;
 }
 
 /* Add any additional custom styles below */

@@ -1,0 +1,102 @@
+<div class="min-h-screen bg-[#1a1b26] text-[#a9b1d6] p-4 sm:p-8">
+  <div class="max-w-4xl mx-auto">
+    <div class="dev-card">
+      <div class="p-6">
+        <h2 class="text-[#7aa2f7] text-2xl font-bold mb-6">Edit Journal Entry</h2>
+        <%= form_with model: @journal_entry, url: scribe_journal_entry_path(@journal_entry), method: :patch, local: true, class: "space-y-6" do |f| %>
+          <!-- Content Field -->
+          <div>
+            <%= f.label :content, "Entry Content", class: "block text-sm font-medium text-[#7aa2f7] mb-2" %>
+            <%= f.text_area :content, 
+                  rows: 15, 
+                  class: "w-full px-4 py-3 bg-[#1f2335] border border-[#3b4261] rounded-lg text-[#c0caf5] placeholder-[#565f89] focus:border-[#7aa2f7] focus:ring-2 focus:ring-[#7aa2f7] focus:ring-opacity-50 transition-all font-mono",
+                  placeholder: "Your journal entry..." %>
+          </div>
+          <!-- Occurred At Field -->
+          <div>
+            <%= f.label :occurred_at, "When", class: "block text-sm font-medium text-[#7aa2f7] mb-2" %>
+            <%= f.datetime_local_field :occurred_at, 
+                  class: "w-full px-4 py-3 bg-[#1f2335] border border-[#3b4261] rounded-lg text-[#c0caf5] focus:border-[#7aa2f7] focus:ring-2 focus:ring-[#7aa2f7] focus:ring-opacity-50 transition-all" %>
+          </div>
+          <!-- Meta Info -->
+          <div class="p-4 bg-[#1f2335] rounded-lg border border-[#3b4261]">
+            <p class="text-sm text-[#565f89]">
+              <strong class="text-[#7aa2f7]">Word Count:</strong> <%= @journal_entry.word_count %> words
+            </p>
+            <p class="text-sm text-[#565f89] mt-2">
+              <strong class="text-[#7aa2f7]">Character Count:</strong> <%= @journal_entry.character_count %> characters
+            </p>
+          </div>
+          <!-- Actions -->
+          <div class="flex gap-4">
+            <%= f.submit "Save Changes", 
+                  class: "px-6 py-3 bg-[#7aa2f7] hover:bg-[#7dcfff] text-[#1a1b26] font-semibold rounded-lg transition-all duration-200 cursor-pointer" %>
+            <%= link_to "Cancel", 
+                  scribe_dashboard_path, 
+                  class: "px-6 py-3 bg-[#3b4261] hover:bg-[#414868] text-[#a9b1d6] font-semibold rounded-lg transition-all duration-200" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+<style>
+  .dev-card {
+    background: rgba(31, 35, 53, 0.8);
+    border: 1px solid transparent;
+    border-radius: 1rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(8px);
+    position: relative;
+    isolation: isolate;
+  }
+
+  .dev-card::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    padding: 2px;
+    background: linear-gradient(
+      90deg,
+      #7aa2f7 0%,
+      #bb9af7 33.33%,
+      #7dcfff 66.67%,
+      #7aa2f7 100%
+    );
+    border-radius: calc(1rem + 2px);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    background-size: 200% 100%;
+    z-index: -2;
+    pointer-events: none;
+  }
+
+  .dev-card::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    background: rgba(31, 35, 53, 0.95);
+    border-radius: calc(1rem + 1px);
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .dev-card > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .dev-card:hover::before {
+    opacity: 1;
+    animation: borderGradient 3s linear infinite;
+  }
+
+  @keyframes borderGradient {
+    0% { background-position: 0% 0; }
+    100% { background-position: 200% 0; }
+  }
+</style>

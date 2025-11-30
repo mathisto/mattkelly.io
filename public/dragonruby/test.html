@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>DragonRuby Canvas Test</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #1a1b26;
+      color: #a9b1d6;
+      font-family: monospace;
+    }
+    
+    #container {
+      border: 3px solid #7aa2f7;
+      background: #24283b;
+      padding: 10px;
+      display: inline-block;
+    }
+    
+    canvas {
+      border: 2px solid #bb9af7;
+      display: block;
+      background: #1a1b26;
+    }
+  </style>
+</head>
+<body>
+  <h1>DragonRuby Canvas Visibility Test</h1>
+  <p>Canvas dimensions should be visible below:</p>
+  <div id="container">
+    <canvas id="testCanvas" width="1280" height="720"></canvas>
+  </div>
+  <div id="info" style="margin-top: 20px;"></div>
+  
+  <script>
+    const canvas = document.getElementById('testCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Draw something visible
+    ctx.fillStyle = '#bb9af7';
+    ctx.fillRect(0, 0, 1280, 720);
+    
+    ctx.fillStyle = '#9ece6a';
+    ctx.font = '48px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Hello, Canvas!', 640, 360);
+    
+    // Log dimensions
+    document.getElementById('info').innerHTML = `
+      <strong>Canvas Info:</strong><br>
+      width attribute: ${canvas.width}<br>
+      height attribute: ${canvas.height}<br>
+      clientWidth (CSS): ${canvas.clientWidth}px<br>
+      clientHeight (CSS): ${canvas.clientHeight}px<br>
+      offsetWidth: ${canvas.offsetWidth}px<br>
+      offsetHeight: ${canvas.offsetHeight}px
+    `;
+  </script>
+</body>
+</html>

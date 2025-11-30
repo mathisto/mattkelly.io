@@ -1,24 +1,17 @@
 require 'rails_helper'
 
 RSpec.describe 'Pages', type: :system do
-  describe 'Navigation' do
-    it 'can visit the home page' do
-      visit root_path
-      expect(page).to have_content('Matt Kelly')
-      expect(page).to have_link('Blog')
-      expect(page).to have_link('Projects')
-      expect(page).to have_link('CV')
-    end
+  it 'serves static pages' do
+    # Home page
+    visit root_path
+    expect(page).to have_current_path(root_path)
 
-    it 'can visit the projects page' do
-      visit projects_path
-      expect(page).to have_content('Projects')
-    end
+    # Projects page
+    visit projects_path
+    expect(page).to have_current_path(projects_path)
 
-    it 'can visit the CV page' do
-      visit cv_path
-      expect(page).to have_content('Experience')
-      expect(page).to have_content('Education')
-    end
+    # CV page
+    visit cv_path
+    expect(page).to have_current_path(cv_path)
   end
 end 

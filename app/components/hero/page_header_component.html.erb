@@ -1,0 +1,13 @@
+<header class="<%= header_classes %>">
+  <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <h1 class="text-4xl sm:text-5xl font-bold text-[#7aa2f7] font-heading mb-4">
+      <%= @title %>
+    </h1>
+    <% if @subtitle %>
+      <p class="text-lg sm:text-xl text-[#bb9af7] opacity-90">
+        <%= @subtitle %>
+      </p>
+    <% end %>
+    <%= content if content? %>
+  </div>
+</header>

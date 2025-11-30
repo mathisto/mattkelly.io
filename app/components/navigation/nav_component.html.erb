@@ -1,0 +1,18 @@
+<nav class="main-nav">
+  <div class="nav-links flex items-center justify-between gap-6 w-full max-w-6xl mx-auto px-4">
+    <!-- Left/Center Links -->
+    <div class="flex items-center justify-center gap-6 flex-1">
+      <% links.reject { |link| link.position == :right }.each do |link| %>
+        <%= link %>
+      <% end %>
+    </div>
+    <!-- Right Links -->
+    <% if links.any? { |link| link.position == :right } %>
+      <div class="flex items-center gap-6">
+        <% links.select { |link| link.position == :right }.each do |link| %>
+          <%= link %>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</nav>

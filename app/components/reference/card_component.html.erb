@@ -1,0 +1,108 @@
+<style>
+  .reference-card {
+    background: rgba(31, 35, 53, 0.8);
+    border: 1px solid transparent;
+    border-radius: 1rem;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(8px);
+    position: relative;
+    isolation: isolate;
+    z-index: 1;
+    width: 100%;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .reference-card::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    padding: 2px;
+    background: linear-gradient(
+      90deg,
+      #7aa2f7 0%,
+      #bb9af7 16.67%,
+      #7dcfff 33.33%,
+      #9ece6a 50%,
+      #ff9e64 66.67%,
+      #f7768e 83.33%,
+      #9d7cd8 91.67%,
+      #7aa2f7 100%
+    );
+    border-radius: calc(1rem + 2px);
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    will-change: opacity, background-position;
+    transition: opacity 0.3s ease;
+    background-size: 200% 100%;
+    z-index: 0;
+  }
+
+  .reference-card::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    background: rgba(31, 35, 53, 0.95);
+    border-radius: calc(1rem + 1px);
+    z-index: -1;
+  }
+
+  .reference-card:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      0 20px 25px -5px rgba(122, 162, 247, 0.1),
+      0 10px 10px -5px rgba(187, 154, 247, 0.04);
+  }
+
+  .reference-card:hover::before {
+    opacity: 1;
+    animation: borderGradient 6s linear infinite;
+  }
+
+  @keyframes borderGradient {
+    0% { background-position: 0 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  .reference-flex {
+  display: flex;
+  min-height: 100%;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+  flex-direction: row;
+  }
+
+  .flex-row-reverse {
+  flex-direction: row-reverse !important;
+  }
+
+  .content-section {
+    width: 75%;
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+  }
+</style>
+<div class="<%= card_classes %>">
+  <div class="<%= flex_classes %>">
+    <%= profile %>
+    <div class="content-section">
+      <div class="text-gray-300 space-y-4 text-lg leading-relaxed">
+        <%= content %>
+      </div>
+    </div>
+  </div>
+</div>

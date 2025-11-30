@@ -1,74 +1,179 @@
-<%# Brand New 404 Page %>
-<div class="min-h-[80vh] flex items-center justify-center bg-[#1a1b26]" data-controller="entrance">
-  <div class="text-center px-4">
-    <%# Glitch Effect %>
-    <div class="relative mb-8 select-none" data-controller="glitch">
-      <h1 class="text-[12rem] font-bold leading-none tracking-tighter text-[#7aa2f7] opacity-75 glitch-base"
-          data-glitch="404">
+<%# 4th Dimension 404 Page %>
+<div class="min-h-[100vh] flex flex-col items-center bg-[#1a1b26]" data-controller="tesseract">
+  <%# Header Content %>
+  <div class="container max-w-3xl mx-auto flex items-center justify-center px-4 py-12 relative z-10 min-h-[30vh]">
+    <div class="flex flex-col items-center justify-center w-full">
+      <h1 class="text-[12rem] font-bold leading-[1] tracking-tighter text-[#7aa2f7] mb-8">
         404
       </h1>
-      <div class="absolute inset-0 text-[12rem] font-bold leading-none tracking-tighter text-[#bb9af7] glitch-layer-1"
-           aria-hidden="true"
-           data-glitch="404">
-        404
-      </div>
-      <div class="absolute inset-0 text-[12rem] font-bold leading-none tracking-tighter text-[#7dcfff] glitch-layer-2"
-           aria-hidden="true"
-           data-glitch="404">
-        404
-      </div>
+
+      <%# Message %>
+      <h2 class="text-2xl font-heading font-semibold text-[#7aa2f7] mb-4">
+        Lost Between Dimensions
+      </h2>
+      <p class="text-[#a9b1d6] mb-8 text-lg max-w-xl mx-auto">
+        This page has slipped through a tear in the fabric between our three-dimensional space 
+        and the fourth dimension. Here's where you might glimpse it in the hypercube below. 🌌
+      </p>
+
+      <%# Action Button %>
+      <%= link_to root_path, 
+          class: "inline-flex items-center px-6 py-3 rounded-lg bg-[#7aa2f7] hover:bg-[#bb9af7] text-white font-medium transition-all duration-300 transform hover:scale-105 hover:rotate-1 shadow-[0_0_15px_rgba(122,162,247,0.5)] hover:shadow-[0_0_25px_rgba(187,154,247,0.5)]" do %>
+        <i class="ph ph-house mr-2 text-white"></i>
+        <span class="text-white">Return to Our Dimension</span>
+      <% end %>
     </div>
+  </div>
 
-    <%# Message %>
-    <h2 class="text-2xl font-heading font-semibold text-[#7aa2f7] mb-4">
-      Welp, this is awkward...
-    </h2>
-    <p class="text-[#a9b1d6] mb-8 max-w-md mx-auto">
-      Looks like this page pulled a ninja move and disappeared. 
-      Maybe it's meditating in a digital zen garden? 🤔
-    </p>
-
-    <%# Action Button %>
-    <%= link_to root_path, 
-        class: "inline-flex items-center px-6 py-3 rounded-lg bg-[#7aa2f7] hover:bg-[#bb9af7] text-white font-medium transition-all duration-300 transform hover:scale-105 hover:rotate-1 shadow-[0_0_15px_rgba(122,162,247,0.5)] hover:shadow-[0_0_25px_rgba(187,154,247,0.5)]" do %>
-      <i class="ph ph-house mr-2 text-white"></i>
-      <span class="text-white">Beam me up, Scotty!</span>
-    <% end %>
+  <%# Tesseract Canvas %>
+  <div class="flex-1 w-full relative">
+    <canvas id="hypercubeCanvas" class="absolute inset-0 w-full h-full"></canvas>
   </div>
 </div>
 
-<%# Add glitch effect styles %>
-<style>
-  .glitch-base {
-    position: relative;
-    z-index: 1;
+<%# Tesseract Animation Script %>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Canvas setup
+  const canvas = document.getElementById('hypercubeCanvas');
+  const ctx = canvas.getContext('2d');
+  
+  // Set canvas to full window size
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight * 0.7; // Take up lower portion of screen
   }
-
-  .glitch-layer-1 {
-    z-index: 0;
-    animation: glitch-1 2s infinite linear alternate-reverse;
+  
+  resizeCanvas();
+  window.addEventListener('resize', resizeCanvas);
+  
+  // Hypercube vertices (4D)
+  const vertices4D = [];
+  for (let x = -1; x <= 1; x += 2) {
+    for (let y = -1; y <= 1; y += 2) {
+      for (let z = -1; z <= 1; z += 2) {
+        for (let w = -1; w <= 1; w += 2) {
+          vertices4D.push([x, y, z, w]);
+        }
+      }
+    }
   }
-
-  .glitch-layer-2 {
-    z-index: -1;
-    animation: glitch-2 3s infinite linear alternate-reverse;
+  
+  // Edges of the hypercube
+  const edges = [];
+  for (let i = 0; i < vertices4D.length; i++) {
+    for (let j = i + 1; j < vertices4D.length; j++) {
+      let diffCount = 0;
+      for (let k = 0; k < 4; k++) {
+        if (vertices4D[i][k] !== vertices4D[j][k]) diffCount++;
+      }
+      if (diffCount === 1) edges.push([i, j]);
+    }
   }
-
-  @keyframes glitch-1 {
-    0% { transform: translate(0); }
-    20% { transform: translate(-2px, 2px); }
-    40% { transform: translate(-2px, -2px); }
-    60% { transform: translate(2px, 2px); }
-    80% { transform: translate(2px, -2px); }
-    100% { transform: translate(0); }
+  
+  // Rotation variables
+  let rotations = {
+    xy: 0, xz: 0, xw: 0,
+    yz: 0, yw: 0, zw: 0
+  };
+  
+  // Auto-rotation speeds
+  const autoRotateSpeeds = {
+    xy: 0.001, xz: 0.002, xw: 0.003,
+    yz: 0.002, yw: 0.001, zw: 0.002
+  };
+  
+  // Rotation matrices
+  function rotate4D(point, angles) {
+    let p = [...point];
+    
+    // Apply all rotations
+    const cos = Math.cos;
+    const sin = Math.sin;
+    
+    // XY rotation
+    let t = p[0] * cos(angles.xy) - p[1] * sin(angles.xy);
+    p[1] = p[0] * sin(angles.xy) + p[1] * cos(angles.xy);
+    p[0] = t;
+    
+    // XZ rotation
+    t = p[0] * cos(angles.xz) - p[2] * sin(angles.xz);
+    p[2] = p[0] * sin(angles.xz) + p[2] * cos(angles.xz);
+    p[0] = t;
+    
+    // And so on for other rotations...
+    return p;
   }
-
-  @keyframes glitch-2 {
-    0% { transform: translate(0); }
-    20% { transform: translate(2px, -2px); }
-    40% { transform: translate(2px, 2px); }
-    60% { transform: translate(-2px, -2px); }
-    80% { transform: translate(-2px, 2px); }
-    100% { transform: translate(0); }
+  
+  // Project 4D to 3D
+  function projectTo3D(point4D) {
+    const w = 2; // Camera distance from origin
+    const factor = 1 / (w - point4D[3]);
+    return [
+      point4D[0] * factor,
+      point4D[1] * factor,
+      point4D[2] * factor
+    ];
   }
-</style>
+  
+  // Project 3D to 2D
+  function projectTo2D(point3D) {
+    const d = 2; // Camera distance
+    const factor = 200; // Scale factor
+    return [
+      canvas.width/2 + point3D[0] * factor,
+      canvas.height/2 + point3D[1] * factor
+    ];
+  }
+  
+  // Draw the hypercube
+  function drawHypercube() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Update rotations
+    Object.keys(rotations).forEach(key => {
+      rotations[key] += autoRotateSpeeds[key];
+    });
+    
+    // Calculate vertex positions
+    const projectedVertices = vertices4D
+      .map(v => rotate4D(v, rotations))
+      .map(projectTo3D)
+      .map(projectTo2D);
+    
+    // Draw edges with glow effect
+    ctx.strokeStyle = '#7aa2f7';
+    ctx.lineWidth = 1.5;
+    ctx.shadowColor = '#7aa2f7';
+    ctx.shadowBlur = 10;
+    ctx.beginPath();
+    
+    edges.forEach(([i, j]) => {
+      ctx.moveTo(projectedVertices[i][0], projectedVertices[i][1]);
+      ctx.lineTo(projectedVertices[j][0], projectedVertices[j][1]);
+    });
+    
+    ctx.stroke();
+    
+    // Reset shadow for vertices
+    ctx.shadowBlur = 0;
+    
+    // Draw vertices with glow
+    ctx.fillStyle = '#bb9af7';
+    projectedVertices.forEach(([x, y]) => {
+      ctx.beginPath();
+      ctx.arc(x, y, 3, 0, Math.PI * 2);
+      ctx.fill();
+    });
+  }
+  
+  // Animation loop
+  function animate() {
+    drawHypercube();
+    requestAnimationFrame(animate);
+  }
+  
+  // Start animation
+  animate();
+});
+</script>

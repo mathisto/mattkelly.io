@@ -165,6 +165,12 @@
   .terminal-container {
     max-width: 800px;
     margin: 2rem auto;
+    font-family: 'Fira Code', monospace;
+    background: rgba(26, 27, 38, 0.95);
+    border-radius: 0.5rem;
+    overflow: hidden;
+    text-align: left;
+    padding: 0;
   }
 
   /* Terminal Header */
@@ -191,34 +197,46 @@
   .dot-yellow { background: #e0af68; }
   .dot-green { background: #9ece6a; }
 
-  /* Terminal Content */
-  .terminal-content {
+  /* Terminal Output */
+  .terminal-output {
     font-family: 'Fira Code', monospace;
     color: #a9b1d6;
+    min-height: 120px;
+    text-align: left;
+    padding: 0.5rem;
   }
 
-  .command-prompt {
+  .terminal-output > div {
+    text-align: left;
+    margin-bottom: 0.5rem;
+    pointer-events: auto;
+  }
+
+  /* Terminal Input Line */
+  .terminal-input-line {
     display: flex;
     align-items: center;
-    margin-bottom: 0.5rem;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    border-top: 1px solid rgba(122, 162, 247, 0.2);
+    text-align: left;
   }
 
-  .prompt-symbol {
+  .terminal-prompt {
     color: #9ece6a;
     margin-right: 0.5rem;
+    flex-shrink: 0;
   }
 
-  .command-text {
-    color: #7aa2f7;
+  .terminal-input {
+    flex: 1;
+    text-align: left;
   }
 
-  .command-output {
+  .terminal-input {
+    flex: 1;
     color: #a9b1d6;
-    margin-left: 1.5rem;
-    margin-bottom: 1rem;
-    white-space: pre;
-    font-size: 0.7rem;
-    line-height: 1.2;
+    font-family: 'Fira Code', monospace;
   }
 
   /* Blinking cursor */
@@ -253,7 +271,7 @@
     .sm\:gap-8 {
       gap: 2rem;
     }
-    
+
     .sm\:gap-6 {
       gap: 1.5rem;
     }
@@ -281,57 +299,38 @@
     border: 0;
   }
 </style>
-
 <h1 class="visually-hidden">Matt Kelly</h1>
 <section class="hero py-8 sm:py-12">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div data-controller="entrance" data-entrance-delay-value="0">
-      <div class="dev-card terminal-container">
-        <div class="terminal-inner">
-          <div class="terminal-header">
-            <div class="terminal-dots">
-              <div class="terminal-dot dot-red"></div>
-              <div class="terminal-dot dot-yellow"></div>
-              <div class="terminal-dot dot-green"></div>
-            </div>
+      <div class="dev-card terminal-container" data-controller="interactive-terminal" data-action="keydown->interactive-terminal#handleKeydown" tabindex="0">
+        <div class="terminal-header">
+          <div class="terminal-dots">
+            <div class="terminal-dot dot-red"></div>
+            <div class="terminal-dot dot-yellow"></div>
+            <div class="terminal-dot dot-green"></div>
           </div>
-          <div class="terminal-content">
-            <div class="command-prompt">
-              <span class="prompt-symbol">❯</span>
-              <span class="command-text">whoami</span>
-            </div>
-            <div class="command-output"> 
- __  __       _   _     _  __    _ _      
-|  \/  | __ _| |_| |_  | |/ /___| | |_   _
- | |\/| |/ _` | __| __| | ' // _ \ | | | | |
- | |  | | (_| | |_| |_  | . \  __/ | | |_| |
- |_|  |_|\__,_|\__|\__| |_|\_\___|_|_|\__, |
-                                      |___/ </div>
-            <div class="command-prompt">
-              <span class="prompt-symbol">❯</span>
-              <span class="command-text">cat role.txt</span>
-            </div>
-            <div class="command-output">
-              Staff Engineer building scalable systems and fostering excellence.
-            </div>
-            <div class="command-prompt">
-              <span class="prompt-symbol">❯</span>
-              <span class="cursor"></span>
-            </div>
-          </div>
+        </div>
+        <div class="terminal-output" data-interactive-terminal-target="output"><div style="margin-bottom: 0.5rem; pointer-events: auto; text-align: left; white-space: pre; line-height: 1.1;"><span style="color: #bb9af7;">███╗   ███╗ █████╗ ████████╗████████╗    ██╗  ██╗███████╗██╗     ██╗     ██╗   ██╗
+████╗ ████║██╔══██╗╚══██╔══╝╚══██╔══╝    ██║ ██╔╝██╔════╝██║     ██║     ╚██╗ ██╔╝
+██╔████╔██║███████║   ██║      ██║       █████╔╝ █████╗  ██║     ██║      ╚████╔╝
+██║╚██╔╝██║██╔══██║   ██║      ██║       ██╔═██╗ ██╔══╝  ██║     ██║       ╚██╔╝
+██║ ╚═╝ ██║██║  ██║   ██║      ██║       ██║  ██╗███████╗███████╗███████╗   ██║
+╚═╝     ╚═╝╚═╝  ╚═╝   ╚═╝      ╚═╝       ╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝   ╚═╝</span></div><div style="margin-bottom: 0.5rem; pointer-events: auto; text-align: left;"></div><div style="margin-bottom: 0.5rem; pointer-events: auto; text-align: left; white-space: pre-wrap; word-wrap: break-word; line-height: 1.4;">Polyglot problem solver who bridges the gap between complex architecture and human-centered leadership.</div><div style="margin-bottom: 0.5rem; pointer-events: auto; text-align: left;"></div><div style="margin-bottom: 0.5rem; pointer-events: auto; text-align: left; white-space: pre-wrap; word-wrap: break-word; line-height: 1.4;"><span style="color: #565f89;">Type <span style="color: #e0af68;">help</span> for available commands</span></div><div style="margin-bottom: 0.5rem; pointer-events: auto; text-align: left;"></div></div>
+        <div class="terminal-input-line">
+          <span class="terminal-prompt" data-interactive-terminal-target="prompt"><span style="color: #9ece6a;">❯</span> </span>
+          <span class="terminal-input" data-interactive-terminal-target="input"><span class="cursor"> </span></span>
         </div>
       </div>
     </div>
   </div>
 </section>
-
 <%# Core Skills %>
 <section class="py-16">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="section-header text-center mb-6 sm:mb-8" data-controller="entrance" data-entrance-delay-value="100">
       <h2>Core Expertise</h2>
     </div>
-
     <div class="grid gap-8" data-controller="entrance" data-entrance-delay-value="200">
       <div class="dev-card animate-slide-in-left">
         <h3 class="card-title text-center">System Architecture</h3>
@@ -354,7 +353,6 @@
           </span>
         </div>
       </div>
-
       <div class="dev-card animate-fade-in">
         <h3 class="card-title text-center">Technical Leadership</h3>
         <p class="card-content">
@@ -376,7 +374,6 @@
           </span>
         </div>
       </div>
-
       <div class="dev-card animate-slide-in-right">
         <h3 class="card-title text-center">Cloud & DevOps</h3>
         <p class="card-content">
@@ -400,14 +397,12 @@
     </div>
   </div>
 </section>
-
 <%# Technologies %>
 <section class="py-16">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="section-header text-center mb-8" data-controller="entrance" data-entrance-delay-value="300">
       <h2>Technical Arsenal</h2>
     </div>
-
     <div class="grid gap-8" data-controller="entrance" data-entrance-delay-value="500">
       <div class="dev-card animate-slide-in-left">
         <h3 class="card-title text-center">Languages</h3>
@@ -420,7 +415,6 @@
           <span class="skill-pill"><i class="fas fa-moon"></i> Lua</span>
         </div>
       </div>
-
       <div class="dev-card animate-fade-in">
         <h3 class="card-title text-center">Frameworks & Tools</h3>
         <div class="skills-container justify-center">
@@ -432,7 +426,6 @@
           <span class="skill-pill"><i class="fab fa-git-alt"></i> Git</span>
         </div>
       </div>
-
       <div class="dev-card animate-slide-in-right">
         <h3 class="card-title text-center">Databases & Storage</h3>
         <div class="skills-container justify-center">
@@ -444,14 +437,12 @@
         </div>
       </div>
     </div>
-
     <%# GitHub Activity %>
     <div class="mt-24">
       <div class="section-header text-center mb-8" data-controller="entrance" data-entrance-delay-value="300">
         <h2>GitHub Activity</h2>
         <p>My open source contributions over the last year</p>
       </div>
-
       <% if @github_data %>
         <div class="dev-card animate-fade-in" data-controller="github-heatmap"
              data-github-heatmap-data-value="<%= @github_data[:contributions].to_json %>"
@@ -467,7 +458,6 @@
     </div>
   </div>
 </section>
-
 <%# Call to Action %>
 <section class="py-16 pb-24 sm:pb-32 cta-section">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -492,7 +482,6 @@
     </div>
   </div>
 </section>
-
 <style>
   /* Mobile optimizations */
   @media (max-width: 639px) {

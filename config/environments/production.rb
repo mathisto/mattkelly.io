@@ -44,7 +44,6 @@ Rails.application.configure do
   config.cache_store = :solid_cache_store
 
   # Configure SolidQueue database connection
-  config.solid_queue.connects_to = { database: { writing: :queue } }
 
   # Configure SolidCache database connection
   config.solid_cache.connects_to = { database: { writing: :cache } }

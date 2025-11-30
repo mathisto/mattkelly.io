@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
   # Can be used by load balancers and uptime monitors to verify that the app is live.
-  get "up" => "rails/health#show", as: :rails_health_check
+  get "up" => "rails/health#show", :as => :rails_health_check
 
   # Root route
   root "home#index"
@@ -29,8 +29,9 @@ Rails.application.routes.draw do
     get "/docs/*path", to: "docs#show", as: :doc_page
 
     # Mission Control - Jobs UI
-    require "mission_control/jobs"
-    mount MissionControl::Jobs::Engine, at: "/jobs"
+    # Temporarily disabled due to queue setup issues
+    # require "mission_control/jobs"
+    # mount MissionControl::Jobs::Engine, at: "/jobs"
   end
 
   # Scribe habit tracking (development only)

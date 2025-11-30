@@ -21,14 +21,14 @@ A minimalist, high-performance personal site built with boring technology princi
 ## 🛠️ Tech Stack
 
 ### Core
-- Ruby on Rails 8.0.2 (minimal configuration)
+- Ruby 3.4.7 on Rails 8.0.2 (minimal configuration)
 - Markdown processing for content
 - Tailwind CSS for styling
 
 ### Development
 - RSpec for testing
 - GitHub Actions for CI/CD
-- Fly.io for deployment
+- Tailscale + local deployment to Lovelace
 
 ## 🚀 Getting Started
 
@@ -52,35 +52,63 @@ Visit `http://localhost:8080` and you're ready to go! 🎉
 
 ## 📦 Deployment
 
-Deployment is handled automatically through GitHub Actions when pushing to the `trunk` branch:
+Deployment is handled automatically through GitHub Actions when pushing to the `main` or `trunk` branch:
 
-1. Push changes to trunk:
+1. Push changes to main/trunk:
 ```bash
-git push origin trunk
+git push origin main
 ```
 
 2. GitHub Actions will:
-   - Run the test suite
-   - Deploy to Fly.io if tests pass
+    - Run the test suite
+    - Deploy to Lovelace via SCP if tests pass
 
-Manual deployment (if needed):
+Manual deployment:
 ```bash
-fly deploy
+# Set environment variables (or add to ~/.bashrc)
+export LOVELACE_HOST=lovelace
+export LOVELACE_PATH=/home/mathisto/mattkelly.io
+export LOVELACE_USER=mathisto
+
+# Deploy
+./bin/deploy
 ```
+
+### Environment Variables
+
+Configure these for deployment:
+
+- `LOVELACE_HOST`: SSH hostname (default: `lovelace`)
+- `LOVELACE_PATH`: Deployment path on Lovelace (default: `/home/deploy/mattkelly.io`)
+- `LOVELACE_USER`: SSH user (default: `mathisto`)
+
+### GitHub Secrets (for CI/CD)
+
+Add these to your repository secrets:
+- `LOVELACE_SSH_KEY`: Private SSH key for deployment
+- `LOVELACE_KNOWN_HOSTS`: SSH known hosts entry for Lovelace
+- `LOVELACE_HOST`: SSH hostname
+- `LOVELACE_PATH`: Deployment path
+- `LOVELACE_USER`: SSH user
 
 ### Troubleshooting Deployment
 
 Common issues and solutions:
 
-1. Health Check Failures
-   - Check Fly.io logs: `fly logs`
-   - Verify app is binding to 0.0.0.0:8080
-   - Ensure `/up` endpoint is responding
+1. SSH Connection Issues
+    - Verify Tailscale is running and connected
+    - Check SSH key permissions: `chmod 600 ~/.ssh/id_rsa`
+    - Test connection: `ssh mathisto@lovelace`
 
-2. Build Failures
-   - Check GitHub Actions logs
-   - Verify Dockerfile configuration
-   - Check for missing environment variables
+2. Permission Issues
+    - Ensure mathisto user can write to `/home/mathisto/mattkelly.io`
+    - For application restart, ensure user-level systemd service exists: `systemctl --user status mattkelly-io`
+    - Check that `/home/deploy/mattkelly.io` is writable
+
+3. Build Failures
+    - Check GitHub Actions logs
+    - Verify Ruby version matches `.ruby-version`
+    - Ensure all dependencies are in Gemfile.lock
 
 ## 🎨 Design Philosophy
 

@@ -3,55 +3,55 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [ main ]
+    branches: [ main, trunk ]
 
 jobs:
   scan_ruby:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+       - name: Checkout code
+         uses: actions/checkout@v4
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: .ruby-version
-          bundler-cache: true
+       - name: Set up Ruby
+         uses: ruby/setup-ruby@v1
+         with:
+           ruby-version: 3.4.7
+           bundler-cache: true
 
-      - name: Scan for common Rails security vulnerabilities using static analysis
-        run: bin/brakeman --no-pager
+       - name: Scan for common Rails security vulnerabilities using static analysis
+         run: bin/brakeman --no-pager
 
   scan_js:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+       - name: Checkout code
+         uses: actions/checkout@v4
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: .ruby-version
-          bundler-cache: true
+       - name: Set up Ruby
+         uses: ruby/setup-ruby@v1
+         with:
+           ruby-version: 3.4.7
+           bundler-cache: true
 
-      - name: Scan for security vulnerabilities in JavaScript dependencies
-        run: bin/importmap audit
+       - name: Scan for security vulnerabilities in JavaScript dependencies
+         run: bin/importmap audit
 
   lint:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+       - name: Checkout code
+         uses: actions/checkout@v4
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: .ruby-version
-          bundler-cache: true
+       - name: Set up Ruby
+         uses: ruby/setup-ruby@v1
+         with:
+           ruby-version: 3.4.7
+           bundler-cache: true
 
-      - name: Lint code for consistent style
-        run: bin/rubocop -f github
+       - name: Lint code for consistent style
+         run: bin/rubocop -f github
 
   test:
     runs-on: ubuntu-latest
@@ -66,25 +66,56 @@ jobs:
       - name: Install packages
         run: sudo apt-get update && sudo apt-get install --no-install-recommends -y build-essential git pkg-config google-chrome-stable
 
+       - name: Checkout code
+         uses: actions/checkout@v4
+
+       - name: Set up Ruby
+         uses: ruby/setup-ruby@v1
+         with:
+           ruby-version: 3.4.7
+           bundler-cache: true
+
+       - name: Run tests
+         env:
+           RAILS_ENV: test
+           # REDIS_URL: redis://localhost:6379/0
+         run: bin/rails db:test:prepare test test:system
+
+       - name: Keep screenshots from failed system tests
+         uses: actions/upload-artifact@v4
+         if: failure()
+         with:
+           name: screenshots
+           path: ${{ github.workspace }}/tmp/screenshots
+           if-no-files-found: ignore
+
+  deploy:
+    name: Deploy to Lovelace
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/trunk'
+    steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: .ruby-version
-          bundler-cache: true
+       - name: Install system dependencies
+         run: sudo apt-get update && sudo apt-get install --no-install-recommends -y build-essential git pkg-config
 
-      - name: Run tests
+       - name: Set up Ruby
+         uses: ruby/setup-ruby@v1
+         with:
+           ruby-version: 3.4.7
+           bundler-cache: true
+
+       - name: Install SSH key
+         uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.LOVELACE_SSH_KEY }}
+          known_hosts: ${{ secrets.LOVELACE_KNOWN_HOSTS }}
+
+      - name: Deploy to Lovelace
         env:
-          RAILS_ENV: test
-          # REDIS_URL: redis://localhost:6379/0
-        run: bin/rails db:test:prepare test test:system
-
-      - name: Keep screenshots from failed system tests
-        uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: screenshots
-          path: ${{ github.workspace }}/tmp/screenshots
-          if-no-files-found: ignore
+          LOVELACE_HOST: ${{ secrets.LOVELACE_HOST }}
+          LOVELACE_PATH: ${{ secrets.LOVELACE_PATH }}
+          LOVELACE_USER: ${{ secrets.LOVELACE_USER }}
+        run: ./bin/deploy

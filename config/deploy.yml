@@ -7,12 +7,12 @@ image: your-user/mattkelly_io
 # Deploy to these servers.
 servers:
   web:
-    - 192.168.0.1
+    - lovelace
 
-# Enable SSL auto certification via Let's Encrypt
-proxy:
-  ssl: true
-  host: app.example.com
+# Enable SSL auto certification via Let's Encrypt (disabled for local deployment)
+# proxy:
+#   ssl: true
+#   host: mattkelly.local
 
 # Credentials for your image host.
 registry:

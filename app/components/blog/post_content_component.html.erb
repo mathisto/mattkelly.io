@@ -2,7 +2,7 @@
   <%= raw @post.rendered_content %>
 </article>
 <div class="blog-prose-container mx-auto px-4 sm:px-6 lg:px-8 mt-16 pt-8 border-t border-[rgba(122,162,247,0.2)]">
-  <%= link_to posts_path, class: "transition-all duration-300 inline-flex items-center gap-2 text-[#7aa2f7] hover:text-[#bb9af7] group" do %>
+  <%= link_to blog_index_path, class: "transition-all duration-300 inline-flex items-center gap-2 text-[#7aa2f7] hover:text-[#bb9af7] group" do %>
     <i class="fas fa-arrow-left transition-transform group-hover:-translate-x-1"></i>
     Back to Blog
   <% end %>

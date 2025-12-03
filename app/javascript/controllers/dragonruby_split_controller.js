@@ -2,10 +2,9 @@ import { Controller } from "@hotwired/stimulus"
 import { EditorView, keymap } from "@codemirror/view"
 import { EditorState } from "@codemirror/state"
 import { defaultKeymap } from "@codemirror/commands"
-import { StreamLanguage } from "@codemirror/language"
+import { StreamLanguage, syntaxHighlighting } from "@codemirror/language"
 import { ruby } from "@codemirror/legacy-modes/mode/ruby"
-import { HighlightStyle, syntaxHighlighting } from "@codemirror/language"
-import { tags } from "@lezer/highlight"
+import { tokyoNightHighlight, tokyoNightTheme } from "lib/codemirror_tokyo_night"
 
 export default class extends Controller {
   static targets = ["editor", "canvas", "resizeHandle"]
@@ -43,74 +42,15 @@ export default class extends Controller {
     console.log("[DragonRubySplit] Initializing CodeMirror 6")
     
     const starterCode = this.editorTarget.dataset.starterCode || this.defaultCode()
-    
-    // Tokyo Night syntax highlighting
-    const tokyoNightHighlight = HighlightStyle.define([
-      { tag: tags.keyword, color: "#bb9af7" },
-      { tag: tags.function(tags.variableName), color: "#7aa2f7" },
-      { tag: tags.variableName, color: "#a9b1d6" },
-      { tag: tags.string, color: "#9ece6a" },
-      { tag: tags.number, color: "#ff9e64" },
-      { tag: tags.bool, color: "#ff9e64" },
-      { tag: tags.null, color: "#f7768e" },
-      { tag: tags.comment, color: "#565f89", fontStyle: "italic" },
-      { tag: tags.operator, color: "#89ddff" },
-      { tag: tags.punctuation, color: "#89ddff" },
-      { tag: tags.className, color: "#e0af68" },
-      { tag: tags.definition(tags.typeName), color: "#e0af68" },
-      { tag: tags.typeName, color: "#e0af68" },
-      { tag: tags.constant(tags.name), color: "#ff9e64" },
-      { tag: tags.regexp, color: "#b4f9f8" },
-      { tag: tags.self, color: "#f7768e" }
-    ])
-    
-    // Tokyo Night theme
-    const tokyoNight = EditorView.theme({
-      "&": {
-        color: "#a9b1d6",
-        backgroundColor: "#1a1b26"
-      },
-      ".cm-content": {
-        caretColor: "#bb9af7",
-        fontFamily: "'JetBrains Mono', 'Fira Code', 'Courier New', monospace",
-        fontSize: "14px",
-        lineHeight: "1.6"
-      },
-      "&.cm-focused .cm-cursor": {
-        borderLeftColor: "#bb9af7"
-      },
-      "&.cm-focused .cm-selectionBackground, ::selection": {
-        backgroundColor: "#6f7bb640"
-      },
-      ".cm-activeLine": {
-        backgroundColor: "#24283b"
-      },
-      ".cm-selectionMatch": {
-        backgroundColor: "#6f7bb640"
-      },
-      ".cm-gutters": {
-        backgroundColor: "#1a1b26",
-        color: "#565f89",
-        border: "none",
-        paddingRight: "8px"
-      },
-      ".cm-activeLineGutter": {
-        backgroundColor: "#24283b",
-        color: "#a9b1d6"
-      },
-      ".cm-lineNumbers .cm-gutterElement": {
-        padding: "0 8px 0 5px"
-      }
-    }, { dark: true })
 
-    // Create the editor
+    // Create the editor with extracted Tokyo Night theme
     this.editor = new EditorView({
       state: EditorState.create({
         doc: starterCode,
         extensions: [
           StreamLanguage.define(ruby),
           syntaxHighlighting(tokyoNightHighlight),
-          tokyoNight,
+          tokyoNightTheme,
           keymap.of([
             ...defaultKeymap,
             {

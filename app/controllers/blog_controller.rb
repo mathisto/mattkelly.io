@@ -1,4 +1,4 @@
-class PostsController < ApplicationController
+class BlogController < ApplicationController
   def index
     @posts = Post.all
   rescue Errno::ENOENT
@@ -10,6 +10,6 @@ class PostsController < ApplicationController
     @post = Post.find(params[:id])
   rescue Errno::ENOENT
     # If the blog directory or file doesn't exist, redirect to index
-    redirect_to posts_path, alert: "Post not found"
+    redirect_to blog_path, alert: "Post not found"
   end
-end 
+end

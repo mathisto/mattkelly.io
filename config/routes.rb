@@ -13,8 +13,7 @@ Rails.application.routes.draw do
   get "cv", to: "pages#cv"
 
   # Blog routes
-  get "/blog", to: "blog#index", as: :blog
-  get "/blog/:id", to: "blog#show", as: :blog_post
+  resources :blog, only: [ :index, :show ], controller: "blog", param: :id
 
   # DragonRuby routes
   get "/dragonruby", to: "dragonruby#index", as: :dragonruby

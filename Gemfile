@@ -20,8 +20,7 @@ gem "httparty"
 gem "solid_cache"
 gem "solid_queue"
 gem "solid_cable"
-# Build JSON APIs with ease [https://github.com/rails/jbuilder]
-gem "jbuilder"
+
 
 # Markdown processing
 gem "redcarpet", "~> 3.6"
@@ -34,8 +33,7 @@ gem "lookbook"
 gem "ransack"  # Search and filtering
 gem "kaminari"  # Pagination
 
-# Mission Control - Jobs UI (development only)
-gem "mission_control-jobs"
+
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem "tzinfo-data", platforms: %i[ mingw mswin x64_mingw jruby ]
@@ -64,28 +62,23 @@ group :development, :test do
 
   # Testing framework
   gem "rspec-rails"
+  gem "factory_bot_rails"
   gem "faker"
   gem "simplecov", require: false
   gem "capybara"
-  gem "selenium-webdriver", "~> 4.10.0"
-  gem "webdrivers", "~> 5.3.0"
-  gem 'dotenv-rails'
+  gem "selenium-webdriver"
+  gem "dotenv-rails"
 end
 
 group :development do
   # Use console on exceptions pages [https://github.com/rails/web-console]
   gem "web-console"
 
-  # Add speed badges [https://github.com/MiniProfiler/rack-mini-profiler]
-  # gem "rack-mini-profiler"
-
-  # Speed up commands on slow machines / big apps [https://github.com/rails/spring]
-  # gem "spring"
+  # Mission Control - Jobs UI
+  gem "mission_control-jobs"
 end
 
-group :test do
-  gem "sqlite3"
-end
+
 
 gem "dockerfile-rails", ">= 1.7", :group => :development
 

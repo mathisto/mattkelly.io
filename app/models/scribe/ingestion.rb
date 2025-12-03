@@ -211,8 +211,6 @@ module Scribe
     # Keep broadcast methods below
     private
 
-    private
-
     def broadcast_created
       broadcast_to_channel("created")
     end
@@ -240,7 +238,7 @@ module Scribe
       )
 
       Rails.logger.info "[Ingestion] Broadcast completed for ingestion ##{id}"
-    rescue StandardError => e
+    rescue => e
       Rails.logger.error "[Ingestion] Failed to broadcast #{action}: #{e.message}"
       Rails.logger.error e.backtrace.join("\n")
     end

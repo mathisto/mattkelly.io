@@ -1,7 +1,25 @@
 {$PORTFOLIO_ADDRESS} {
-	root * {$PORTFOLIO_ROOT}
+	root * {$PORTFOLIO_ROOT:/opt/mattkelly/current/public}
+
+	@staticAssets path /assets/* /images/* /favicon.ico /favicon-*.png /icon.png /icon.svg
+	@machineFiles path /robots.txt /sitemap.xml
 
 	route {
+		header Cache-Control "no-cache"
+		header @staticAssets Cache-Control "public, max-age=3600"
+		header @machineFiles Cache-Control "public, max-age=300"
+		header {
+			Strict-Transport-Security "max-age=31536000; includeSubDomains"
+			X-Content-Type-Options "nosniff"
+			X-Frame-Options "DENY"
+			Referrer-Policy "strict-origin-when-cross-origin"
+			Permissions-Policy "camera=(), geolocation=(), microphone=()"
+			-Server
+		}
+
+		@unsupportedMethod not method GET HEAD
+		respond @unsupportedMethod 405
+
 		redir /projects /work/ 308
 		redir /projects/ /work/ 308
 		redir /cv /resume/ 308
@@ -35,5 +53,32 @@
 	handle_errors {
 		rewrite * /404.html
 		file_server
+	}
+}
+
+# Soul is deliberately isolated on its own hostname and configurable upstream.
+# No apex request can fall through to this dynamic service.
+{$SOUL_ADDRESS:http://127.0.0.1:18081} {
+	@soulStats path /api/soul/stats.json
+
+	route {
+		header Cache-Control "no-store"
+		header @soulStats Cache-Control "public, max-age=5"
+		header {
+			Strict-Transport-Security "max-age=31536000; includeSubDomains"
+			X-Content-Type-Options "nosniff"
+			X-Frame-Options "DENY"
+			Referrer-Policy "strict-origin-when-cross-origin"
+			Permissions-Policy "camera=(), geolocation=(), microphone=()"
+			-Server
+		}
+
+		@unsupportedMethod not method GET HEAD
+		respond @unsupportedMethod 405
+
+		@retiredSoul path /load /load/* /api/recent.json /api/stats.json /api/host.json /api/soul/tasks.json /api/soul/spawn /api/soul/cancel /api/soul/demo/*
+		respond @retiredSoul 404
+
+		reverse_proxy {$SOUL_UPSTREAM:http://127.0.0.1:19090}
 	}
 }

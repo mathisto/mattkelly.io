@@ -1,0 +1,124 @@
+#!/bin/sh
+
+release_fail() {
+  printf '%s: %s\n' "${RELEASE_COMMAND:-release}" "$1" >&2
+  exit 1
+}
+
+require_release_id() {
+  release_id=$1
+  case "$release_id" in
+    ''|.*|*[!A-Za-z0-9._-]*) release_fail "unsafe release id: $release_id" ;;
+  esac
+}
+
+manifest_value() {
+  manifest=$1
+  key=$2
+  count=$(grep -c "^$key=" "$manifest" || true)
+  [ "$count" = "1" ] || release_fail "manifest must contain exactly one $key"
+  line=$(grep "^$key=" "$manifest")
+  printf '%s' "${line#*=}"
+}
+
+release_link_id() {
+  link=$1
+  [ -L "$link" ] || return 0
+  target=$(readlink "$link")
+  case "$target" in
+    releases/*) printf '%s\n' "${target#releases/}" ;;
+    *) release_fail "$link does not point into releases/" ;;
+  esac
+}
+
+atomic_replace_link() {
+  source=$1
+  destination=$2
+  if [ "$(uname -s)" = "Darwin" ]; then
+    mv -fh "$source" "$destination"
+  else
+    mv -Tf "$source" "$destination"
+  fi
+}
+
+validate_release() {
+  release=$1
+  require_profile=${2:-any}
+  manifest="$release/release-manifest.env"
+  inventory="$release/release-files.sha256"
+
+  [ -d "$release" ] || release_fail "release is not a directory: $release"
+  [ ! -L "$release" ] || release_fail "release directory must not be a symlink"
+  [ -d "$release/public" ] || release_fail "release is missing public/"
+  [ -s "$release/public/index.html" ] || release_fail "release is missing public/index.html"
+  [ -s "$release/public/404.html" ] || release_fail "release is missing public/404.html"
+  [ -f "$manifest" ] || release_fail "release is missing release-manifest.env"
+  [ -f "$inventory" ] || release_fail "release is missing release-files.sha256"
+  if find "$release" -type l -print | grep . >/dev/null; then
+    release_fail "release must not contain symlinks"
+  fi
+
+  allowed='^(MANIFEST_VERSION|RELEASE_ID|RELEASE_PROFILE|REPOSITORY_SHA|REPOSITORY_STATE|CORE_VALIDATION|QUARTZ_VALIDATION|VALIDATION_SUMMARY|QUARTZ_ARTIFACT_SOURCE_REVISION|QUARTZ_TOOLCHAIN_VERSION|QUARTZ_TOOLCHAIN_REVISION|QUARTZ_TOOLCHAIN_TREE|QUARTZ_COMPILER_SHA256|LLVM_VERSION|TOOLCHAIN_OS|TOOLCHAIN_ARCH|FILE_MANIFEST_SHA256)=[A-Za-z0-9.,:_/-]+$'
+  if grep -Ev "$allowed" "$manifest" | grep . >/dev/null; then
+    release_fail "manifest contains unknown or malformed fields"
+  fi
+  [ "$(wc -l < "$manifest" | tr -d ' ')" = "17" ] || release_fail "manifest must contain exactly 17 fields"
+
+  [ "$(manifest_value "$manifest" MANIFEST_VERSION)" = "1" ] || release_fail "unsupported manifest version"
+  release_id=$(manifest_value "$manifest" RELEASE_ID)
+  require_release_id "$release_id"
+  [ "$release_id" = "$(basename "$release")" ] || release_fail "manifest release id does not match directory name"
+  profile=$(manifest_value "$manifest" RELEASE_PROFILE)
+  case "$profile" in complete|core-only-preview) ;; *) release_fail "unsupported release profile: $profile" ;; esac
+  [ "$require_profile" = "any" ] || [ "$profile" = "$require_profile" ] || release_fail "release profile must be $require_profile"
+
+  repository_sha=$(manifest_value "$manifest" REPOSITORY_SHA)
+  printf '%s' "$repository_sha" | grep -E '^[0-9a-f]{40}$' >/dev/null || release_fail "REPOSITORY_SHA must be a full Git SHA"
+  repository_state=$(manifest_value "$manifest" REPOSITORY_STATE)
+  [ "$(manifest_value "$manifest" CORE_VALIDATION)" = "passed" ] || release_fail "core validation did not pass"
+  quartz_validation=$(manifest_value "$manifest" QUARTZ_VALIDATION)
+  quartz_source=$(manifest_value "$manifest" QUARTZ_ARTIFACT_SOURCE_REVISION)
+  manifest_value "$manifest" QUARTZ_TOOLCHAIN_VERSION >/dev/null
+  quartz_toolchain_revision=$(manifest_value "$manifest" QUARTZ_TOOLCHAIN_REVISION)
+  quartz_toolchain_tree=$(manifest_value "$manifest" QUARTZ_TOOLCHAIN_TREE)
+  quartz_compiler_hash=$(manifest_value "$manifest" QUARTZ_COMPILER_SHA256)
+  manifest_value "$manifest" LLVM_VERSION >/dev/null
+  manifest_value "$manifest" TOOLCHAIN_OS >/dev/null
+  manifest_value "$manifest" TOOLCHAIN_ARCH >/dev/null
+  printf '%s' "$quartz_toolchain_revision" | grep -E '^[0-9a-f]{40}$' >/dev/null || release_fail "Quartz toolchain revision must be a full Git SHA"
+  printf '%s' "$quartz_toolchain_tree" | grep -E '^[0-9a-f]{40}$' >/dev/null || release_fail "Quartz toolchain tree must be a full Git SHA"
+  printf '%s' "$quartz_compiler_hash" | grep -E '^[0-9a-f]{64}$' >/dev/null || release_fail "Quartz compiler hash must be SHA-256"
+
+  if [ "$profile" = "complete" ]; then
+    [ "$repository_state" = "clean" ] || release_fail "complete releases require a clean repository"
+    [ "$quartz_validation" = "passed" ] || release_fail "complete release lacks separately validated Quartz artifact"
+    printf '%s' "$quartz_source" | grep -E '^[0-9a-f]{40}$' >/dev/null || release_fail "complete release lacks Quartz artifact source SHA"
+    [ "$(manifest_value "$manifest" VALIDATION_SUMMARY)" = "core:passed,quartz:passed" ] || release_fail "complete validation summary is inconsistent"
+    [ -s "$release/public/quartz/index.html" ] || release_fail "complete release is missing /quartz"
+  else
+    case "$repository_state" in clean|dirty-preview) ;; *) release_fail "invalid preview repository state" ;; esac
+    [ "$quartz_validation" = "not-included" ] || release_fail "preview release Quartz validation must be not-included"
+    [ "$quartz_source" = "none" ] || release_fail "preview release must not claim a Quartz source"
+    [ "$(manifest_value "$manifest" VALIDATION_SUMMARY)" = "core:passed,quartz:not-included" ] || release_fail "preview validation summary is inconsistent"
+    [ ! -e "$release/public/quartz" ] || release_fail "core-only preview unexpectedly contains /quartz"
+  fi
+
+  if grep -Ev '^[0-9a-f]{64}  public/[A-Za-z0-9._/-]+$' "$inventory" | grep . >/dev/null; then
+    release_fail "file inventory contains malformed or unsafe entries"
+  fi
+  if grep -E '  (/|.*\.\./)' "$inventory" >/dev/null; then
+    release_fail "file inventory paths must stay within public/"
+  fi
+  tmp_dir=$(mktemp -d "${TMPDIR:-/tmp}/mattkelly-release-validate.XXXXXX")
+  (
+    trap 'rm -rf "$tmp_dir"' EXIT HUP INT TERM
+    cd "$release"
+    find public -type f -print | LC_ALL=C sort > "$tmp_dir/actual"
+    cut -c67- release-files.sha256 | LC_ALL=C sort > "$tmp_dir/declared"
+    cmp "$tmp_dir/actual" "$tmp_dir/declared" >/dev/null || release_fail "file inventory is incomplete"
+    shasum -a 256 -c release-files.sha256 >/dev/null || release_fail "release file hash verification failed"
+  )
+  expected_inventory_hash=$(manifest_value "$manifest" FILE_MANIFEST_SHA256)
+  actual_inventory_hash=$(shasum -a 256 "$inventory" | cut -d' ' -f1)
+  [ "$actual_inventory_hash" = "$expected_inventory_hash" ] || release_fail "file inventory hash does not match manifest"
+}

@@ -1,0 +1,47 @@
+#!/bin/sh
+set -eu
+
+ROOT=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
+RELEASE_COMMAND=release-prune
+. "$ROOT/bin/release-lib"
+
+execute=0
+if [ "${1:-}" = "--execute" ]; then execute=1; shift; fi
+[ "$#" = "0" ] || release_fail "usage: DEPLOY_ROOT=/opt/mattkelly RELEASE_KEEP=5 bin/release-prune [--execute]"
+deploy_root=${DEPLOY_ROOT:-/opt/mattkelly}
+keep=${RELEASE_KEEP:-5}
+case "$keep" in ''|*[!0-9]*) release_fail "RELEASE_KEEP must be a non-negative integer" ;; esac
+[ -d "$deploy_root/releases" ] || release_fail "releases directory does not exist"
+lock="$deploy_root/.deploy.lock"
+lock_held=0
+if [ "$execute" = "1" ]; then
+  mkdir "$lock" 2>/dev/null || release_fail "another deployment operation holds $lock"
+  lock_held=1
+fi
+tmp_dir=
+cleanup() {
+  [ -z "$tmp_dir" ] || rm -rf "$tmp_dir"
+  [ "$lock_held" = "0" ] || rmdir "$lock"
+}
+trap cleanup EXIT HUP INT TERM
+current_id=$(release_link_id "$deploy_root/current")
+previous_id=$(release_link_id "$deploy_root/previous")
+tmp_dir=$(mktemp -d "${TMPDIR:-/tmp}/mattkelly-prune.XXXXXX")
+find "$deploy_root/releases" -mindepth 1 -maxdepth 1 -type d ! -name '.*' -print | LC_ALL=C sort -r > "$tmp_dir/releases"
+retained=0
+while IFS= read -r release; do
+  id=$(basename "$release")
+  if [ "$id" = "$current_id" ] || [ "$id" = "$previous_id" ] || [ "$retained" -lt "$keep" ]; then
+    retained=$((retained + 1))
+    continue
+  fi
+  validate_release "$release" any
+  if [ "$execute" = "1" ]; then
+    chmod -R u+w "$release"
+    rm -rf "$release"
+    printf 'Pruned %s\n' "$release"
+  else
+    printf 'Would prune %s\n' "$release"
+  fi
+done < "$tmp_dir/releases"
+[ "$execute" = "1" ] || printf '%s\n' 'Dry run only; pass --execute after review.'

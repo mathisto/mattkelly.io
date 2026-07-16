@@ -1,0 +1,75 @@
+#!/bin/sh
+set -eu
+
+ROOT=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
+RELEASE_COMMAND=release-smoke
+. "$ROOT/bin/release-lib"
+
+base_url=${SMOKE_BASE_URL:-}
+release=${SMOKE_RELEASE:-}
+resolve=${SMOKE_RESOLVE:-}
+[ -n "$base_url" ] || release_fail "SMOKE_BASE_URL is required"
+case "$base_url" in http://*|https://*) ;; *) release_fail "SMOKE_BASE_URL must be HTTP or HTTPS" ;; esac
+command -v curl >/dev/null 2>&1 || release_fail "curl is required"
+curl_args='--silent --show-error --location --max-time 10'
+if [ -n "$resolve" ]; then
+  case "$resolve" in *[!A-Za-z0-9.:-]*) release_fail "SMOKE_RESOLVE contains unsafe characters" ;; esac
+  set -- --resolve "$resolve"
+else
+  set --
+fi
+
+profile=unknown
+if [ -n "$release" ]; then
+  validate_release "$release" any
+  profile=$(manifest_value "$release/release-manifest.env" RELEASE_PROFILE)
+fi
+expect_code() {
+  path=$1
+  expected=$2
+  shift 2
+  actual=$(curl $curl_args "$@" -o /dev/null -w '%{http_code}' "$base_url$path")
+  [ "$actual" = "$expected" ] || release_fail "$path returned $actual, expected $expected"
+}
+expect_redirect() {
+  path=$1
+  target=$2
+  shift 2
+  headers=$(mktemp "${TMPDIR:-/tmp}/mattkelly-smoke.XXXXXX")
+  trap 'rm -f "$headers"' EXIT HUP INT TERM
+  actual=$(curl --silent --show-error --max-time 10 "$@" -D "$headers" -o /dev/null -w '%{http_code}' "$base_url$path")
+  [ "$actual" = "308" ] || release_fail "$path returned $actual, expected 308"
+  grep -i "^location: .*$target" "$headers" >/dev/null || release_fail "$path has wrong redirect target"
+  rm -f "$headers"
+  trap - EXIT HUP INT TERM
+}
+expect_header() {
+  path=$1
+  header=$2
+  value=$3
+  shift 3
+  headers=$(mktemp "${TMPDIR:-/tmp}/mattkelly-smoke.XXXXXX")
+  trap 'rm -f "$headers"' EXIT HUP INT TERM
+  curl --silent --show-error --max-time 10 "$@" -D "$headers" -o /dev/null "$base_url$path"
+  grep -i "^$header: .*$value" "$headers" >/dev/null || release_fail "$path lacks expected $header header"
+  rm -f "$headers"
+  trap - EXIT HUP INT TERM
+}
+
+for path in / /projects/ /cv/ /blog/ /references/ /dragonruby/ /robots.txt /sitemap.xml /assets/css/site.css; do
+  expect_code "$path" 200 "$@"
+done
+expect_code /definitely-not-a-release-route 404 "$@"
+expect_redirect /projects /projects/ "$@"
+expect_redirect /quartz/ /quartz "$@"
+expect_header / X-Content-Type-Options nosniff "$@"
+expect_header /assets/css/site.css Cache-Control max-age=3600 "$@"
+if [ "$profile" = "complete" ]; then expect_code /quartz 200 "$@"; fi
+if [ "$profile" = "core-only-preview" ]; then expect_code /quartz 404 "$@"; fi
+
+if [ -n "${SOUL_SMOKE_URL:-}" ]; then
+  case "$SOUL_SMOKE_URL" in http://*|https://*) ;; *) release_fail "SOUL_SMOKE_URL must be HTTP or HTTPS" ;; esac
+  soul_code=$(curl --silent --show-error --max-time 10 -o /dev/null -w '%{http_code}' "$SOUL_SMOKE_URL/health")
+  [ "$soul_code" = "200" ] || release_fail "Soul /health returned $soul_code"
+fi
+printf 'Safe GET-only smoke checks passed for %s\n' "$base_url"

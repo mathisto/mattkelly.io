@@ -1,0 +1,87 @@
+#!/bin/sh
+set -eu
+
+ROOT=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
+RELEASE_COMMAND=release-build
+. "$ROOT/bin/release-lib"
+
+profile=complete
+if [ "${1:-}" = "--core-only-preview" ]; then
+  profile=core-only-preview
+  shift
+fi
+[ "$#" = "1" ] || release_fail "usage: bin/release-build [--core-only-preview] OUTPUT_DIRECTORY"
+output=$1
+case "$output" in /*) ;; *) release_fail "output directory must be absolute" ;; esac
+case "$output" in "$ROOT"|"$ROOT"/*) release_fail "output directory must be outside the repository" ;; esac
+release_id=$(basename "$output")
+require_release_id "$release_id"
+[ ! -e "$output" ] || release_fail "output already exists: $output"
+command -v shasum >/dev/null 2>&1 || release_fail "shasum is required"
+
+repository_sha=$(git -C "$ROOT" rev-parse HEAD)
+dirty=$(git -C "$ROOT" status --porcelain --untracked-files=all)
+repository_state=clean
+if [ -n "$dirty" ]; then
+  if [ "$profile" = "complete" ]; then
+    release_fail "complete releases require a clean repository"
+  fi
+  [ "${RELEASE_ALLOW_DIRTY_PREVIEW:-0}" = "1" ] || release_fail "repository is dirty (set RELEASE_ALLOW_DIRTY_PREVIEW=1 only for a preview)"
+  repository_state=dirty-preview
+fi
+
+quartz_validation=not-included
+quartz_source=none
+validation_summary='core:passed,quartz:not-included'
+[ "$profile" != "complete" ] || [ -n "${QUARTZ_ARTIFACT:-}" ] || release_fail "QUARTZ_ARTIFACT is required for a complete release"
+"$ROOT/bin/verify"
+if [ "$profile" = "complete" ]; then
+  "$ROOT/bin/assemble-release"
+  contract="$QUARTZ_ARTIFACT/artifact-contract.env"
+  quartz_source=$(grep '^SOURCE_REVISION=' "$contract")
+  quartz_source=${quartz_source#*=}
+  quartz_validation=passed
+  validation_summary='core:passed,quartz:passed'
+fi
+
+. "$ROOT/toolchain.env"
+parent=$(dirname "$output")
+[ -d "$parent" ] || release_fail "output parent does not exist: $parent"
+tmp="$parent/.release-building.$$"
+release="$tmp/$release_id"
+[ ! -e "$tmp" ] || release_fail "temporary output already exists: $tmp"
+cleanup() { rm -rf "$tmp"; }
+trap cleanup EXIT HUP INT TERM
+mkdir "$tmp" "$release" "$release/public"
+cp -R "$ROOT/dist/." "$release/public/"
+(
+  cd "$release"
+  find public -type f -print | LC_ALL=C sort | while IFS= read -r path; do
+    shasum -a 256 "$path"
+  done > release-files.sha256
+)
+inventory_hash=$(shasum -a 256 "$release/release-files.sha256" | cut -d' ' -f1)
+cat > "$release/release-manifest.env" <<EOF
+MANIFEST_VERSION=1
+RELEASE_ID=$release_id
+RELEASE_PROFILE=$profile
+REPOSITORY_SHA=$repository_sha
+REPOSITORY_STATE=$repository_state
+CORE_VALIDATION=passed
+QUARTZ_VALIDATION=$quartz_validation
+VALIDATION_SUMMARY=$validation_summary
+QUARTZ_ARTIFACT_SOURCE_REVISION=$quartz_source
+QUARTZ_TOOLCHAIN_VERSION=$QUARTZ_VERSION
+QUARTZ_TOOLCHAIN_REVISION=$QUARTZ_REVISION
+QUARTZ_TOOLCHAIN_TREE=$QUARTZ_TREE
+QUARTZ_COMPILER_SHA256=$QUARTZ_COMPILER_SHA256
+LLVM_VERSION=$LLVM_VERSION
+TOOLCHAIN_OS=$TOOLCHAIN_OS
+TOOLCHAIN_ARCH=$TOOLCHAIN_ARCH
+FILE_MANIFEST_SHA256=$inventory_hash
+EOF
+validate_release "$release" "$profile"
+mv "$release" "$output"
+rm -rf "$tmp"
+trap - EXIT HUP INT TERM
+printf 'Built validated %s release at %s\n' "$profile" "$output"

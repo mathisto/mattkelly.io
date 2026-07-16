@@ -1,0 +1,10 @@
+#!/bin/sh
+set -eu
+
+ROOT=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
+RELEASE_COMMAND=release-validate
+. "$ROOT/bin/release-lib"
+
+[ "$#" -ge 1 ] && [ "$#" -le 2 ] || release_fail "usage: bin/release-validate RELEASE_DIRECTORY [complete|core-only-preview]"
+validate_release "$1" "${2:-any}"
+printf 'Validated release %s\n' "$1"

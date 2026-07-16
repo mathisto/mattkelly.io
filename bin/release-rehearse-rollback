@@ -1,0 +1,41 @@
+#!/bin/sh
+set -eu
+
+ROOT=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
+RELEASE_COMMAND=release-rehearse-rollback
+. "$ROOT/bin/release-lib"
+
+[ "$#" = "2" ] || release_fail "usage: DEPLOY_ROOT=/preview/root bin/release-rehearse-rollback PREVIOUS_RELEASE CANDIDATE_RELEASE"
+deploy_root=${DEPLOY_ROOT:-}
+[ -n "$deploy_root" ] || release_fail "DEPLOY_ROOT is required"
+[ "$deploy_root" != "/opt/mattkelly" ] || release_fail "rehearsal refuses the production root"
+case "$deploy_root" in /|/opt|/opt/mattkelly/*) release_fail "choose an isolated preview root" ;; esac
+previous_source=$1
+candidate_source=$2
+validate_release "$previous_source" any
+validate_release "$candidate_source" any
+previous_id=$(basename "$previous_source")
+candidate_id=$(basename "$candidate_source")
+[ "$previous_id" != "$candidate_id" ] || release_fail "rehearsal releases must differ"
+mkdir -p "$deploy_root/incoming"
+for source in "$previous_source" "$candidate_source"; do
+  id=$(basename "$source")
+  incoming="$deploy_root/incoming/$id"
+  [ ! -e "$incoming" ] || release_fail "rehearsal incoming path already exists: $incoming"
+  mkdir "$incoming"
+  cp -R "$source/." "$incoming/"
+  touch "$incoming/.transfer-complete"
+  DEPLOY_ROOT="$deploy_root" "$ROOT/bin/release-stage" "$incoming"
+done
+DEPLOY_ROOT="$deploy_root" "$ROOT/bin/release-activate" --allow-core-preview "$previous_id"
+DEPLOY_ROOT="$deploy_root" "$ROOT/bin/release-activate" --allow-core-preview "$candidate_id"
+if [ -n "${SMOKE_BASE_URL:-}" ]; then
+  SMOKE_RELEASE="$deploy_root/releases/$candidate_id" "$ROOT/bin/release-smoke"
+fi
+DEPLOY_ROOT="$deploy_root" "$ROOT/bin/release-rollback" --allow-core-preview
+[ "$(release_link_id "$deploy_root/current")" = "$previous_id" ] || release_fail "rollback did not restore previous release"
+[ "$(release_link_id "$deploy_root/previous")" = "$candidate_id" ] || release_fail "rollback did not preserve displaced candidate"
+if [ -n "${SMOKE_BASE_URL:-}" ]; then
+  SMOKE_RELEASE="$deploy_root/releases/$previous_id" "$ROOT/bin/release-smoke"
+fi
+printf 'Rollback rehearsal passed in %s\n' "$deploy_root"

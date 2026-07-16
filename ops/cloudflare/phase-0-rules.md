@@ -2,6 +2,8 @@
 
 These rules are defense in depth for the source-level Quartz containment patch. Apply through an attended change after confirming the current zone plan and testing on a preview hostname.
 
+**Implementation status:** specification only. This repository does not demonstrate that any Cloudflare tunnel ingress, WAF, rate-limit, cache, Access, or Custom Error Rule is installed.
+
 ## Public Host Allowlist
 
 The tunnel ingress should route only explicitly approved public hostnames. Unknown hostnames must terminate with a non-origin response rather than falling through to Caddy or another internal service.
@@ -14,6 +16,21 @@ Approved public roles:
 - Soul of Quartz demonstration
 
 Do not use a wildcard public ingress rule. Do not expose internal vanity hosts, admin tools, observability, hypervisor interfaces, or private service names through the public tunnel.
+
+The ingress policy must be an ordered hostname allowlist followed by an explicit default deny, for example:
+
+```yaml
+ingress:
+  - hostname: <approved-apex>
+    service: <operator-managed-caddy-service>
+  - hostname: <approved-www-redirect-host>
+    service: <operator-managed-caddy-service>
+  - hostname: <approved-soul-host>
+    service: <operator-managed-caddy-service>
+  - service: http_status:404
+```
+
+Place private service URLs in the tunnel's managed runtime configuration, not in this repository. Before an attended apply, export the active configuration through the approved secret-safe process, compare the hostname set, validate the configuration, and test an unrecognized hostname. A default service that proxies to an origin is not a deny rule.
 
 ## Block Retired Controls
 
@@ -73,3 +90,5 @@ Apply the branded fallback from `ops/cloudflare/fallback/index.html` only to HTM
 6. Confirm stopping Caddy or the tunnel returns the branded 503 fallback.
 7. Confirm recovery removes the fallback immediately.
 8. Confirm no response or log exposes internal hostnames, addresses, or credentials.
+
+Record dated evidence for each result and the Cloudflare change identifier without recording tunnel tokens, account identifiers, origin addresses, or private service names. A successful local Caddy test is not evidence that edge rules are installed.

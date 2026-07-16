@@ -1,0 +1,33 @@
+#!/bin/sh
+set -eu
+
+ROOT=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
+RELEASE_COMMAND=release-transfer
+. "$ROOT/bin/release-lib"
+
+dry_run=0
+if [ "${1:-}" = "--dry-run" ]; then dry_run=1; shift; fi
+[ "$#" = "1" ] || release_fail "usage: DEPLOY_HOST=host DEPLOY_INCOMING_ROOT=/path bin/release-transfer [--dry-run] RELEASE_DIRECTORY"
+source=$1
+host=${DEPLOY_HOST:-}
+incoming=${DEPLOY_INCOMING_ROOT:-}
+[ -n "$host" ] || release_fail "DEPLOY_HOST is required"
+[ -n "$incoming" ] || release_fail "DEPLOY_INCOMING_ROOT is required"
+case "$host" in *[!A-Za-z0-9._@:-]*) release_fail "DEPLOY_HOST contains unsafe characters" ;; esac
+case "$incoming" in /*) ;; *) release_fail "DEPLOY_INCOMING_ROOT must be absolute" ;; esac
+case "$incoming" in *[!A-Za-z0-9_./-]*) release_fail "DEPLOY_INCOMING_ROOT contains unsafe characters" ;; esac
+command -v rsync >/dev/null 2>&1 || release_fail "rsync is required"
+command -v ssh >/dev/null 2>&1 || release_fail "ssh is required"
+validate_release "$source" any
+release_id=$(basename "$source")
+partial="$incoming/$release_id.partial"
+ready="$incoming/$release_id"
+
+if [ "$dry_run" = "1" ]; then
+  printf 'Would transfer %s to %s:%s and atomically rename it to %s\n' "$source" "$host" "$partial" "$ready"
+  exit 0
+fi
+ssh "$host" "set -eu; mkdir -p '$incoming'; test ! -e '$partial'; test ! -e '$ready'; mkdir '$partial'"
+rsync --archive --checksum --delete "$source/" "$host:$partial/"
+ssh "$host" "set -eu; touch '$partial/.transfer-complete'; mv '$partial' '$ready'"
+printf 'Transferred release %s to incoming storage on %s\n' "$release_id" "$host"

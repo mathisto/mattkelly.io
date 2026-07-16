@@ -1,0 +1,67 @@
+#!/bin/sh
+set -eu
+
+ROOT=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
+ARTIFACT=${QUARTZ_ARTIFACT:-}
+fail() { printf 'assemble-release: %s\n' "$1" >&2; exit 1; }
+tmp_dir=$(mktemp -d "${TMPDIR:-/tmp}/mattkelly-assemble.XXXXXX")
+trap 'rm -rf "$tmp_dir"' EXIT HUP INT TERM
+
+[ -n "$ARTIFACT" ] || fail "QUARTZ_ARTIFACT is required"
+[ -d "$ARTIFACT" ] || fail "artifact is not a directory: $ARTIFACT"
+[ -f "$ARTIFACT/index.html" ] || fail "artifact is missing index.html"
+[ -f "$ARTIFACT/artifact-contract.env" ] || fail "artifact is missing artifact-contract.env"
+[ -f "$ARTIFACT/artifact-manifest.sha256" ] || fail "artifact is missing artifact-manifest.sha256"
+
+if find "$ARTIFACT" -type l -print | grep . >/dev/null; then
+  fail "artifact must not contain symlinks"
+fi
+
+if grep -Ev '^[0-9a-f]{64}  [A-Za-z0-9._/-]+$' "$ARTIFACT/artifact-manifest.sha256" | grep . >/dev/null; then
+  fail "artifact manifest contains malformed or unsafe entries"
+fi
+if grep -E '  (/|.*\.\./)' "$ARTIFACT/artifact-manifest.sha256" >/dev/null; then
+  fail "artifact manifest paths must stay within the artifact root"
+fi
+(
+  cd "$ARTIFACT"
+  find . -type f ! -name artifact-manifest.sha256 -print | sed 's#^\./##' | LC_ALL=C sort > "$tmp_dir/actual-files"
+  cut -c67- artifact-manifest.sha256 | LC_ALL=C sort > "$tmp_dir/declared-files"
+)
+cmp "$tmp_dir/actual-files" "$tmp_dir/declared-files" >/dev/null || fail "artifact manifest is not a complete file inventory"
+
+(
+  cd "$ARTIFACT"
+  # This verifies declared file integrity only; it is not a security attestation.
+  shasum -a 256 -c artifact-manifest.sha256 >/dev/null
+) || fail "artifact manifest verification failed"
+
+if grep -Ev '^(ARTIFACT_KIND|PUBLIC_BASE|SOURCE_REVISION|VALIDATION_SCOPE|NETWORK_PROFILE)=[A-Za-z0-9./_-]+$' "$ARTIFACT/artifact-contract.env" | grep . >/dev/null; then
+  fail "artifact contract contains unknown or malformed fields"
+fi
+[ "$(wc -l < "$ARTIFACT/artifact-contract.env" | tr -d ' ')" = "5" ] || fail "artifact contract must contain exactly five fields"
+contract_value() {
+  key=$1
+  [ "$(grep -c "^$key=" "$ARTIFACT/artifact-contract.env")" = "1" ] || fail "artifact contract must contain exactly one $key"
+  value=$(grep "^$key=" "$ARTIFACT/artifact-contract.env")
+  printf '%s' "${value#*=}"
+}
+ARTIFACT_KIND=$(contract_value ARTIFACT_KIND)
+PUBLIC_BASE=$(contract_value PUBLIC_BASE)
+SOURCE_REVISION=$(contract_value SOURCE_REVISION)
+VALIDATION_SCOPE=$(contract_value VALIDATION_SCOPE)
+NETWORK_PROFILE=$(contract_value NETWORK_PROFILE)
+[ "$ARTIFACT_KIND" = "quartz-site" ] || fail "ARTIFACT_KIND must be quartz-site"
+[ "$PUBLIC_BASE" = "/quartz" ] || fail "PUBLIC_BASE must be /quartz"
+printf '%s' "$SOURCE_REVISION" | grep -E '^[0-9a-f]{40}$' >/dev/null || fail "SOURCE_REVISION must be a full Git SHA"
+[ "$VALIDATION_SCOPE" = "integrity-and-route-contract" ] || fail "VALIDATION_SCOPE must explicitly describe the limited validation"
+[ "$NETWORK_PROFILE" = "static-no-external-requests-v1" ] || fail "NETWORK_PROFILE must be static-no-external-requests-v1"
+"$ROOT/bin/check-artifact-network" "$ARTIFACT" >/dev/null
+
+unset QUARTZ_ARTIFACT
+"$ROOT/bin/build"
+mkdir -p "$ROOT/dist/quartz"
+cp -R "$ARTIFACT/." "$ROOT/dist/quartz/"
+rm -f "$ROOT/dist/quartz/artifact-contract.env" "$ROOT/dist/quartz/artifact-manifest.sha256"
+PORTFOLIO_REQUIRE_QUARTZ=1 "$ROOT/bin/check"
+printf '%s\n' 'Release assembled. Artifact integrity and route contract validated; no security attestation is implied.'

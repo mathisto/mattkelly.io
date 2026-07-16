@@ -1,0 +1,154 @@
+# Dependency-minimal portfolio build driver.
+
+import std/io/file
+import ssg/doc
+import ssg/content
+import ssg/template
+import ssg/markdown
+import ssg/theme
+
+def _document_title(title: String): String
+  if title == "Matt Kelly"
+    return title
+  end
+  return title + " | Matt Kelly"
+end
+
+def _wrap(layout: String, title: String, description: String, path: String, page_type: String, content_html: String): String
+  var out = str_replace(layout, "{{title}}", html_context_escape(_document_title(title)))
+  out = str_replace(out, "{{description}}", html_context_escape(description))
+  out = str_replace(out, "{{canonical}}", "https://mattkelly.io" + path)
+  out = str_replace(out, "{{og_type}}", page_type)
+  return str_replace(out, "{{content}}", content_html)
+end
+
+def _render_page(src_path: String, out_dir: String, path: String, title: String, description: String, layout: String): Void
+  mkdir(out_dir)
+  write_file(out_dir + "/index.html", _wrap(layout, title, description, path, "website", read_file(src_path)))
+end
+
+def _filename_slug(fname: String): String
+  return str_byte_slice(fname, 0, str_byte_len(fname) - 3)
+end
+
+def _contains(values: Vec<String>, value: String): Bool
+  var i = 0
+  while i < values.size
+    if values[i] == value
+      return true
+    end
+    i = i + 1
+  end
+  return false
+end
+
+def render_blog(layout: String): Int
+  var entries = str_split(read_file("site/content/blog.order"), "\n")
+  var slugs: Vec<String> = vec_new()
+  var titles: Vec<String> = vec_new()
+  var descriptions: Vec<String> = vec_new()
+  var dates: Vec<String> = vec_new()
+  var bodies: Vec<String> = vec_new()
+  var redirects = 0
+  var i = 0
+
+  while i < entries.size
+    var fname = entries[i]
+    if str_ends_with(fname, ".md")
+      var doc = parse_frontmatter(read_file("site/content/blog/" + fname))
+      if doc.valid == false
+        puts("error: site/content/blog/" + fname + ": " + doc.error)
+        return 0 - 1
+      end
+      var validation_error = content_validate_doc(doc, _filename_slug(fname))
+      if validation_error != ""
+        puts("error: site/content/blog/" + fname + ": " + validation_error)
+        return 0 - 1
+      end
+      var slug = _filename_slug(fname)
+      if _contains(slugs, slug)
+        puts("error: duplicate blog output: " + slug)
+        return 0 - 1
+      end
+      var status = doc_get(doc, "status", "")
+      if status == "published"
+        slugs.push(slug)
+        titles.push(doc_get(doc, "title", ""))
+        descriptions.push(doc_get(doc, "description", ""))
+        dates.push(doc_get(doc, "date", ""))
+        bodies.push(doc.body)
+      end
+      if status == "redirect"
+        redirects = redirects + 1
+      end
+    end
+    i = i + 1
+  end
+
+  mkdir("dist/blog")
+  var index = sb_new()
+  index.append("<main class=\"content\"><h1>Writing</h1><ul class=\"post-list\">\n")
+  i = 0
+  while i < slugs.size
+    var out_dir = "dist/blog/" + slugs[i]
+    mkdir(out_dir)
+    var safe_title = html_context_escape(titles[i])
+    var safe_date = html_context_escape(dates[i])
+    var header = "<header class=\"article-header\"><h1>" + safe_title + "</h1><time datetime=\"" + safe_date + "\">" + safe_date + "</time></header>\n"
+    var body = "<main class=\"content\"><article class=\"prose\">" + header + render_safe_markdown(bodies[i]) + "</article></main>"
+    var path = "/blog/" + slugs[i] + "/"
+    write_file(out_dir + "/index.html", _wrap(layout, titles[i], descriptions[i], path, "article", body))
+    index.append("<li><a href=\"" + path + "\">" + safe_title + "</a><time datetime=\"" + safe_date + "\">" + safe_date + "</time></li>\n")
+    i = i + 1
+  end
+  index.append("</ul></main>\n")
+  write_file("dist/blog/index.html", _wrap(layout, "Writing", "Articles and notes by Matt Kelly.", "/blog/", "website", index.to_string()))
+
+  var sitemap = sb_new()
+  sitemap.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n")
+  var fixed: Vec<String> = vec_new()
+  fixed.push("")
+  fixed.push("projects/")
+  fixed.push("cv/")
+  fixed.push("references/")
+  fixed.push("dragonruby/")
+  fixed.push("blog/")
+  fixed.push("quartz")
+  i = 0
+  while i < fixed.size
+    sitemap.append("  <url><loc>https://mattkelly.io/" + fixed[i] + "</loc></url>\n")
+    i = i + 1
+  end
+  i = 0
+  while i < slugs.size
+    sitemap.append("  <url><loc>https://mattkelly.io/blog/" + slugs[i] + "/</loc></url>\n")
+    i = i + 1
+  end
+  sitemap.append("</urlset>\n")
+  write_file("dist/sitemap.xml", sitemap.to_string())
+  return slugs.size + redirects
+end
+
+def main(): Int
+  mkdir("dist")
+  mkdir("dist/assets")
+  mkdir("dist/assets/css")
+  write_file("dist/assets/css/themes.css", render_themes_css())
+  var layout = read_file("site/layouts/base.html")
+  _render_page("site/content/pages/home.html", "dist", "/", "Matt Kelly", "Technical leadership, systems architecture, and selected work by Matt Kelly.", layout)
+  _render_page("site/content/pages/projects.html", "dist/projects", "/projects/", "Projects", "Selected software, systems, and open-source work.", layout)
+  _render_page("site/content/pages/cv.html", "dist/cv", "/cv/", "CV", "Professional experience and education.", layout)
+  _render_page("site/content/pages/references.html", "dist/references", "/references/", "References", "Consented professional references for Matt Kelly.", layout)
+  _render_page("site/content/pages/dragonruby.html", "dist/dragonruby", "/dragonruby/", "DragonRuby Lab Archive", "Archived DragonRuby tutorial and browser-artifact disposition.", layout)
+  _render_page("site/content/pages/404.html", "dist/404", "/404/", "Page Not Found", "The requested page could not be found.", layout)
+  write_file("dist/404.html", read_file("dist/404/index.html"))
+  write_file("dist/robots.txt", "User-agent: *\nAllow: /\nSitemap: https://mattkelly.io/sitemap.xml\n")
+  var blog_count = render_blog(layout)
+  if blog_count < 0
+    return 1
+  end
+  puts("portfolio: 6 pages")
+  puts("blog outputs: " + str_from_int(blog_count))
+  puts("done -> dist/")
+  return 0
+end

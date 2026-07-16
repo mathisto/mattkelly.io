@@ -1,144 +1,37 @@
-# MattKelly.io
+# mattkelly.io
 
-<div align="center">
+Canonical source for Matt Kelly's dependency-minimal static portfolio. Rails is preserved in Git history and `rails-final-2026-07-16`; it is not part of the build.
 
-[![Ruby on Rails](https://img.shields.io/badge/Ruby%20on%20Rails-CC0000?style=for-the-badge&logo=ruby-on-rails&logoColor=white)](https://rubyonrails.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-[![MIT License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![Tailscale + local deployment to Lovelace](https://img.shields.io/badge/Tailscale + local deployment to Lovelace-8E5BC3?style=for-the-badge&logo=fly.io&logoColor=white)](https://fly.io/)
-[![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)](https://github.com/features/actions)
+## Core Build
 
-A high-performance personal website embracing boring technology principles and modern development practices.
+The verified profile is currently macOS arm64 with exact Quartz and Homebrew LLVM binaries pinned in `toolchain.env`:
 
-[🌐 Live Site](https://mattkelly.io) · [📝 Blog](https://mattkelly.io/blog) · [🛠️ Projects](https://mattkelly.io/projects)
-
-</div>
-
-## ✨ Overview
-
-MattKelly.io is a minimalist personal website that prioritizes performance, maintainability, and user experience. Built with Ruby on Rails 8 and styled with Tailwind CSS, it demonstrates how traditional technologies can create modern, lightning-fast web experiences.
-
-### Key Features
-
-- 🚀 **Blazing Fast Performance**
-  - Static site generation
-  - Minimal JavaScript footprint
-  - Optimized asset delivery
-
-- 🎯 **Content-First Design**
-  - Markdown-based blog system
-  - Clean, responsive layouts
-  - Accessibility-focused UI
-
-- 🛡️ **Modern Development Practices**
-  - Comprehensive test coverage
-  - Automated CI/CD pipeline
-  - Container-based deployment
-
-## 🔧 Technology Stack
-
-### Core Technologies
-| Technology | Purpose |
-|------------|---------|
-| Ruby 3.4.7 on Rails 8.0.2 | Web framework |
-| Tailwind CSS | Styling |
-| Markdown | Content management |
-
-### Development & Operations
-| Category | Tools |
-|----------|--------|
-| Testing | RSpec |
-| CI/CD | GitHub Actions |
-| Hosting | Tailscale + local deployment to Lovelace |
-| Monitoring | Tailscale + local deployment to Lovelace Dashboard |
-
-## 🚀 Getting Started
-
-### Prerequisites
-- Ruby 3.3.0+
-
-### Installation
-
-1. Clone the repository
-```bash
-git clone https://github.com/mathisto/mattkelly.io.git
-cd mattkelly.io
+```sh
+QUARTZ_CHECKOUT=/path/to/clean-pinned-quartz ./bin/build
+QUARTZ_CHECKOUT=/path/to/clean-pinned-quartz ./bin/verify
 ```
 
-2. Install dependencies
-```bash
-bundle install
+This profile is reproducible on the validated host, not yet claimed portable across operating systems or package-manager builds.
+
+## Release Assembly
+
+`/quartz` is a separately produced artifact and is required for a complete release:
+
+```sh
+QUARTZ_CHECKOUT=/path/to/clean-pinned-quartz \
+QUARTZ_ARTIFACT=/path/to/quartz-artifact \
+./bin/assemble-release
 ```
 
-3. Start the development server
-```bash
-bin/dev
-```
+Artifact validation checks integrity and route contract, not security. See `docs/migrations/portfolio/STATIC_ARCHITECTURE.md`.
 
-Your site should now be running at `http://localhost:3000` 🎉
+## Structure
 
-## 📦 Deployment
+- `site/`: static portfolio source and Quartz SSG
+- `test/`: content, output, and route validation
+- `ops/caddy/`: frozen serving and redirect contract
+- `docs/migrations/portfolio/`: decisions, disposition ledger, and evidence placeholders
+- `dragonruby/` and `public/dragonruby/`: preserved archive excluded from the core release
+- `dist/`: ignored deterministic output
 
-### Automated Deployment
-The site automatically deploys to Tailscale + local deployment to Lovelace through GitHub Actions when changes are pushed to the `trunk` branch.
-
-```bash
-git push origin trunk
-```
-
-### Manual Deployment
-If needed, you can deploy manually:
-
-```bash
-fly deploy
-```
-
-### Deployment Checklist
-- ✅ Tests passing locally
-- ✅ Environment variables configured
-- ✅ Database migrations ready
-- ✅ Assets precompiled
-
-## 🔍 Development Guidelines
-
-### Code Style
-- Follow Ruby style guide
-- Use conventional commit messages
-- Write tests for new features
-
-### Testing
-```bash
-# Run the full test suite
-bundle exec rspec
-
-# Run specific tests
-bundle exec rspec spec/path/to/test
-```
-
-## 🤝 Contributing
-
-We welcome contributions! Please follow these steps:
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'feat: add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 📫 Contact
-
-Matt Kelly - [@mathisto](https://github.com/mathisto)
-
-Project Link: [https://github.com/mathisto/mattkelly.io](https://github.com/mathisto/mattkelly.io)
-
----
-
-<div align="center">
-
-[![Made with Ruby on Rails](https://img.shields.io/badge/Made%20with-Ruby%20on%20Rails-red?style=for-the-badge&logo=ruby-on-rails)](https://rubyonrails.org)
-
-</div>
+CV downloads are intentionally withheld until privacy-safe PDF and DOCX files are generated and reviewed.

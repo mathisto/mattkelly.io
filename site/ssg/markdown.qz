@@ -1,0 +1,233 @@
+import std/markdown
+import ssg/template
+
+def _markdown_ascii_alnum(b: Int): Bool
+  return (b >= 48 and b <= 57) or (b >= 65 and b <= 90) or (b >= 97 and b <= 122)
+end
+
+def _markdown_destination_chars_valid(value: String): Bool
+  var i = 0
+  while i < str_byte_len(value)
+    var b = str_byte_at(value, i)
+    if b <= 32 or b >= 127 or b == 34 or b == 39 or b == 37 or b == 38 or b == 60 or b == 62 or b == 92
+      return false
+    end
+    i = i + 1
+  end
+  return true
+end
+
+def _markdown_fragment_valid(value: String): Bool
+  if str_byte_len(value) < 2
+    return false
+  end
+  var i = 1
+  while i < str_byte_len(value)
+    var b = str_byte_at(value, i)
+    if _markdown_ascii_alnum(b) == false and b != 45 and b != 46 and b != 58 and b != 95
+      return false
+    end
+    i = i + 1
+  end
+  return true
+end
+
+def _markdown_root_path_valid(value: String): Bool
+  if str_byte_len(value) == 0 or str_byte_at(value, 0) != 47
+    return false
+  end
+  if str_byte_len(value) > 1 and str_byte_at(value, 1) == 47
+    return false
+  end
+  if str_contains(value, "/../") or str_ends_with(value, "/..")
+    return false
+  end
+  var i = 1
+  while i < str_byte_len(value)
+    var b = str_byte_at(value, i)
+    if _markdown_ascii_alnum(b) == false and b != 33 and b != 35 and b != 36 and b != 42 and b != 43 and b != 44 and b != 45 and b != 46 and b != 47 and b != 58 and b != 59 and b != 61 and b != 63 and b != 64 and b != 95 and b != 126
+      return false
+    end
+    i = i + 1
+  end
+  return true
+end
+
+def _markdown_host_valid(value: String): Bool
+  if value == "" or _markdown_ascii_alnum(str_byte_at(value, 0)) == false or _markdown_ascii_alnum(str_byte_at(value, str_byte_len(value) - 1)) == false
+    return false
+  end
+  var i = 0
+  var colons = 0
+  var in_port = false
+  while i < str_byte_len(value)
+    var b = str_byte_at(value, i)
+    if b == 58
+      colons = colons + 1
+      if colons > 1 or i == str_byte_len(value) - 1
+        return false
+      end
+      in_port = true
+    elsif in_port
+      if b < 48 or b > 57
+        return false
+      end
+    elsif b == 46
+      if i == 0 or i == str_byte_len(value) - 1 or str_byte_at(value, i - 1) == 46 or str_byte_at(value, i - 1) == 45 or str_byte_at(value, i + 1) == 45
+        return false
+      end
+    elsif b == 45
+      if i == 0 or i == str_byte_len(value) - 1 or str_byte_at(value, i - 1) == 46 or str_byte_at(value, i + 1) == 46
+        return false
+      end
+    elsif _markdown_ascii_alnum(b) == false and b != 45 and b != 46
+      return false
+    end
+    i = i + 1
+  end
+  return true
+end
+
+def _markdown_http_valid(value: String, prefix_len: Int): Bool
+  if str_byte_len(value) <= prefix_len
+    return false
+  end
+  var host_end = prefix_len
+  while host_end < str_byte_len(value)
+    var b = str_byte_at(value, host_end)
+    if b == 47 or b == 63 or b == 35
+      break
+    end
+    host_end = host_end + 1
+  end
+  if _markdown_host_valid(str_byte_slice(value, prefix_len, host_end)) == false
+    return false
+  end
+  var last = str_byte_at(value, str_byte_len(value) - 1)
+  if last == 35 or last == 63
+    return false
+  end
+  var i = host_end
+  while i < str_byte_len(value)
+    var b = str_byte_at(value, i)
+    if _markdown_ascii_alnum(b) == false and b != 33 and b != 35 and b != 36 and b != 42 and b != 43 and b != 44 and b != 45 and b != 46 and b != 47 and b != 58 and b != 59 and b != 61 and b != 63 and b != 64 and b != 95 and b != 126
+      return false
+    end
+    i = i + 1
+  end
+  return true
+end
+
+def _markdown_mailto_valid(value: String): Bool
+  if str_byte_len(value) <= 7
+    return false
+  end
+  var address = str_byte_slice(value, 7, str_byte_len(value))
+  var at = 0 - 1
+  var i = 0
+  while i < str_byte_len(address)
+    var b = str_byte_at(address, i)
+    if b == 64
+      if at >= 0
+        return false
+      end
+      at = i
+    elsif _markdown_ascii_alnum(b) == false and b != 43 and b != 45 and b != 46 and b != 95
+      return false
+    end
+    i = i + 1
+  end
+  return at > 0 and at < str_byte_len(address) - 1
+end
+
+def markdown_destination_valid(value: String): Bool
+  if value == "" or _markdown_destination_chars_valid(value) == false
+    return false
+  end
+  if str_starts_with(value, "//")
+    return false
+  end
+  if str_byte_at(value, 0) == 47
+    return _markdown_root_path_valid(value)
+  end
+  if str_byte_at(value, 0) == 35
+    return _markdown_fragment_valid(value)
+  end
+  if str_starts_with(value, "https://")
+    return _markdown_http_valid(value, 8)
+  end
+  if str_starts_with(value, "http://")
+    return _markdown_http_valid(value, 7)
+  end
+  if str_starts_with(value, "mailto:")
+    return _markdown_mailto_valid(value)
+  end
+  return false
+end
+
+def markdown_links_valid(source: String): Bool
+  var i = 0
+  while i < str_byte_len(source)
+    if str_byte_at(source, i) == 91
+      var label_end = i + 1
+      while label_end < str_byte_len(source) and str_byte_at(source, label_end) != 93
+        label_end = label_end + 1
+      end
+      if label_end < str_byte_len(source) and label_end + 1 < str_byte_len(source) and str_byte_at(source, label_end + 1) == 40
+        var destination_end = label_end + 2
+        while destination_end < str_byte_len(source) and str_byte_at(source, destination_end) != 41
+          destination_end = destination_end + 1
+        end
+        if destination_end >= str_byte_len(source)
+          return false
+        end
+        if markdown_destination_valid(str_byte_slice(source, label_end + 2, destination_end)) == false
+          return false
+        end
+        i = destination_end + 1
+        continue
+      end
+    end
+    i = i + 1
+  end
+  return true
+end
+
+def _markdown_rewrite_links(source: String): String
+  var sb = sb_new()
+  var i = 0
+  while i < str_byte_len(source)
+    if str_byte_at(source, i) == 91
+      var label_end = i + 1
+      while label_end < str_byte_len(source) and str_byte_at(source, label_end) != 93
+        label_end = label_end + 1
+      end
+      if label_end < str_byte_len(source) and label_end + 1 < str_byte_len(source) and str_byte_at(source, label_end + 1) == 40
+        var destination_end = label_end + 2
+        while destination_end < str_byte_len(source) and str_byte_at(source, destination_end) != 41
+          destination_end = destination_end + 1
+        end
+        sb.append(str_byte_slice(source, i, label_end + 2))
+        sb.append(html_attribute_escape(str_byte_slice(source, label_end + 2, destination_end)))
+        sb.append(")")
+        i = destination_end + 1
+        continue
+      end
+    end
+    sb.append(str_byte_slice(source, i, i + 1))
+    i = i + 1
+  end
+  return sb.to_string()
+end
+
+def render_safe_markdown(source: String): String
+  if markdown_links_valid(source) == false
+    return ""
+  end
+  var rendered = md_to_html(markdown_body_escape(_markdown_rewrite_links(source)))
+  # The Markdown renderer escapes code contents a second time. Canonicalizing
+  # those entities preserves visible angle brackets without creating tags.
+  rendered = str_replace(rendered, "&amp;lt;", "&lt;")
+  rendered = str_replace(rendered, "&amp;gt;", "&gt;")
+  return str_replace(rendered, "&amp;amp;", "&amp;")
+end

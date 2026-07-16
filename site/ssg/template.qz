@@ -1,0 +1,31 @@
+# Minimal single-pass HTML template rendering.
+
+def template_render(tmpl: String, keys: Vec<String>, vals: Vec<String>): String
+  var out = tmpl
+  var i = 0
+  while i < keys.size
+    out = str_replace(out, "{{" + keys[i] + "}}", vals[i])
+    i = i + 1
+  end
+  return out
+end
+
+def html_context_escape(value: String): String
+  var out = str_replace(value, "&", "&amp;")
+  out = str_replace(out, "<", "&lt;")
+  out = str_replace(out, ">", "&gt;")
+  out = str_replace(out, "\"", "&quot;")
+  return str_replace(out, "'", "&#39;")
+end
+
+def html_attribute_escape(value: String): String
+  return html_context_escape(value)
+end
+
+# Escape body text before Markdown parsing. The renderer may create formatting
+# tags, but user-authored angle brackets can only survive as visible text.
+def markdown_body_escape(value: String): String
+  var out = str_replace(value, "&", "&amp;")
+  out = str_replace(out, "<", "&lt;")
+  return str_replace(out, ">", "&gt;")
+end

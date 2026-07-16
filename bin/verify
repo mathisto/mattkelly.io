@@ -1,0 +1,31 @@
+#!/bin/sh
+set -eu
+
+ROOT=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
+tmp_dir=$(mktemp -d "${TMPDIR:-/tmp}/mattkelly-verify.XXXXXX")
+trap 'rm -rf "$tmp_dir"' EXIT HUP INT TERM
+
+manifest() {
+  (cd "$ROOT" && find dist -type f -print | LC_ALL=C sort | while IFS= read -r path; do shasum -a 256 "$path"; done)
+}
+
+"$ROOT/bin/build"
+
+. "$ROOT/toolchain.env"
+QUARTZ_CHECKOUT=${QUARTZ_CHECKOUT:-"$ROOT/../quartz"}
+QUARTZ_COMPILER=${QUARTZ_COMPILER:-"$QUARTZ_CHECKOUT/self-hosted/bin/quartz"}
+LLC=${LLC:-llc}
+CLANG=${CLANG:-clang}
+(cd "$ROOT" && "$QUARTZ_COMPILER" --no-cache -I "$ROOT/site" -I "$QUARTZ_CHECKOUT" test/ssg_validation.qz > "$tmp_dir/validation.ll")
+"$LLC" -filetype=obj "$tmp_dir/validation.ll" -o "$tmp_dir/validation.o"
+"$CLANG" "$tmp_dir/validation.o" -o "$tmp_dir/validation" -lm -lpthread
+"$tmp_dir/validation"
+
+manifest > "$tmp_dir/first.sha256"
+"$ROOT/bin/build"
+manifest > "$tmp_dir/second.sha256"
+cmp "$tmp_dir/first.sha256" "$tmp_dir/second.sha256"
+"$ROOT/bin/check"
+"$ROOT/test/routes.sh"
+"$ROOT/test/artifact_contract.sh"
+printf '%s\n' 'Two clean builds are byte-identical and all foundation checks passed.'

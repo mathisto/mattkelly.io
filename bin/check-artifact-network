@@ -1,0 +1,78 @@
+#!/bin/sh
+set -eu
+
+ARTIFACT=${1:-}
+fail() { printf 'artifact-network: %s\n' "$1" >&2; exit 1; }
+[ -d "$ARTIFACT" ] || fail "artifact directory is required"
+command -v file >/dev/null 2>&1 || fail "file is required for served-file MIME validation"
+
+tmp_dir=$(mktemp -d "${TMPDIR:-/tmp}/mattkelly-network.XXXXXX")
+trap 'rm -rf "$tmp_dir"' EXIT HUP INT TERM
+: > "$tmp_dir/html-files"
+: > "$tmp_dir/css-files"
+
+find "$ARTIFACT" -type f -print > "$tmp_dir/all-files"
+while IFS= read -r served; do
+  relative=${served#"$ARTIFACT"/}
+  case "$relative" in
+    artifact-contract.env|artifact-manifest.sha256) continue ;;
+  esac
+  lower=$(printf '%s' "$relative" | LC_ALL=C tr '[:upper:]' '[:lower:]')
+  mime=$(file --mime-type -b "$served")
+  case "$lower" in
+    *.html)
+      [ "$mime" = "text/html" ] || fail "HTML extension/content MIME mismatch: $relative ($mime)"
+      printf '%s\n' "$served" >> "$tmp_dir/html-files"
+      ;;
+    *.css)
+      case "$mime" in text/css|text/plain) ;; *) fail "CSS extension/content MIME mismatch: $relative ($mime)" ;; esac
+      printf '%s\n' "$served" >> "$tmp_dir/css-files"
+      ;;
+    *.png) [ "$mime" = "image/png" ] || fail "PNG extension/content MIME mismatch: $relative ($mime)" ;;
+    *.jpg|*.jpeg) [ "$mime" = "image/jpeg" ] || fail "JPEG extension/content MIME mismatch: $relative ($mime)" ;;
+    *.gif) [ "$mime" = "image/gif" ] || fail "GIF extension/content MIME mismatch: $relative ($mime)" ;;
+    *.webp) [ "$mime" = "image/webp" ] || fail "WebP extension/content MIME mismatch: $relative ($mime)" ;;
+    *.ico) [ "$mime" = "image/vnd.microsoft.icon" ] || fail "ICO extension/content MIME mismatch: $relative ($mime)" ;;
+    *.htm|*.xhtml|*.svg) fail "unsupported browser-active document type: $relative ($mime)" ;;
+    *.js|*.mjs|*.cjs) fail "static-no-external-requests-v1 prohibits JavaScript: $relative ($mime)" ;;
+    *) fail "unsupported served file type: $relative ($mime)" ;;
+  esac
+done < "$tmp_dir/all-files"
+
+while IFS= read -r html; do
+  LC_ALL=C tr '[:upper:]' '[:lower:]' < "$html" > "$tmp_dir/lower"
+  tr -d '[:space:]' < "$tmp_dir/lower" > "$tmp_dir/compact"
+  if grep -E '[&\\%]' "$tmp_dir/compact" >/dev/null; then
+    fail "encoded or escaped URL syntax is prohibited in HTML: $html"
+  fi
+  if grep -E '(https?:|wss?:|data:|blob:|javascript:|vbscript:|//)' "$tmp_dir/compact" >/dev/null; then
+    fail "external URL syntax is prohibited by the active-content-free profile: $html"
+  fi
+  link_count=$(grep -Eo '<link' "$tmp_dir/compact" | wc -l | tr -d ' ')
+  canonical_count=$(grep -Eo '<linkrel="canonical"href="/[a-z0-9/_-]*">' "$tmp_dir/compact" | wc -l | tr -d ' ')
+  [ "$link_count" = "$canonical_count" ] || fail "only exact root-relative canonical link elements are allowed: $html"
+  if grep -E '<(script|img|iframe|frame|video|audio|source|track|object|embed|style|svg|form|base)' "$tmp_dir/compact" >/dev/null; then
+    fail "active or subresource-loading HTML element is prohibited: $html"
+  fi
+  if grep -E '(src|srcset|poster|data|action|formaction|ping|background|manifest)=' "$tmp_dir/compact" >/dev/null; then
+    fail "active request attribute is prohibited: $html"
+  fi
+  if grep -E '<[^>]*[[:space:]]on[a-z0-9_-]*[[:space:]]*=' "$tmp_dir/lower" >/dev/null; then
+    fail "event handler attribute is prohibited: $html"
+  fi
+  if grep -E '(http-equiv=|srcdoc=)' "$tmp_dir/compact" >/dev/null; then
+    fail "event, redirect, or embedded-document attribute is prohibited: $html"
+  fi
+done < "$tmp_dir/html-files"
+
+while IFS= read -r css; do
+  LC_ALL=C tr '[:upper:]' '[:lower:]' < "$css" | tr -d '[:space:]' > "$tmp_dir/compact"
+  if grep -E '[&\\%]' "$tmp_dir/compact" >/dev/null; then
+    fail "encoded or escaped URL syntax is prohibited in CSS: $css"
+  fi
+  if grep -E '(url\(|@import|image-set\(|https?:|wss?:|data:|blob:|javascript:|vbscript:|//)' "$tmp_dir/compact" >/dev/null; then
+    fail "CSS request surface is prohibited: $css"
+  fi
+done < "$tmp_dir/css-files"
+
+printf '%s\n' 'Artifact matches static-no-external-requests-v1 served-file and network policy.'

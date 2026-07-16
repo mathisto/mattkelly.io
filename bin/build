@@ -1,0 +1,68 @@
+#!/bin/sh
+set -eu
+
+ROOT=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
+. "$ROOT/toolchain.env"
+
+QUARTZ_CHECKOUT=${QUARTZ_CHECKOUT:-"$ROOT/../quartz"}
+QUARTZ_COMPILER=${QUARTZ_COMPILER:-"$QUARTZ_CHECKOUT/self-hosted/bin/quartz"}
+LLC=${LLC:-llc}
+CLANG=${CLANG:-clang}
+
+fail() { printf 'build: %s\n' "$1" >&2; exit 1; }
+hash_file() { shasum -a 256 "$1" | cut -d' ' -f1; }
+
+[ -z "${QUARTZ_ARTIFACT:-}" ] || fail "QUARTZ_ARTIFACT is not accepted by the core build; use bin/assemble-release"
+
+for path in site/ssg/build.qz site/ssg/content.qz site/ssg/doc.qz site/ssg/markdown.qz site/ssg/template.qz site/ssg/theme.qz site/layouts/base.html site/content/pages/home.html site/content/pages/projects.html site/content/pages/cv.html site/content/pages/references.html site/content/pages/dragonruby.html site/content/pages/404.html site/content/blog site/content/blog.order site/public/assets/css/site.css site/assets.sha256; do
+  [ -e "$ROOT/$path" ] || fail "missing required input: $path"
+done
+
+git -C "$QUARTZ_CHECKOUT" rev-parse --git-dir >/dev/null 2>&1 || fail "QUARTZ_CHECKOUT is not a Git checkout: $QUARTZ_CHECKOUT"
+[ -x "$QUARTZ_COMPILER" ] || fail "Quartz compiler is not executable: $QUARTZ_COMPILER"
+command -v "$LLC" >/dev/null 2>&1 || fail "llc not found (set LLC)"
+command -v "$CLANG" >/dev/null 2>&1 || fail "clang not found (set CLANG)"
+command -v shasum >/dev/null 2>&1 || fail "shasum is required by this verified host profile"
+LLC_PATH=$(command -v "$LLC")
+CLANG_PATH=$(command -v "$CLANG")
+
+[ "$(uname -s)" = "$TOOLCHAIN_OS" ] || fail "host OS does not match verified profile $TOOLCHAIN_OS/$TOOLCHAIN_ARCH"
+[ "$(uname -m)" = "$TOOLCHAIN_ARCH" ] || fail "host architecture does not match verified profile $TOOLCHAIN_OS/$TOOLCHAIN_ARCH"
+[ "$(git -C "$QUARTZ_CHECKOUT" rev-parse HEAD)" = "$QUARTZ_REVISION" ] || fail "Quartz revision does not match pinned $QUARTZ_REVISION"
+[ "$(git -C "$QUARTZ_CHECKOUT" rev-parse 'HEAD^{tree}')" = "$QUARTZ_TREE" ] || fail "Quartz source tree does not match pinned $QUARTZ_TREE"
+
+dirty=$(git -C "$QUARTZ_CHECKOUT" status --porcelain --untracked-files=all)
+if [ -n "$dirty" ]; then
+  if [ "${PORTFOLIO_DEV_ALLOW_DIRTY_QUARTZ:-0}" = "1" ]; then
+    printf '%s\n' 'build: DEVELOPMENT OVERRIDE: Quartz checkout is dirty; output is not release-verifiable' >&2
+  else
+    fail "Quartz checkout is dirty; use a clean pinned checkout (development-only override: PORTFOLIO_DEV_ALLOW_DIRTY_QUARTZ=1)"
+  fi
+fi
+
+[ "$(hash_file "$QUARTZ_COMPILER")" = "$QUARTZ_COMPILER_SHA256" ] || fail "Quartz compiler hash mismatch"
+[ "$($QUARTZ_COMPILER --version)" = "quartz $QUARTZ_VERSION" ] || fail "Quartz compiler version mismatch"
+[ "$(hash_file "$LLC_PATH")" = "$LLC_SHA256" ] || fail "llc hash mismatch"
+[ "$(hash_file "$CLANG_PATH")" = "$CLANG_SHA256" ] || fail "clang hash mismatch"
+"$LLC" --version | grep -F "LLVM version $LLVM_VERSION" >/dev/null || fail "llc version mismatch"
+"$CLANG" --version | grep -F "clang version $LLVM_VERSION" >/dev/null || fail "clang version mismatch"
+
+(cd "$ROOT" && shasum -a 256 -c site/assets.sha256 >/dev/null) || fail "local asset hash mismatch"
+
+tmp_dir=$(mktemp -d "${TMPDIR:-/tmp}/mattkelly-build.XXXXXX")
+trap 'rm -rf "$tmp_dir"' EXIT HUP INT TERM
+
+find "$ROOT/site/content/blog" -type f -name '*.md' -exec basename {} \; | LC_ALL=C sort > "$tmp_dir/actual-blog"
+grep -v '^$' "$ROOT/site/content/blog.order" | LC_ALL=C sort > "$tmp_dir/declared-blog"
+cmp "$tmp_dir/actual-blog" "$tmp_dir/declared-blog" >/dev/null || fail "blog.order must list every Markdown input exactly once"
+[ "$(grep -v '^$' "$ROOT/site/content/blog.order" | wc -l | tr -d ' ')" = "$(grep -v '^$' "$ROOT/site/content/blog.order" | LC_ALL=C sort -u | wc -l | tr -d ' ')" ] || fail "blog.order contains duplicate entries"
+
+printf '%s\n' 'Compiling portfolio SSG...'
+(cd "$ROOT" && "$QUARTZ_COMPILER" --no-cache -I "$ROOT/site" -I "$QUARTZ_CHECKOUT" site/ssg/build.qz > "$tmp_dir/site.ll")
+"$LLC" -filetype=obj "$tmp_dir/site.ll" -o "$tmp_dir/site.o"
+"$CLANG" "$tmp_dir/site.o" -o "$tmp_dir/site-build" -lm -lpthread
+
+rm -rf "$ROOT/dist"
+(cd "$ROOT" && "$tmp_dir/site-build")
+cp -R "$ROOT/site/public/." "$ROOT/dist/"
+printf 'Built core at %s/dist\n' "$ROOT"

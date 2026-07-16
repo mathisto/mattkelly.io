@@ -1,0 +1,120 @@
+import ssg/doc
+import ssg/markdown
+
+def content_slug_valid(slug: String): Bool
+  if slug == "" or slug == "." or slug == ".."
+    return false
+  end
+  var i = 0
+  while i < str_byte_len(slug)
+    var b = str_byte_at(slug, i)
+    if (b >= 97 and b <= 122) == false and (b >= 48 and b <= 57) == false and b != 45
+      return false
+    end
+    i = i + 1
+  end
+  return true
+end
+
+def _content_digits(value: String, start: Int, finish: Int): Int
+  var result = 0
+  var i = start
+  while i < finish
+    var b = str_byte_at(value, i)
+    if b < 48 or b > 57
+      return 0 - 1
+    end
+    result = result * 10 + b - 48
+    i = i + 1
+  end
+  return result
+end
+
+def content_date_valid(value: String): Bool
+  if str_byte_len(value) != 10 or str_byte_at(value, 4) != 45 or str_byte_at(value, 7) != 45
+    return false
+  end
+  var year = _content_digits(value, 0, 4)
+  var month = _content_digits(value, 5, 7)
+  var day = _content_digits(value, 8, 10)
+  if year < 1970 or month < 1 or month > 12 or day < 1
+    return false
+  end
+  var max_day = 31
+  if month == 4 or month == 6 or month == 9 or month == 11
+    max_day = 30
+  end
+  if month == 2
+    max_day = 28
+    if year % 400 == 0 or (year % 4 == 0 and year % 100 != 0)
+      max_day = 29
+    end
+  end
+  return day <= max_day
+end
+
+def _content_field_known(key: String): Bool
+  return key == "title" or key == "description" or key == "date" or key == "author" or key == "tags" or key == "category" or key == "status" or key == "cover_image" or key == "slug" or key == "redirect_to" or key == "indexed"
+end
+
+def _content_redirect_target_valid(value: String): Bool
+  if str_starts_with(value, "/blog/") == false or str_ends_with(value, "/") == false
+    return false
+  end
+  return content_slug_valid(str_byte_slice(value, 6, str_byte_len(value) - 1))
+end
+
+def _content_blank(value: String): Bool
+  var i = 0
+  while i < str_byte_len(value)
+    var b = str_byte_at(value, i)
+    if b != 32 and b != 9 and b != 10
+      return false
+    end
+    i = i + 1
+  end
+  return true
+end
+
+def content_validate_doc(doc: Doc, filename_slug: String): String
+  var i = 0
+  while i < doc.keys.size
+    if _content_field_known(doc.keys[i]) == false
+      return "unknown frontmatter field: " + doc.keys[i]
+    end
+    i = i + 1
+  end
+  var status = doc_get(doc, "status", "")
+  if status != "draft" and status != "published" and status != "redirect"
+    return "status must be draft, published, or redirect"
+  end
+  if content_slug_valid(filename_slug) == false
+    return "invalid filename slug"
+  end
+  if doc_has(doc, "slug") and doc_get(doc, "slug", "") != filename_slug
+    return "explicit slug conflicts with filename slug"
+  end
+  if status == "published"
+    if doc_get(doc, "title", "") == "" or doc_get(doc, "description", "") == "" or doc_get(doc, "date", "") == ""
+      return "published content requires title, description, and date"
+    end
+    if content_date_valid(doc_get(doc, "date", "")) == false
+      return "date must be a real YYYY-MM-DD date"
+    end
+    if _content_blank(doc.body)
+      return "published content requires a non-empty body"
+    end
+    if markdown_links_valid(doc.body) == false
+      return "Markdown link destination is malformed or not approved"
+    end
+  end
+  if status == "redirect"
+    if doc_get(doc, "title", "") == "" or _content_redirect_target_valid(doc_get(doc, "redirect_to", "")) == false
+      return "redirect content requires title and a safe internal redirect_to"
+    end
+    if _content_blank(doc.body) == false
+      return "redirect content body must be empty"
+    end
+  end
+  return ""
+end

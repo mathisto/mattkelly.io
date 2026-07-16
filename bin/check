@@ -1,0 +1,99 @@
+#!/bin/sh
+set -eu
+
+ROOT=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
+tmp_dir=$(mktemp -d "${TMPDIR:-/tmp}/mattkelly-check.XXXXXX")
+trap 'rm -rf "$tmp_dir"' EXIT HUP INT TERM
+fail() { printf 'check: %s\n' "$1" >&2; exit 1; }
+
+for path in dist/index.html dist/projects/index.html dist/cv/index.html dist/references/index.html dist/dragonruby/index.html dist/blog/index.html dist/blog/building-mattkelly-io/index.html dist/blog/hello-world/index.html dist/404.html dist/404/index.html dist/sitemap.xml dist/robots.txt dist/assets/css/themes.css dist/assets/css/site.css dist/favicon.ico dist/favicon-16x16.png dist/favicon-32x32.png dist/icon.png dist/icon.svg dist/images/blog/tokyo-night-cover.png dist/images/references/eli-mellen.jpg dist/images/references/gia-antoniades.jpg dist/images/references/heather-roy.jpg dist/images/references/janus-chung.jpg dist/images/references/kristen-brown.jpg; do
+  [ -s "$ROOT/$path" ] || fail "missing or empty generated route/asset: $path"
+done
+
+[ ! -e "$ROOT/dist/CV.pdf" ] || fail "privacy-unreviewed PDF must not be published"
+[ ! -e "$ROOT/dist/CV.docx" ] || fail "privacy-unreviewed DOCX must not be published"
+
+(cd "$ROOT" && shasum -a 256 -c site/assets.sha256 >/dev/null) || fail "source asset hash mismatch"
+while IFS='  ' read -r expected source_path; do
+  source_path=$(printf '%s' "$source_path" | sed 's/^ *//')
+  relative=${source_path#site/public/}
+  cmp "$ROOT/$source_path" "$ROOT/dist/$relative" >/dev/null || fail "asset was not copied byte-for-byte: $relative"
+done < "$ROOT/site/assets.sha256"
+file "$ROOT/dist/favicon.ico" | grep -F 'MS Windows icon resource' >/dev/null || fail "invalid favicon.ico"
+for image in "$ROOT"/dist/favicon-16x16.png "$ROOT"/dist/favicon-32x32.png "$ROOT"/dist/icon.png "$ROOT"/dist/images/blog/*.png; do
+  file "$image" | grep -F 'PNG image data' >/dev/null || fail "invalid PNG: $image"
+done
+for image in "$ROOT"/dist/images/references/*.jpg; do
+  file "$image" | grep -F 'JPEG image data' >/dev/null || fail "invalid JPEG: $image"
+done
+xmllint --noout "$ROOT/dist/icon.svg" || fail "invalid icon.svg"
+xmllint --noout "$ROOT/dist/sitemap.xml" || fail "invalid sitemap.xml"
+
+if find "$ROOT/dist" -type f \( -name '*.pdf' -o -name '*.docx' \) -print | grep . >/dev/null; then
+  command -v pdfinfo >/dev/null 2>&1 || fail "pdfinfo is required when PDF assets are present"
+  command -v pdftotext >/dev/null 2>&1 || fail "pdftotext is required when PDF assets are present"
+  command -v unzip >/dev/null 2>&1 || fail "unzip is required when DOCX assets are present"
+  for pdf in "$ROOT"/dist/*.pdf; do [ -e "$pdf" ] || continue; pdfinfo "$pdf" >/dev/null || fail "invalid PDF: $pdf"; done
+  for docx in "$ROOT"/dist/*.docx; do [ -e "$docx" ] || continue; unzip -t "$docx" >/dev/null || fail "invalid DOCX: $docx"; done
+fi
+
+find "$ROOT/dist" -type f -name '*.html' -print > "$tmp_dir/html-files"
+while IFS= read -r html; do
+  grep -F '<title>' "$html" >/dev/null || fail "missing title: $html"
+  grep -F '<meta name="description"' "$html" >/dev/null || fail "missing description: $html"
+  grep -F '<link rel="canonical"' "$html" >/dev/null || fail "missing canonical: $html"
+  grep -F '<meta property="og:title"' "$html" >/dev/null || fail "missing OpenGraph metadata: $html"
+  grep -F '<meta property="og:description"' "$html" >/dev/null || fail "missing OpenGraph description: $html"
+  grep -F '<meta property="og:type"' "$html" >/dev/null || fail "missing OpenGraph type: $html"
+  grep -F '<meta property="og:url"' "$html" >/dev/null || fail "missing OpenGraph URL: $html"
+  grep -F '<meta property="og:image"' "$html" >/dev/null || fail "missing OpenGraph image: $html"
+  grep -F '<meta name="twitter:card"' "$html" >/dev/null || fail "missing social-card baseline: $html"
+  [ "$(grep -c '<meta property="og:title"' "$html")" = "1" ] || fail "OpenGraph title must appear exactly once: $html"
+  [ "$(grep -c '<meta property="og:description"' "$html")" = "1" ] || fail "OpenGraph description must appear exactly once: $html"
+  [ "$(grep -c '<meta property="og:type"' "$html")" = "1" ] || fail "OpenGraph type must appear exactly once: $html"
+  [ "$(grep -c '<meta property="og:url"' "$html")" = "1" ] || fail "OpenGraph URL must appear exactly once: $html"
+  [ "$(grep -c '<meta property="og:image"' "$html")" = "1" ] || fail "OpenGraph image must appear exactly once: $html"
+  grep -F '<h1' "$html" >/dev/null || fail "missing visible h1: $html"
+done < "$tmp_dir/html-files"
+
+grep -F '<time datetime="2024-03-10">2024-03-10</time>' "$ROOT/dist/blog/building-mattkelly-io/index.html" >/dev/null || fail "published article date is missing"
+[ "$(grep -c '<article class="reference-card">' "$ROOT/dist/references/index.html")" = "5" ] || fail "references page must contain exactly five consented references"
+grep -F 'No claim is made that the archived browser build currently executes correctly' "$ROOT/dist/dragonruby/index.html" >/dev/null || fail "DragonRuby execution disclaimer is missing"
+grep -F 'This archived URL now points to the canonical article.' "$ROOT/dist/blog/hello-world/index.html" >/dev/null || fail "retired hello-world tombstone is missing"
+grep -F 'https://mattkelly.io/blog/building-mattkelly-io/' "$ROOT/dist/blog/hello-world/index.html" >/dev/null || fail "retired hello-world canonical target is wrong"
+grep -F 'Sitemap: https://mattkelly.io/sitemap.xml' "$ROOT/dist/robots.txt" >/dev/null || fail "robots sitemap declaration is missing"
+grep -F 'https://mattkelly.io/references/' "$ROOT/dist/sitemap.xml" >/dev/null || fail "references route missing from sitemap"
+grep -F 'https://mattkelly.io/dragonruby/' "$ROOT/dist/sitemap.xml" >/dev/null || fail "DragonRuby route missing from sitemap"
+grep -F 'https://mattkelly.io/quartz' "$ROOT/dist/sitemap.xml" >/dev/null || fail "Quartz artifact route missing from sitemap"
+if grep -F 'hello-world' "$ROOT/dist/sitemap.xml" >/dev/null; then fail "retired route leaked into sitemap"; fi
+
+if grep -R -E '(<script[^>]+src="https?://|<link[^>]+rel="stylesheet"[^>]+href="https?://)' "$ROOT/dist" >/dev/null 2>&1; then fail "generated core contains a third-party script or stylesheet"; fi
+if grep -R '{{[a-zA-Z][a-zA-Z_]*}}' "$ROOT/dist" >/dev/null 2>&1; then fail "generated output contains an unresolved template token"; fi
+if grep -R -F 'quartz.mattkelly.io' "$ROOT/dist" >/dev/null 2>&1; then fail "non-canonical Quartz hostname found"; fi
+if grep -R -E '(href|src)="/(CV\.pdf|CV\.docx)"' "$ROOT/dist" >/dev/null 2>&1; then fail "withheld CV download link found"; fi
+
+: > "$tmp_dir/links"
+while IFS= read -r html; do
+  grep -Eho '(href|src)="[^"]+"' "$html" >> "$tmp_dir/links" || true
+done < "$tmp_dir/html-files"
+while IFS= read -r token; do
+  url=${token#*\=\"}
+  url=${url%\"}
+  case "$url" in ''|'#'*|mailto:*|http://*|https://*) continue ;; esac
+  url=${url%%#*}
+  url=${url%%\?*}
+  case "$url" in
+    /) target="$ROOT/dist/index.html" ;;
+    */) target="$ROOT/dist${url}index.html" ;;
+    /quartz)
+      if [ "${PORTFOLIO_REQUIRE_QUARTZ:-0}" = "1" ]; then target="$ROOT/dist/quartz/index.html"; else continue; fi ;;
+    *) target="$ROOT/dist$url" ;;
+  esac
+  [ -e "$target" ] || fail "broken internal link $url"
+done < "$tmp_dir/links"
+
+if [ "${PORTFOLIO_REQUIRE_QUARTZ:-0}" = "1" ]; then
+  [ -s "$ROOT/dist/quartz/index.html" ] || fail "assembled release is missing /quartz artifact"
+fi
+
+printf '%s\n' 'Output, metadata, links, routes, and binary assets passed validation.'

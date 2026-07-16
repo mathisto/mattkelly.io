@@ -1,0 +1,28 @@
+{$PORTFOLIO_ADDRESS} {
+	root * {$PORTFOLIO_ROOT}
+
+	route {
+		redir /projects /projects/ 308
+		redir /cv /cv/ 308
+		redir /blog /blog/ 308
+		redir /references /references/ 308
+		redir /dragonruby /dragonruby/ 308
+		redir /blog/building-mattkelly-io /blog/building-mattkelly-io/ 308
+		redir /blog/hello-world /blog/building-mattkelly-io/ 308
+		redir /blog/hello-world/ /blog/building-mattkelly-io/ 308
+		redir /quartz/ /quartz 308
+
+		@retiredCv path /CV.pdf /CV.docx
+		respond @retiredCv 410
+
+		@quartzApex path /quartz
+		rewrite @quartzApex /quartz/index.html
+
+		file_server
+	}
+
+	handle_errors {
+		rewrite * /404.html
+		file_server
+	}
+}

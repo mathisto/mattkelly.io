@@ -1,0 +1,104 @@
+import ssg/doc
+import ssg/content
+import ssg/template
+import ssg/markdown
+
+def check_case(condition: Bool, message: String): Int
+  if condition == false
+    puts("validation test failed: " + message)
+    return 1
+  end
+  return 0
+end
+
+def published_doc(extra: String, body: String): Doc
+  return parse_frontmatter("---\ntitle: A title\ndescription: A description\ndate: 2024-02-29\nstatus: published\n" + extra + "---\n" + body)
+end
+
+def rejected_link_output(source: String): Bool
+  return markdown_links_valid(source) == false and render_safe_markdown(source) == ""
+end
+
+def main(): Int
+  var failures = 0
+  failures = failures + check_case(parse_frontmatter("title: no delimiter").valid == false, "missing delimiter")
+  failures = failures + check_case(parse_frontmatter("---\ntitle: broken").valid == false, "missing closing delimiter")
+  failures = failures + check_case(parse_frontmatter("---\ntitle broken\n---\nbody").valid == false, "malformed pair")
+  failures = failures + check_case(parse_frontmatter("---\ntitle: one\ntitle: two\n---\nbody").valid == false, "duplicate key")
+  var bom_input = "\xEF\xBB\xBF---\ntitle: one\n---\nbody"
+  failures = failures + check_case(str_byte_at(bom_input, 0) == 239 and str_byte_at(bom_input, 1) == 187 and str_byte_at(bom_input, 2) == 191, "BOM fixture bytes")
+  failures = failures + check_case(parse_frontmatter(bom_input).valid == false, "BOM rejection")
+  failures = failures + check_case(parse_frontmatter("---\r\ntitle: one\r\n---\r\nbody").valid == false, "CRLF rejection")
+
+  var valid = published_doc("", "body")
+  failures = failures + check_case(valid.valid, "valid document")
+  failures = failures + check_case(content_validate_doc(valid, "a-title") == "", "published validation")
+  failures = failures + check_case(content_date_valid("2024-02-29"), "leap date")
+  failures = failures + check_case(content_date_valid("2023-02-29") == false, "invalid leap date")
+  failures = failures + check_case(content_date_valid("2024-13-01") == false, "invalid month")
+  failures = failures + check_case(content_slug_valid("safe-slug-2"), "valid slug")
+  failures = failures + check_case(content_slug_valid("Unsafe_Slug") == false, "invalid slug")
+
+  var unknown = published_doc("mystery: value\n", "body")
+  failures = failures + check_case(str_contains(content_validate_doc(unknown, "a-title"), "unknown"), "unknown field")
+  var conflicting = published_doc("slug: another-title\n", "body")
+  failures = failures + check_case(str_contains(content_validate_doc(conflicting, "a-title"), "conflicts"), "explicit slug conflict")
+  var empty_body = published_doc("", "   ")
+  failures = failures + check_case(str_contains(content_validate_doc(empty_body, "a-title"), "non-empty"), "empty body")
+  var raw_rendered = render_safe_markdown("<ScRiPt src=//evil></sCrIpT><svg><iframe srcdoc=\"x\"></iframe></svg>")
+  failures = failures + check_case(str_contains(raw_rendered, "<ScRiPt") == false and str_contains(raw_rendered, "<svg") == false and str_contains(raw_rendered, "<iframe") == false, "raw tags absent from rendered output")
+  failures = failures + check_case(str_contains(raw_rendered, "&lt;ScRiPt") and str_contains(raw_rendered, "&lt;svg"), "raw tags rendered as visible text")
+
+  var unmatched = render_safe_markdown("Unmatched `<img src=x>")
+  failures = failures + check_case(str_contains(unmatched, "<img") == false and str_contains(unmatched, "&lt;img"), "unmatched backtick regression")
+  var mismatched = render_safe_markdown("Mismatched ``<svg onload=x>```")
+  failures = failures + check_case(str_contains(mismatched, "<svg") == false and str_contains(mismatched, "&lt;svg"), "mismatched backtick regression")
+  var escaped_tick = render_safe_markdown("Escaped \\`<iframe srcdoc=x>`")
+  failures = failures + check_case(str_contains(escaped_tick, "<iframe") == false and str_contains(escaped_tick, "&lt;iframe"), "escaped backtick regression")
+
+  var angle_text = render_safe_markdown("2 < 3 and 5 > 4")
+  failures = failures + check_case(str_contains(angle_text, "2 &lt; 3 and 5 &gt; 4"), "safe angle-bracket text output")
+  var inline_code = render_safe_markdown("Use `<widget attr=\"x\">` as text")
+  failures = failures + check_case(str_contains(inline_code, "<code>&lt;widget attr=&quot;x&quot;&gt;</code>"), "inline code preserves visible angle brackets")
+  var fenced_code = render_safe_markdown("```html\n<section>safe example</section>\n```")
+  failures = failures + check_case(str_contains(fenced_code, "<pre><code class=\"language-html\">&lt;section&gt;safe example&lt;/section&gt;"), "fenced code preserves visible angle brackets")
+
+  var safe_links = render_safe_markdown("[root](/projects/) [fragment](#work) [https](https://example.com/path?q=ok) [http](http://example.com) [mail](mailto:person@example.com)")
+  failures = failures + check_case(str_contains(safe_links, "href=\"/projects/\"") and str_contains(safe_links, "href=\"#work\"") and str_contains(safe_links, "href=\"https://example.com/path?q=ok\"") and str_contains(safe_links, "href=\"mailto:person@example.com\""), "approved links render with escaped href attributes")
+  failures = failures + check_case(html_attribute_escape("&quot;'<> ") == "&amp;quot;&#39;&lt;&gt; ", "href attribute context escaping")
+
+  failures = failures + check_case(rejected_link_output("[click](javascript:alert('XSS'))"), "exact javascript destination")
+  failures = failures + check_case(rejected_link_output("[mixed](JaVaScRiPt:alert(1))"), "mixed-case scheme")
+  failures = failures + check_case(rejected_link_output("[data](data:text/html,boom)"), "data scheme")
+  failures = failures + check_case(rejected_link_output("[vb](vbscript:msgbox(1))"), "vbscript scheme")
+  failures = failures + check_case(rejected_link_output("[origin](//evil.example/x)"), "protocol-relative destination")
+  failures = failures + check_case(rejected_link_output("[percent](%6Aavascript:alert(1))"), "percent-encoded scheme")
+  failures = failures + check_case(rejected_link_output("[percent-colon](javascript%3Aalert(1))"), "percent-encoded colon")
+  failures = failures + check_case(rejected_link_output("[entity](java&#x73;cript:alert(1))"), "entity-encoded scheme")
+  failures = failures + check_case(rejected_link_output("[entity-colon](javascript&#58;alert(1))"), "entity-encoded colon")
+  failures = failures + check_case(rejected_link_output("[space](java script:alert(1))"), "space-obfuscated scheme")
+  failures = failures + check_case(rejected_link_output("[tab](java\tscript:alert(1))"), "control-character obfuscation")
+  failures = failures + check_case(rejected_link_output("[newline](java\nscript:alert(1))"), "newline obfuscation")
+  failures = failures + check_case(rejected_link_output("[slash](https:\\evil.example)"), "backslash-obfuscated destination")
+  failures = failures + check_case(rejected_link_output("[inject](https://example.com/\"onmouseover=x)"), "attribute injection destination")
+  failures = failures + check_case(rejected_link_output("[host](https://)"), "missing HTTP host")
+  failures = failures + check_case(rejected_link_output("[port](https://example.com:abc/path)"), "malformed HTTP port")
+  failures = failures + check_case(rejected_link_output("[mail](mailto:)"), "empty mailto destination")
+  failures = failures + check_case(rejected_link_output("[relative](projects/)"), "non-root-relative destination")
+  failures = failures + check_case(rejected_link_output("[unclosed](https://example.com"), "unclosed destination")
+  var unsafe_link_doc = published_doc("", "[click](javascript:alert(1))")
+  failures = failures + check_case(str_contains(content_validate_doc(unsafe_link_doc, "a-title"), "link destination"), "published link validation path")
+  var missing = parse_frontmatter("---\ntitle: A title\nstatus: published\n---\nbody")
+  failures = failures + check_case(str_contains(content_validate_doc(missing, "a-title"), "requires"), "missing required fields")
+
+  var redirect = parse_frontmatter("---\ntitle: Archived\nstatus: redirect\nredirect_to: /blog/a-title/\n---\n")
+  failures = failures + check_case(content_validate_doc(redirect, "old-title") == "", "safe redirect")
+  var unsafe_redirect = parse_frontmatter("---\ntitle: Archived\nstatus: redirect\nredirect_to: https://example.com/\n---\n")
+  failures = failures + check_case(str_contains(content_validate_doc(unsafe_redirect, "old-title"), "safe internal"), "unsafe redirect")
+
+  failures = failures + check_case(html_context_escape("<tag attr=\"x\">&'") == "&lt;tag attr=&quot;x&quot;&gt;&amp;&#39;", "HTML context escaping")
+  if failures == 0
+    puts("SSG validation tests passed.")
+  end
+  return failures
+end

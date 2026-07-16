@@ -2,7 +2,7 @@
 
 ## Current Phase
 
-Phase 0 safety and program bootstrap. Source containment is implemented and independently reviewed in an isolated Quartz worktree; deployment remains pending.
+Static portfolio foundation implemented on the migration branch. Deployment and infrastructure activation remain pending and attended.
 
 ## Confirmed
 
@@ -20,6 +20,9 @@ Phase 0 safety and program bootstrap. Source containment is implemented and inde
 - The hosted Quartz source no longer routes `/load` or `/load/*`, and Caddy proxies only exact `/api/info`.
 - The Soul source no longer routes anonymous mutation controls, detailed stats, full-pool task scans, or exact recent paths.
 - Soul's retained anonymous JSON is limited to version, ticks, alive/ready/spawned/exited task counts, and heartbeat, polled every five seconds.
+- The portfolio source is repository-owned under `site/` and builds without Rails, Ruby, a database, Node, Astro, or browser framework dependencies.
+- `/quartz` is an optional prebuilt artifact contract; the core portfolio remains buildable without it.
+- The core layout uses system fonts and local assets with no third-party browser scripts or stylesheets.
 
 ## Existing Worktree Changes
 
@@ -33,7 +36,7 @@ Phase 0 safety and program bootstrap. Source containment is implemented and inde
 3. Verify the installed Soul Caddy and Cloudflare exposure without invoking mutations.
 4. Apply the source patch and edge rules through an attended deployment.
 5. Validate the Cloudflare fallback on a preview hostname.
-6. Begin route/content/source inventories for the Rails-to-static migration.
+6. Review and expand the foundation content/evidence inventory before the editorial redesign.
 
 ## Human Inputs Pending
 

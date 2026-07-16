@@ -1,0 +1,110 @@
+# Flat frontmatter parser for portfolio Markdown content.
+
+struct Doc
+  keys: Vec<String>
+  vals: Vec<String>
+  body: String
+  valid: Bool
+  error: String
+end
+
+def _strip_quotes(s: String): String
+  var len = str_byte_len(s)
+  if len >= 2 and str_byte_at(s, 0) == 34 and str_byte_at(s, len - 1) == 34
+    return str_byte_slice(s, 1, len - 1)
+  end
+  return s
+end
+
+def _invalid_doc(message: String): Doc
+  var keys: Vec<String> = vec_new()
+  var vals: Vec<String> = vec_new()
+  return Doc { keys: keys, vals: vals, body: "", valid: false, error: message }
+end
+
+def parse_frontmatter(src: String): Doc
+  var keys: Vec<String> = vec_new()
+  var vals: Vec<String> = vec_new()
+  var src_len = str_byte_len(src)
+  if src_len >= 3 and str_byte_at(src, 0) == 239 and str_byte_at(src, 1) == 187 and str_byte_at(src, 2) == 191
+    return _invalid_doc("UTF-8 BOM is not allowed")
+  end
+  if str_contains(src, "\r")
+    return _invalid_doc("CRLF input is not allowed; normalize to LF")
+  end
+  var lines = str_split(src, "\n")
+  if lines.size == 0 or lines[0] != "---"
+    return _invalid_doc("missing opening frontmatter delimiter")
+  end
+
+  var i = 1
+  var close = 0 - 1
+  while i < lines.size
+    if lines[i] == "---"
+      close = i
+      break
+    end
+    var line = str_trim(lines[i])
+    if line == ""
+      return _invalid_doc("blank frontmatter line")
+    end
+    var parts = str_split(line, ":")
+    if parts.size < 2
+      return _invalid_doc("malformed frontmatter line: " + line)
+    end
+    var key = str_trim(parts[0])
+    if key == ""
+      return _invalid_doc("empty frontmatter key")
+    end
+    var existing = 0
+    while existing < keys.size
+      if keys[existing] == key
+        return _invalid_doc("duplicate frontmatter key: " + key)
+      end
+      existing = existing + 1
+    end
+    var vparts: Vec<String> = vec_new()
+    var part = 1
+    while part < parts.size
+      vparts.push(parts[part])
+      part = part + 1
+    end
+    keys.push(key)
+    vals.push(_strip_quotes(str_trim(str_join(vparts, ":"))))
+    i = i + 1
+  end
+
+  if close < 0
+    return _invalid_doc("missing closing frontmatter delimiter")
+  end
+
+  var rest: Vec<String> = vec_new()
+  var body_line = close + 1
+  while body_line < lines.size
+    rest.push(lines[body_line])
+    body_line = body_line + 1
+  end
+  return Doc { keys: keys, vals: vals, body: str_join(rest, "\n"), valid: true, error: "" }
+end
+
+def doc_has(d: Doc, key: String): Bool
+  var i = 0
+  while i < d.keys.size
+    if d.keys[i] == key
+      return true
+    end
+    i = i + 1
+  end
+  return false
+end
+
+def doc_get(d: Doc, key: String, fallback: String): String
+  var i = 0
+  while i < d.keys.size
+    if d.keys[i] == key
+      return d.vals[i]
+    end
+    i = i + 1
+  end
+  return fallback
+end

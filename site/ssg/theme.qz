@@ -1,0 +1,15 @@
+# Theme registry used to generate the core site's CSS variables.
+
+def render_themes_css(): String
+  return ":root {\n" +
+    "  --bg-color: #1a1b26;\n" +
+    "  --surface-color: #24283b;\n" +
+    "  --surface-hover: #2f334d;\n" +
+    "  --text-color: #c0caf5;\n" +
+    "  --text-muted: #8b93b8;\n" +
+    "  --primary-color: #7aa2f7;\n" +
+    "  --secondary-color: #bb9af7;\n" +
+    "  --border-color: #414868;\n" +
+    "  --code-bg: #1f2335;\n" +
+    "}\n"
+end

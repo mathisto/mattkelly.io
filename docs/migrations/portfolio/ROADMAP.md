@@ -109,4 +109,6 @@ Every implementation task must identify one repository, one isolated worktree, o
 - Phase 0 endpoint and privacy containment is being specified.
 - The Cloudflare degraded fallback is scaffolded under `ops/cloudflare/fallback/`.
 - Solar ingestion is blocked only on provider documentation, endpoint details, and credentials.
-- Production source migration from `quartz/site` has not started.
+- The Rails-to-static foundation now lives under `site/`, with a pinned external Quartz compiler contract, deterministic clean build, input validation, and core route/asset smoke checks.
+- Astro remains an external transitional producer for the separately assembled `/quartz` artifact and is not required by the core portfolio build.
+- Content evidence review, the complete editorial redesign, immutable Caddy release wiring, and attended deployment remain future phases.

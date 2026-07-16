@@ -10,8 +10,8 @@ trap 'rm -rf "$tmp_dir"' EXIT HUP INT TERM
 [ -n "$ARTIFACT_SOURCE" ] || fail "QUARTZ_ARTIFACT is required"
 [ -d "$ARTIFACT_SOURCE" ] || fail "artifact is not a directory: $ARTIFACT_SOURCE"
 [ ! -L "$ARTIFACT_SOURCE" ] || fail "artifact directory must not be a symlink"
-if find "$ARTIFACT_SOURCE" -type l -print | grep . >/dev/null; then
-  fail "artifact must not contain symlinks"
+if find "$ARTIFACT_SOURCE" ! -type f ! -type d -print | grep . >/dev/null; then
+  fail "artifact may contain only regular files and directories"
 fi
 ARTIFACT="$tmp_dir/artifact-snapshot"
 mkdir "$ARTIFACT"
@@ -20,8 +20,8 @@ cp -R "$ARTIFACT_SOURCE/." "$ARTIFACT/"
 [ -f "$ARTIFACT/artifact-contract.env" ] || fail "artifact is missing artifact-contract.env"
 [ -f "$ARTIFACT/artifact-manifest.sha256" ] || fail "artifact is missing artifact-manifest.sha256"
 
-if find "$ARTIFACT" -type l -print | grep . >/dev/null; then
-  fail "artifact snapshot must not contain symlinks"
+if find "$ARTIFACT" ! -type f ! -type d -print | grep . >/dev/null; then
+  fail "artifact snapshot may contain only regular files and directories"
 fi
 
 if grep -Ev '^[0-9a-f]{64}  [A-Za-z0-9._/-]+$' "$ARTIFACT/artifact-manifest.sha256" | grep . >/dev/null; then
@@ -32,9 +32,12 @@ if grep -E '  (/|.*\.\./)' "$ARTIFACT/artifact-manifest.sha256" >/dev/null; then
 fi
 (
   cd "$ARTIFACT"
+  if find . ! -type f ! -type d -print | grep . >/dev/null; then
+    exit 1
+  fi
   find . -type f ! -name artifact-manifest.sha256 -print | sed 's#^\./##' | LC_ALL=C sort > "$tmp_dir/actual-files"
   cut -c67- artifact-manifest.sha256 | LC_ALL=C sort > "$tmp_dir/declared-files"
-)
+) || fail "artifact inventory contains a non-regular filesystem entry"
 cmp "$tmp_dir/actual-files" "$tmp_dir/declared-files" >/dev/null || fail "artifact manifest is not a complete file inventory"
 
 (

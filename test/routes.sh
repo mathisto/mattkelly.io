@@ -21,6 +21,19 @@ expect_redirect() {
   [ "$(code "$1")" = "308" ] || fail "$1 did not return 308"
   case "$(location "$1")" in *"$2") ;; *) fail "$1 did not redirect to $2" ;; esac
 }
+expect_security_headers() {
+  path=$1
+  headers="$tmp_dir/headers$(printf '%s' "$path" | tr '/' '_')"
+  curl -sS -D "$headers" -o /dev/null "$BASE$path"
+  grep -i "^Content-Security-Policy:.*default-src 'none'.*frame-ancestors 'none'" "$headers" >/dev/null || fail "$path CSP is missing or incomplete"
+  grep -i '^Strict-Transport-Security: max-age=31536000; includeSubDomains' "$headers" >/dev/null || fail "$path HSTS is missing"
+  grep -i '^X-Content-Type-Options: nosniff' "$headers" >/dev/null || fail "$path nosniff is missing"
+  grep -i '^X-Frame-Options: DENY' "$headers" >/dev/null || fail "$path frame denial is missing"
+  grep -i '^Referrer-Policy: strict-origin-when-cross-origin' "$headers" >/dev/null || fail "$path referrer policy is missing"
+  grep -i '^Permissions-Policy: camera=(), geolocation=(), microphone=()' "$headers" >/dev/null || fail "$path permissions policy is missing"
+  grep -i '^Cache-Control: no-cache' "$headers" >/dev/null || fail "$path error-safe cache policy is missing"
+  if grep -i '^Server:' "$headers" >/dev/null; then fail "$path exposed the server header"; fi
+}
 
 command -v caddy >/dev/null 2>&1 || fail "caddy is required for route contract tests"
 PORTFOLIO_ADDRESS="http://127.0.0.1:$PORT" PORTFOLIO_ROOT="$ROOT/dist" SOUL_ADDRESS="http://127.0.0.1:$SOUL_PORT" caddy validate --config "$ROOT/ops/caddy/Caddyfile" --adapter caddyfile >/dev/null
@@ -39,6 +52,7 @@ for path in / /work/ /work/va-public-apis/ /work/legacy-recovery/ /work/data-adv
   expect_code "$path" 200
 done
 expect_code /missing-route 404
+expect_code /quartz/missing 404
 expect_code /CV.pdf 410
 expect_code /CV.docx 410
 
@@ -79,7 +93,7 @@ fi
 for path in / /anything /api/soul/tasks.json /api/soul/stats.json/extra /health/; do
   [ "$(curl -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:$SOUL_PORT$path")" = "404" ] || fail "Soul $path escaped default deny"
 done
-curl -sS -D "$tmp_dir/headers" -o /dev/null "$BASE/"
-grep -i '^Content-Security-Policy:.*default-src' "$tmp_dir/headers" >/dev/null || fail "portfolio CSP is missing"
+expect_security_headers /
+expect_security_headers /quartz/missing
 
 printf '%s\n' 'Caddy route contract tests passed.'

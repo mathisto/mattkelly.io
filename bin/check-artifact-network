@@ -1,78 +1,374 @@
-#!/bin/sh
-set -eu
+#!/usr/bin/env ruby
 
-ARTIFACT=${1:-}
-fail() { printf 'artifact-network: %s\n' "$1" >&2; exit 1; }
-[ -d "$ARTIFACT" ] || fail "artifact directory is required"
-command -v file >/dev/null 2>&1 || fail "file is required for served-file MIME validation"
+require "digest"
+require "find"
+require "open3"
 
-tmp_dir=$(mktemp -d "${TMPDIR:-/tmp}/mattkelly-network.XXXXXX")
-trap 'rm -rf "$tmp_dir"' EXIT HUP INT TERM
-: > "$tmp_dir/html-files"
-: > "$tmp_dir/css-files"
+class PolicyError < StandardError; end
 
-find "$ARTIFACT" -type f -print > "$tmp_dir/all-files"
-while IFS= read -r served; do
-  relative=${served#"$ARTIFACT"/}
-  case "$relative" in
-    artifact-contract.env|artifact-manifest.sha256) continue ;;
-  esac
-  lower=$(printf '%s' "$relative" | LC_ALL=C tr '[:upper:]' '[:lower:]')
-  mime=$(file --mime-type -b "$served")
-  case "$lower" in
-    *.html)
-      [ "$mime" = "text/html" ] || fail "HTML extension/content MIME mismatch: $relative ($mime)"
-      printf '%s\n' "$served" >> "$tmp_dir/html-files"
-      ;;
-    *.css)
-      case "$mime" in text/css|text/plain) ;; *) fail "CSS extension/content MIME mismatch: $relative ($mime)" ;; esac
-      printf '%s\n' "$served" >> "$tmp_dir/css-files"
-      ;;
-    *.png) [ "$mime" = "image/png" ] || fail "PNG extension/content MIME mismatch: $relative ($mime)" ;;
-    *.jpg|*.jpeg) [ "$mime" = "image/jpeg" ] || fail "JPEG extension/content MIME mismatch: $relative ($mime)" ;;
-    *.gif) [ "$mime" = "image/gif" ] || fail "GIF extension/content MIME mismatch: $relative ($mime)" ;;
-    *.webp) [ "$mime" = "image/webp" ] || fail "WebP extension/content MIME mismatch: $relative ($mime)" ;;
-    *.ico) [ "$mime" = "image/vnd.microsoft.icon" ] || fail "ICO extension/content MIME mismatch: $relative ($mime)" ;;
-    *.htm|*.xhtml|*.svg) fail "unsupported browser-active document type: $relative ($mime)" ;;
-    *.js|*.mjs|*.cjs) fail "static-no-external-requests-v1 prohibits JavaScript: $relative ($mime)" ;;
-    *) fail "unsupported served file type: $relative ($mime)" ;;
-  esac
-done < "$tmp_dir/all-files"
+def fail_policy(message)
+  warn "artifact-network: #{message}"
+  exit 1
+end
 
-while IFS= read -r html; do
-  LC_ALL=C tr '[:upper:]' '[:lower:]' < "$html" > "$tmp_dir/lower"
-  tr -d '[:space:]' < "$tmp_dir/lower" > "$tmp_dir/compact"
-  if grep -E '[&\\%]' "$tmp_dir/compact" >/dev/null; then
-    fail "encoded or escaped URL syntax is prohibited in HTML: $html"
-  fi
-  if grep -E '(https?:|wss?:|data:|blob:|javascript:|vbscript:|//)' "$tmp_dir/compact" >/dev/null; then
-    fail "external URL syntax is prohibited by the active-content-free profile: $html"
-  fi
-  link_count=$(grep -Eo '<link' "$tmp_dir/compact" | wc -l | tr -d ' ')
-  canonical_count=$(grep -Eo '<linkrel="canonical"href="/[a-z0-9/_-]*">' "$tmp_dir/compact" | wc -l | tr -d ' ')
-  [ "$link_count" = "$canonical_count" ] || fail "only exact root-relative canonical link elements are allowed: $html"
-  if grep -E '<(script|img|iframe|frame|video|audio|source|track|object|embed|style|svg|form|base)' "$tmp_dir/compact" >/dev/null; then
-    fail "active or subresource-loading HTML element is prohibited: $html"
-  fi
-  if grep -E '(src|srcset|poster|data|action|formaction|ping|background|manifest)=' "$tmp_dir/compact" >/dev/null; then
-    fail "active request attribute is prohibited: $html"
-  fi
-  if grep -E '<[^>]*[[:space:]]on[a-z0-9_-]*[[:space:]]*=' "$tmp_dir/lower" >/dev/null; then
-    fail "event handler attribute is prohibited: $html"
-  fi
-  if grep -E '(http-equiv=|srcdoc=)' "$tmp_dir/compact" >/dev/null; then
-    fail "event, redirect, or embedded-document attribute is prohibited: $html"
-  fi
-done < "$tmp_dir/html-files"
+def mime_type(path)
+  output, status = Open3.capture2("file", "--mime-type", "-b", "--", path)
+  raise PolicyError, "file could not inspect #{path}" unless status.success?
 
-while IFS= read -r css; do
-  LC_ALL=C tr '[:upper:]' '[:lower:]' < "$css" | tr -d '[:space:]' > "$tmp_dir/compact"
-  if grep -E '[&\\%]' "$tmp_dir/compact" >/dev/null; then
-    fail "encoded or escaped URL syntax is prohibited in CSS: $css"
-  fi
-  if grep -E '(url\(|@import|image-set\(|https?:|wss?:|data:|blob:|javascript:|vbscript:|//)' "$tmp_dir/compact" >/dev/null; then
-    fail "CSS request surface is prohibited: $css"
-  fi
-done < "$tmp_dir/css-files"
+  output.strip
+end
 
-printf '%s\n' 'Artifact matches static-no-external-requests-v1 served-file and network policy.'
+def decode_entities(value, context)
+  decoded = +""
+  cursor = 0
+  value.to_enum(:scan, /&(?:lt|gt|amp|quot|#(?:[0-9]+|[xX][0-9a-fA-F]+));/).each do
+    match = Regexp.last_match
+    raise PolicyError, "malformed or unsupported entity in #{context}" if match.begin(0) != cursor && value[cursor...match.begin(0)].include?("&")
+
+    decoded << value[cursor...match.begin(0)]
+    entity = match[0]
+    codepoint = if entity.start_with?("&#")
+      digits = entity[2...-1]
+      digits.start_with?("x", "X") ? digits[1..].to_i(16) : digits.to_i(10)
+    end
+    if codepoint
+      invalid = codepoint.zero? || codepoint > 0x10ffff || (0xd800..0xdfff).cover?(codepoint) ||
+        (codepoint < 0x20 && ![0x09, 0x0a, 0x0d].include?(codepoint)) || (0x7f..0x9f).cover?(codepoint)
+      raise PolicyError, "unsafe numeric entity in #{context}" if invalid
+      decoded << codepoint.chr(Encoding::UTF_8)
+    else
+      decoded << { "&lt;" => "<", "&gt;" => ">", "&amp;" => "&", "&quot;" => '"' }.fetch(entity)
+    end
+    cursor = match.end(0)
+  end
+  raise PolicyError, "malformed or unsupported entity in #{context}" if value[cursor..].include?("&")
+
+  decoded << value[cursor..]
+end
+
+class ArtifactPolicy
+  RASTER_MIME = {
+    ".png" => "image/png",
+    ".jpg" => "image/jpeg",
+    ".jpeg" => "image/jpeg",
+    ".gif" => "image/gif",
+    ".webp" => "image/webp",
+    ".ico" => "image/vnd.microsoft.icon"
+  }.freeze
+  COMMON_ATTRIBUTES = %w[id class title lang dir role hidden tabindex].freeze
+  ELEMENT_ATTRIBUTES = {
+    "html" => %w[lang dir], "head" => [], "body" => [], "title" => [],
+    "meta" => %w[charset name property itemprop content], "link" => %w[rel href type media sizes],
+    "main" => [], "header" => [], "footer" => [], "nav" => [], "article" => [], "section" => [], "aside" => [],
+    "div" => [], "span" => [], "p" => [], "h1" => [], "h2" => [], "h3" => [], "h4" => [], "h5" => [], "h6" => [],
+    "ul" => [], "ol" => %w[start reversed type], "li" => %w[value], "dl" => [], "dt" => [], "dd" => [],
+    "pre" => [], "code" => [], "blockquote" => [], "q" => [], "cite" => [], "em" => [], "strong" => [],
+    "b" => [], "i" => [], "u" => [], "s" => [], "small" => [], "mark" => [], "sub" => [], "sup" => [],
+    "br" => [], "hr" => [], "figure" => [], "figcaption" => [], "picture" => [],
+    "table" => [], "caption" => [], "colgroup" => %w[span], "col" => %w[span], "thead" => [], "tbody" => [],
+    "tfoot" => [], "tr" => [], "th" => %w[scope colspan rowspan headers], "td" => %w[colspan rowspan headers],
+    "details" => %w[open], "summary" => [], "time" => %w[datetime], "kbd" => [], "samp" => [], "var" => [],
+    "abbr" => [], "address" => [], "a" => %w[href], "img" => %w[src alt width height loading decoding]
+  }.freeze
+  BOOLEAN_ATTRIBUTES = %w[hidden reversed open].freeze
+  SOCIAL_IMAGE_KEYS = %w[og:image og:image:url og:image:secure_url twitter:image twitter:image:src].freeze
+  SOCIAL_ROUTE_KEYS = %w[og:url].freeze
+  META_PROPERTY_KEYS = (SOCIAL_IMAGE_KEYS + SOCIAL_ROUTE_KEYS + %w[
+    og:title og:description og:type og:site_name og:locale og:image:alt og:image:type og:image:width og:image:height
+    article:published_time article:modified_time article:section article:tag
+  ]).freeze
+  META_NAME_KEYS = %w[
+    description viewport robots theme-color color-scheme author generator keywords referrer application-name format-detection
+    twitter:card twitter:title twitter:description twitter:site twitter:creator twitter:image twitter:image:src twitter:image:alt
+  ].freeze
+
+  def initialize(root)
+    @root = File.expand_path(root)
+    @manifest = nil
+  end
+
+  def check
+    html_files = []
+    css_files = []
+    Find.find(@root) do |path|
+      stat = File.lstat(path)
+      next if stat.directory?
+
+      relative = path.delete_prefix("#{@root}/")
+      raise PolicyError, "artifact may contain only regular files and directories: #{relative}" unless stat.file?
+      next if %w[artifact-contract.env artifact-manifest.sha256].include?(relative)
+      raise PolicyError, "unsafe served path: #{relative}" unless relative.match?(/\A[A-Za-z0-9._\/-]+\z/) && !relative.split("/").include?("..")
+
+      extension = File.extname(relative).downcase
+      mime = mime_type(path)
+      case extension
+      when ".html"
+        raise PolicyError, "HTML extension/content MIME mismatch: #{relative} (#{mime})" unless mime == "text/html"
+        html_files << path
+      when ".css"
+        raise PolicyError, "CSS extension/content MIME mismatch: #{relative} (#{mime})" unless ["text/css", "text/plain"].include?(mime)
+        css_files << path
+      when *RASTER_MIME.keys
+        expected = RASTER_MIME.fetch(extension)
+        raise PolicyError, "raster extension/content MIME mismatch: #{relative} (#{mime})" unless mime == expected
+      when ".js", ".mjs", ".cjs"
+        raise PolicyError, "static-no-external-requests-v1 prohibits JavaScript: #{relative} (#{mime})"
+      when ".htm", ".xhtml", ".svg"
+        raise PolicyError, "unsupported browser-active document type: #{relative} (#{mime})"
+      when ".wasm", ".rom", ".qz"
+        raise PolicyError, "prohibited downloadable executable/source type: #{relative} (#{mime})"
+      else
+        raise PolicyError, "unsupported served file type: #{relative} (#{mime})"
+      end
+    end
+
+    @manifest = load_manifest
+    html_files.each { |path| check_html(path) }
+    css_files.each { |path| check_css(path) }
+  end
+
+  private
+
+  def load_manifest
+    path = File.join(@root, "artifact-manifest.sha256")
+    return nil unless File.file?(path)
+
+    entries = {}
+    File.foreach(path, chomp: true) do |line|
+      match = line.match(/\A([0-9a-f]{64})  ([A-Za-z0-9._\/-]+)\z/)
+      raise PolicyError, "artifact manifest contains malformed or unsafe entries" unless match
+      relative = match[2]
+      raise PolicyError, "artifact manifest path escapes artifact root: #{relative}" if relative.start_with?("/") || relative.split("/").include?("..")
+      raise PolicyError, "artifact manifest contains duplicate path: #{relative}" if entries.key?(relative)
+      entries[relative] = match[1]
+    end
+    entries
+  end
+
+  def read_utf8(path)
+    content = File.binread(path).force_encoding(Encoding::UTF_8)
+    raise PolicyError, "HTML/CSS is not valid UTF-8: #{path}" unless content.valid_encoding?
+
+    content
+  end
+
+  def check_css(path)
+    css = read_utf8(path)
+    raise PolicyError, "CSS escapes are prohibited: #{path}" if css.include?("\\")
+    compact = css.downcase.gsub(/\s+/, "")
+    if compact.match?(/(?:url|src|image-set)\(|@import|https?:|wss?:|data:|blob:|javascript:|vbscript:|\/\//)
+      raise PolicyError, "CSS request surface is prohibited: #{path}"
+    end
+  end
+
+  def check_html(path)
+    html = read_utf8(path)
+    without_doctype = html.gsub(/<!doctype\s+html\s*>/i, "")
+    if without_doctype.include?("<!") || without_doctype.match?(/--\s*!?\s*>/)
+      raise PolicyError, "HTML comments and malformed comment syntax are prohibited: #{path}"
+    end
+
+    cursor = 0
+    while cursor < html.length
+      if html[cursor] != "<"
+        next_tag = html.index("<", cursor) || html.length
+        decode_entities(html[cursor...next_tag], "HTML text in #{path}")
+        cursor = next_tag
+      elsif (doctype = html[cursor..].match(/\A<!doctype\s+html\s*>/i))
+        cursor += doctype[0].length
+      elsif (closing = html[cursor..].match(/\A<\/\s*([A-Za-z][A-Za-z0-9:-]*)\s*>/))
+        raise PolicyError, "unsupported static HTML element </#{closing[1]}>: #{path}" unless ELEMENT_ATTRIBUTES.key?(closing[1].downcase)
+        cursor += closing[0].length
+      else
+        tag_source, cursor = extract_tag(html, cursor, path)
+        tag, attributes = parse_tag(tag_source, path)
+        validate_tag(tag, attributes, path)
+      end
+    end
+  end
+
+  def extract_tag(html, start, path)
+    quote = nil
+    cursor = start + 1
+    while cursor < html.length
+      char = html[cursor]
+      if quote
+        quote = nil if char == quote
+      elsif char == '"' || char == "'"
+        quote = char
+      elsif char == ">"
+        return [html[(start + 1)...cursor], cursor + 1]
+      elsif char == "<"
+        raise PolicyError, "malformed HTML tag: #{path}"
+      end
+      cursor += 1
+    end
+    raise PolicyError, "unterminated HTML tag: #{path}"
+  end
+
+  def parse_tag(source, path)
+    source = source.sub(/\/\s*\z/, "")
+    match = source.match(/\A\s*([A-Za-z][A-Za-z0-9:-]*)/)
+    raise PolicyError, "malformed HTML tag: #{path}" unless match
+    tag = match[1].downcase
+    cursor = match.end(0)
+    attributes = {}
+    while cursor < source.length
+      whitespace = source[cursor..].match(/\A\s+/)
+      raise PolicyError, "malformed HTML attributes on <#{tag}>: #{path}" unless whitespace
+      cursor += whitespace[0].length
+      break if cursor == source.length
+      name_match = source[cursor..].match(/\A([^\s=<>\/'"`]+)/)
+      raise PolicyError, "malformed HTML attribute on <#{tag}>: #{path}" unless name_match
+      name = name_match[1].downcase
+      raise PolicyError, "duplicate HTML attribute #{name}: #{path}" if attributes.key?(name)
+      cursor += name_match[0].length
+      cursor += source[cursor..].match(/\A\s*/)[0].length
+      value = nil
+      if source[cursor] == "="
+        cursor += 1
+        cursor += source[cursor..].match(/\A\s*/)[0].length
+        quote = source[cursor]
+        if quote == '"' || quote == "'"
+          ending = source.index(quote, cursor + 1)
+          raise PolicyError, "unterminated HTML attribute #{name}: #{path}" unless ending
+          value = source[(cursor + 1)...ending]
+          cursor = ending + 1
+        else
+          value_match = source[cursor..].match(/\A[^\s<>='"`]+/)
+          raise PolicyError, "empty HTML attribute #{name}: #{path}" unless value_match
+          value = value_match[0]
+          cursor += value.length
+        end
+        value = decode_entities(value, "#{name} attribute in #{path}")
+      end
+      attributes[name] = value
+    end
+    [tag, attributes]
+  end
+
+  def validate_tag(tag, attributes, path)
+    allowed = ELEMENT_ATTRIBUTES[tag]
+    raise PolicyError, "unsupported static HTML element <#{tag}>: #{path}" unless allowed
+    attributes.each do |name, value|
+      raise PolicyError, "attributionsrc is prohibited: #{path}" if name == "attributionsrc"
+      permitted = COMMON_ATTRIBUTES.include?(name) || allowed.include?(name) || name.match?(/\A(?:aria|data)-[a-z][a-z0-9_.:-]*\z/)
+      raise PolicyError, "attribute #{name} is not allowed on <#{tag}>: #{path}" unless permitted
+      raise PolicyError, "attribute #{name} requires a value: #{path}" if value.nil? && !BOOLEAN_ATTRIBUTES.include?(name)
+    end
+
+    if tag == "link"
+      validate_link(attributes, path)
+    elsif tag == "img"
+      validate_image(attributes.fetch("src") { raise PolicyError, "image is missing src: #{path}" }, path, :image)
+      raise PolicyError, "image is missing alt: #{path}" unless attributes.key?("alt")
+    end
+
+    if attributes.key?("href") && tag == "a"
+      validate_route(attributes["href"], path, allow_fragment: true)
+    end
+
+    validate_meta(attributes, path) if tag == "meta"
+  end
+
+  def validate_link(attributes, path)
+    rel = attributes.fetch("rel", "").to_s.downcase.split.sort
+    href = attributes.fetch("href") { raise PolicyError, "link is missing href: #{path}" }
+    case rel
+    when ["canonical"]
+      validate_route(href, path)
+    when ["stylesheet"]
+      validate_asset(href, path, [".css"])
+    when ["icon"], ["icon", "shortcut"], ["apple-touch-icon"]
+      validate_image(href, path, :favicon)
+    else
+      raise PolicyError, "unsupported link relation (including preload/preconnect): #{path}"
+    end
+  end
+
+  def validate_meta(attributes, path)
+    selectors = %w[charset name property itemprop].select { |name| attributes.key?(name) }
+    raise PolicyError, "meta must use exactly one selector: #{path}" unless selectors.length == 1
+    if attributes.key?("charset")
+      raise PolicyError, "only UTF-8 meta charset is allowed: #{path}" unless attributes["charset"].downcase == "utf-8" && attributes.keys == ["charset"]
+      return
+    end
+
+    selector = selectors.first
+    key = attributes.fetch(selector).downcase
+    content = attributes["content"]
+    raise PolicyError, "meta #{key} is missing content: #{path}" unless content
+    if selector == "property"
+      raise PolicyError, "unsupported OpenGraph/article metadata #{key}: #{path}" unless META_PROPERTY_KEYS.include?(key)
+    elsif selector == "name"
+      raise PolicyError, "unsupported named metadata #{key}: #{path}" unless META_NAME_KEYS.include?(key)
+    elsif key != "image"
+      raise PolicyError, "unsupported itemprop metadata #{key}: #{path}"
+    end
+
+    if SOCIAL_IMAGE_KEYS.include?(key) || selector == "itemprop"
+      validate_image(content, path, :social)
+    elsif SOCIAL_ROUTE_KEYS.include?(key)
+      validate_route(content, path)
+    end
+  end
+
+  def validate_image(url, path, purpose)
+    extensions = if purpose == :favicon
+      RASTER_MIME.keys
+    else
+      RASTER_MIME.keys - [".ico"]
+    end
+    validate_asset(url, path, extensions)
+  end
+
+  def validate_asset(url, html_path, extensions)
+    relative = local_quartz_path(url, html_path, strictly_beneath: true)
+    extension = File.extname(relative).downcase
+    raise PolicyError, "unsupported local asset type in #{html_path}: #{url}" unless extensions.include?(extension)
+    raise PolicyError, "local asset is not declared in artifact manifest: #{url}" unless @manifest&.key?(relative)
+    target = File.join(@root, relative)
+    raise PolicyError, "manifested local asset is missing or a symlink: #{url}" unless File.file?(target) && !File.symlink?(target)
+    actual = Digest::SHA256.file(target).hexdigest
+    raise PolicyError, "manifest hash mismatch for local asset: #{url}" unless actual == @manifest.fetch(relative)
+  end
+
+  def validate_route(url, html_path, allow_fragment: false)
+    return if allow_fragment && url.match?(/\A#[A-Za-z][A-Za-z0-9_-]*\z/)
+
+    local_quartz_path(url, html_path, strictly_beneath: false)
+  end
+
+  def local_quartz_path(url, html_path, strictly_beneath:)
+    raise PolicyError, "URL must have a value in #{html_path}" unless url.is_a?(String) && !url.empty?
+    raise PolicyError, "escaped or control syntax in URL: #{url.inspect}" if url.match?(/[\x00-\x20\x7f\\]/)
+    while url.include?("%")
+      raise PolicyError, "malformed percent escape in URL: #{url.inspect}" unless url.scan("%").length == url.scan(/%[0-9a-fA-F]{2}/).length
+      url = url.gsub(/%([0-9a-fA-F]{2})/) do
+        byte = Regexp.last_match(1).to_i(16)
+        raise PolicyError, "non-ASCII percent escape in URL: #{url.inspect}" if byte > 0x7f
+        byte.chr
+      end
+      raise PolicyError, "decoded control syntax in URL: #{url.inspect}" if url.match?(/[\x00-\x20\x7f\\]/)
+    end
+    pattern = strictly_beneath ? %r{\A/quartz/([A-Za-z0-9._/-]+)\z} : %r{\A/quartz(?:/([A-Za-z0-9._/-]*))?\z}
+    match = url.match(pattern)
+    raise PolicyError, "URL is outside canonical /quartz scope: #{url}" unless match
+    relative = match[1].to_s
+    segments = relative.split("/", -1)
+    raise PolicyError, "non-canonical local URL path: #{url}" if segments.include?(".") || segments.include?("..") || (strictly_beneath && segments.include?(""))
+    relative
+  end
+end
+
+artifact = ARGV.fetch(0, nil)
+fail_policy("artifact directory is required") unless artifact && File.directory?(artifact)
+fail_policy("file is required for served-file MIME validation") unless system("file", "--version", out: File::NULL, err: File::NULL)
+
+begin
+  ArtifactPolicy.new(artifact).check
+rescue PolicyError, Errno::ENOENT => error
+  fail_policy(error.message)
+end
+
+puts "Artifact matches static-no-external-requests-v1 served-file and network policy."

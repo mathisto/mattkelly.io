@@ -51,13 +51,16 @@ while IFS= read -r html; do
   grep -F '<meta property="og:description"' "$html" >/dev/null || fail "missing OpenGraph description: $html"
   grep -F '<meta property="og:type"' "$html" >/dev/null || fail "missing OpenGraph type: $html"
   grep -F '<meta property="og:url"' "$html" >/dev/null || fail "missing OpenGraph URL: $html"
-  grep -F '<meta property="og:image"' "$html" >/dev/null || fail "missing OpenGraph image: $html"
   grep -F '<meta name="twitter:card"' "$html" >/dev/null || fail "missing social-card baseline: $html"
   [ "$(grep -c '<meta property="og:title"' "$html")" = "1" ] || fail "OpenGraph title must appear exactly once: $html"
   [ "$(grep -c '<meta property="og:description"' "$html")" = "1" ] || fail "OpenGraph description must appear exactly once: $html"
   [ "$(grep -c '<meta property="og:type"' "$html")" = "1" ] || fail "OpenGraph type must appear exactly once: $html"
   [ "$(grep -c '<meta property="og:url"' "$html")" = "1" ] || fail "OpenGraph URL must appear exactly once: $html"
-  [ "$(grep -c '<meta property="og:image"' "$html")" = "1" ] || fail "OpenGraph image must appear exactly once: $html"
+  og_image_count=$(grep -c '<meta property="og:image"' "$html" || true)
+  case "$html" in
+    "$ROOT/dist/quartz/"*) [ "$og_image_count" -le 1 ] || fail "OpenGraph image may appear at most once: $html" ;;
+    *) [ "$og_image_count" = "1" ] || fail "OpenGraph image must appear exactly once: $html" ;;
+  esac
   grep -F '<h1' "$html" >/dev/null || fail "missing visible h1: $html"
 done < "$tmp_dir/html-files"
 

@@ -13,6 +13,7 @@ manifest() {
 
 . "$ROOT/toolchain.env"
 QUARTZ_CHECKOUT=${QUARTZ_CHECKOUT:-"$ROOT/../quartz"}
+export QUARTZ_CHECKOUT
 QUARTZ_COMPILER=${QUARTZ_COMPILER:-"$QUARTZ_CHECKOUT/self-hosted/bin/quartz"}
 LLC=${LLC:-llc}
 CLANG=${CLANG:-clang}

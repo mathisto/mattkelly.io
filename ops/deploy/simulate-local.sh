@@ -73,7 +73,9 @@ if command -v caddy >/dev/null 2>&1; then
   quartz_alias_port=$((portfolio_port + 3))
   chip8_port=$((portfolio_port + 4))
   soul_alias_port=$((portfolio_port + 5))
-  PORTFOLIO_ADDRESS="http://127.0.0.1:$portfolio_port" \
+  placeholder_port=$((portfolio_port + 6))
+  DEV_ADDRESS="http://127.0.0.1:$portfolio_port" \
+  PORTFOLIO_ADDRESS="http://127.0.0.1:$placeholder_port" \
   PORTFOLIO_ROOT="$tmp_dir/deploy/current/public" \
   SOUL_ADDRESS="http://127.0.0.1:$soul_port" \
   WWW_ADDRESS="http://127.0.0.1:$www_port" \

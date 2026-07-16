@@ -1,4 +1,19 @@
 {$PORTFOLIO_ADDRESS:http://mattkelly.io} {
+	route {
+		header {
+			Cache-Control "no-store"
+			Content-Security-Policy "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"
+			Strict-Transport-Security "max-age=31536000; includeSubDomains"
+			X-Content-Type-Options "nosniff"
+			X-Frame-Options "DENY"
+			X-Robots-Tag "noindex, nofollow, noarchive"
+			-Server
+		}
+		respond 200
+	}
+}
+
+{$DEV_ADDRESS:http://dev.mattkelly.io} {
 	root * {$PORTFOLIO_ROOT:/opt/mattkelly/current/public}
 
 	@staticAssets path /assets/* /images/* /favicon.ico /favicon-*.png /icon.png /icon.svg
@@ -8,13 +23,14 @@
 		header Cache-Control "no-cache"
 		header @staticAssets Cache-Control "public, max-age=3600"
 		header @machineFiles Cache-Control "public, max-age=300"
-		header {
+			header {
 			Content-Security-Policy "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
 			Strict-Transport-Security "max-age=31536000; includeSubDomains"
 			X-Content-Type-Options "nosniff"
 			X-Frame-Options "DENY"
 			Referrer-Policy "strict-origin-when-cross-origin"
 			Permissions-Policy "camera=(), geolocation=(), microphone=()"
+			X-Robots-Tag "noindex, nofollow, noarchive"
 			-Server
 		}
 
@@ -62,6 +78,7 @@
 			X-Frame-Options "DENY"
 			Referrer-Policy "strict-origin-when-cross-origin"
 			Permissions-Policy "camera=(), geolocation=(), microphone=()"
+			X-Robots-Tag "noindex, nofollow, noarchive"
 			-Server
 		}
 		rewrite * /404.html
@@ -74,11 +91,11 @@
 }
 
 {$QUARTZ_ALIAS_ADDRESS:http://quartz.mattkelly.io} {
-	redir https://mattkelly.io/quartz{uri} 308
+	redir https://dev.mattkelly.io/quartz{uri} 308
 }
 
 {$CHIP8_ADDRESS:http://chip8.mattkelly.io} {
-	redir https://mattkelly.io/quartz/chip8/ 308
+	redir https://dev.mattkelly.io/quartz/chip8/ 308
 }
 
 # Soul is deliberately isolated on its own hostname and configurable upstream.

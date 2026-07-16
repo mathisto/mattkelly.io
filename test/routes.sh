@@ -8,6 +8,7 @@ WWW_PORT=$((PORT + 2))
 QUARTZ_ALIAS_PORT=$((PORT + 3))
 CHIP8_PORT=$((PORT + 4))
 SOUL_ALIAS_PORT=$((PORT + 5))
+PLACEHOLDER_PORT=$((PORT + 6))
 BASE="http://127.0.0.1:$PORT"
 tmp_dir=$(mktemp -d "${TMPDIR:-/tmp}/mattkelly-routes.XXXXXX")
 pid=
@@ -40,8 +41,8 @@ expect_security_headers() {
 }
 
 command -v caddy >/dev/null 2>&1 || fail "caddy is required for route contract tests"
-PORTFOLIO_ADDRESS="http://127.0.0.1:$PORT" PORTFOLIO_ROOT="$ROOT/dist" SOUL_ADDRESS="http://127.0.0.1:$SOUL_PORT" WWW_ADDRESS="http://127.0.0.1:$WWW_PORT" QUARTZ_ALIAS_ADDRESS="http://127.0.0.1:$QUARTZ_ALIAS_PORT" CHIP8_ADDRESS="http://127.0.0.1:$CHIP8_PORT" SOUL_ALIAS_ADDRESS="http://127.0.0.1:$SOUL_ALIAS_PORT" SOUL_UPSTREAM="http://127.0.0.1:19090" caddy validate --config "$ROOT/ops/caddy/Caddyfile" --adapter caddyfile >/dev/null
-PORTFOLIO_ADDRESS="http://127.0.0.1:$PORT" PORTFOLIO_ROOT="$ROOT/dist" SOUL_ADDRESS="http://127.0.0.1:$SOUL_PORT" WWW_ADDRESS="http://127.0.0.1:$WWW_PORT" QUARTZ_ALIAS_ADDRESS="http://127.0.0.1:$QUARTZ_ALIAS_PORT" CHIP8_ADDRESS="http://127.0.0.1:$CHIP8_PORT" SOUL_ALIAS_ADDRESS="http://127.0.0.1:$SOUL_ALIAS_PORT" SOUL_UPSTREAM="http://127.0.0.1:19090" caddy run --config "$ROOT/ops/caddy/Caddyfile" --adapter caddyfile >"$tmp_dir/caddy.log" 2>&1 &
+DEV_ADDRESS="http://127.0.0.1:$PORT" PORTFOLIO_ADDRESS="http://127.0.0.1:$PLACEHOLDER_PORT" PORTFOLIO_ROOT="$ROOT/dist" SOUL_ADDRESS="http://127.0.0.1:$SOUL_PORT" WWW_ADDRESS="http://127.0.0.1:$WWW_PORT" QUARTZ_ALIAS_ADDRESS="http://127.0.0.1:$QUARTZ_ALIAS_PORT" CHIP8_ADDRESS="http://127.0.0.1:$CHIP8_PORT" SOUL_ALIAS_ADDRESS="http://127.0.0.1:$SOUL_ALIAS_PORT" SOUL_UPSTREAM="http://127.0.0.1:19090" caddy validate --config "$ROOT/ops/caddy/Caddyfile" --adapter caddyfile >/dev/null
+DEV_ADDRESS="http://127.0.0.1:$PORT" PORTFOLIO_ADDRESS="http://127.0.0.1:$PLACEHOLDER_PORT" PORTFOLIO_ROOT="$ROOT/dist" SOUL_ADDRESS="http://127.0.0.1:$SOUL_PORT" WWW_ADDRESS="http://127.0.0.1:$WWW_PORT" QUARTZ_ALIAS_ADDRESS="http://127.0.0.1:$QUARTZ_ALIAS_PORT" CHIP8_ADDRESS="http://127.0.0.1:$CHIP8_PORT" SOUL_ALIAS_ADDRESS="http://127.0.0.1:$SOUL_ALIAS_PORT" SOUL_UPSTREAM="http://127.0.0.1:19090" caddy run --config "$ROOT/ops/caddy/Caddyfile" --adapter caddyfile >"$tmp_dir/caddy.log" 2>&1 &
 pid=$!
 
 attempt=0
@@ -105,7 +106,10 @@ for soul_port in "$SOUL_PORT" "$SOUL_ALIAS_PORT"; do
     [ "$(curl -X "$method" -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:$soul_port/health")" = "405" ] || fail "Soul $soul_port $method escaped method deny"
   done
 done
-for redirect in "$WWW_PORT|https://mattkelly.io/example" "$QUARTZ_ALIAS_PORT|https://mattkelly.io/quartz/example" "$CHIP8_PORT|https://mattkelly.io/quartz/chip8/"; do
+placeholder_body=$(curl -sS "http://127.0.0.1:$PLACEHOLDER_PORT/anything")
+[ -z "$placeholder_body" ] || fail "apex placeholder returned a response body"
+[ "$(curl -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:$PLACEHOLDER_PORT/anything")" = "200" ] || fail "apex placeholder did not return 200"
+for redirect in "$WWW_PORT|https://mattkelly.io/example" "$QUARTZ_ALIAS_PORT|https://dev.mattkelly.io/quartz/example" "$CHIP8_PORT|https://dev.mattkelly.io/quartz/chip8/"; do
   redirect_port=${redirect%%|*}
   redirect_target=${redirect#*|}
   actual=$(curl -sS -o /dev/null -w '%{http_code}|%{redirect_url}' "http://127.0.0.1:$redirect_port/example")

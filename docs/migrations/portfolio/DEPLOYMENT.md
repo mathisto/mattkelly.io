@@ -14,7 +14,7 @@ network topology.
 | Deployment root | `/opt/mattkelly` |
 | Active document root | `/opt/mattkelly/current/public` |
 | Caddy configuration | `/etc/caddy/Caddyfile` |
-| Public smoke URL | `https://mattkelly.io` |
+| Development smoke URL | `https://dev.mattkelly.io` |
 | Soul smoke URL | `https://soulofquartz.mattkelly.io` |
 
 The `quartz` alias resolves through the operator's SSH configuration. Do not add
@@ -52,12 +52,16 @@ bin/release-stage /opt/mattkelly/incoming/<release-id>
 DEPLOY_ROOT=/opt/mattkelly \
 bin/release-activate <release-id>
 
-SMOKE_BASE_URL=https://mattkelly.io \
+SMOKE_BASE_URL=https://dev.mattkelly.io \
 SMOKE_RELEASE=/opt/mattkelly/releases/<release-id> \
 SOUL_SMOKE_URL=https://soulofquartz.mattkelly.io \
 SMOKE_ASSET_CACHE_PATTERN=max-age=14400 \
 bin/release-smoke
 ```
+
+The apex intentionally returns an empty, non-cacheable placeholder while design
+refinement is in progress. The immutable release is available only on the `dev`
+hostname and is marked `noindex`.
 
 The origin contract is `max-age=3600`. Cloudflare currently rewrites static asset
 responses to its reviewed four-hour edge TTL (`max-age=14400`), so public smoke

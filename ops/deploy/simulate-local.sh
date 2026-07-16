@@ -60,9 +60,17 @@ smoke_env=
 if command -v caddy >/dev/null 2>&1; then
   portfolio_port=$((30000 + ($$ % 10000)))
   soul_port=$((portfolio_port + 1))
+  www_port=$((portfolio_port + 2))
+  quartz_alias_port=$((portfolio_port + 3))
+  chip8_port=$((portfolio_port + 4))
+  soul_alias_port=$((portfolio_port + 5))
   PORTFOLIO_ADDRESS="http://127.0.0.1:$portfolio_port" \
   PORTFOLIO_ROOT="$tmp_dir/deploy/current/public" \
   SOUL_ADDRESS="http://127.0.0.1:$soul_port" \
+  WWW_ADDRESS="http://127.0.0.1:$www_port" \
+  QUARTZ_ALIAS_ADDRESS="http://127.0.0.1:$quartz_alias_port" \
+  CHIP8_ADDRESS="http://127.0.0.1:$chip8_port" \
+  SOUL_ALIAS_ADDRESS="http://127.0.0.1:$soul_alias_port" \
   SOUL_UPSTREAM=http://127.0.0.1:19090 \
   caddy run --config "$ROOT/ops/caddy/Caddyfile" --adapter caddyfile > "$tmp_dir/caddy.log" 2>&1 &
   pid=$!

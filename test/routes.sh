@@ -4,6 +4,10 @@ set -eu
 ROOT=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
 PORT=${PORTFOLIO_TEST_PORT:-$((20000 + ($$ % 10000)))}
 SOUL_PORT=$((PORT + 1))
+WWW_PORT=$((PORT + 2))
+QUARTZ_ALIAS_PORT=$((PORT + 3))
+CHIP8_PORT=$((PORT + 4))
+SOUL_ALIAS_PORT=$((PORT + 5))
 BASE="http://127.0.0.1:$PORT"
 tmp_dir=$(mktemp -d "${TMPDIR:-/tmp}/mattkelly-routes.XXXXXX")
 pid=
@@ -36,8 +40,8 @@ expect_security_headers() {
 }
 
 command -v caddy >/dev/null 2>&1 || fail "caddy is required for route contract tests"
-PORTFOLIO_ADDRESS="http://127.0.0.1:$PORT" PORTFOLIO_ROOT="$ROOT/dist" SOUL_ADDRESS="http://127.0.0.1:$SOUL_PORT" caddy validate --config "$ROOT/ops/caddy/Caddyfile" --adapter caddyfile >/dev/null
-PORTFOLIO_ADDRESS="http://127.0.0.1:$PORT" PORTFOLIO_ROOT="$ROOT/dist" SOUL_ADDRESS="http://127.0.0.1:$SOUL_PORT" caddy run --config "$ROOT/ops/caddy/Caddyfile" --adapter caddyfile >"$tmp_dir/caddy.log" 2>&1 &
+PORTFOLIO_ADDRESS="http://127.0.0.1:$PORT" PORTFOLIO_ROOT="$ROOT/dist" SOUL_ADDRESS="http://127.0.0.1:$SOUL_PORT" WWW_ADDRESS="http://127.0.0.1:$WWW_PORT" QUARTZ_ALIAS_ADDRESS="http://127.0.0.1:$QUARTZ_ALIAS_PORT" CHIP8_ADDRESS="http://127.0.0.1:$CHIP8_PORT" SOUL_ALIAS_ADDRESS="http://127.0.0.1:$SOUL_ALIAS_PORT" SOUL_UPSTREAM="http://127.0.0.1:19090" caddy validate --config "$ROOT/ops/caddy/Caddyfile" --adapter caddyfile >/dev/null
+PORTFOLIO_ADDRESS="http://127.0.0.1:$PORT" PORTFOLIO_ROOT="$ROOT/dist" SOUL_ADDRESS="http://127.0.0.1:$SOUL_PORT" WWW_ADDRESS="http://127.0.0.1:$WWW_PORT" QUARTZ_ALIAS_ADDRESS="http://127.0.0.1:$QUARTZ_ALIAS_PORT" CHIP8_ADDRESS="http://127.0.0.1:$CHIP8_PORT" SOUL_ALIAS_ADDRESS="http://127.0.0.1:$SOUL_ALIAS_PORT" SOUL_UPSTREAM="http://127.0.0.1:19090" caddy run --config "$ROOT/ops/caddy/Caddyfile" --adapter caddyfile >"$tmp_dir/caddy.log" 2>&1 &
 pid=$!
 
 attempt=0
@@ -88,13 +92,24 @@ else
   expect_code /quartz 404
 fi
 
-[ "$(curl -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:$SOUL_PORT/health")" = "502" ] || fail "Soul /health was not proxied"
-[ "$(curl -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:$SOUL_PORT/api/soul/stats.json")" = "502" ] || fail "Soul stats were not proxied"
-for path in / /anything /api/soul/tasks.json /api/soul/stats.json/extra /health/; do
-  [ "$(curl -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:$SOUL_PORT$path")" = "404" ] || fail "Soul $path escaped default deny"
+for soul_port in "$SOUL_PORT" "$SOUL_ALIAS_PORT"; do
+  [ "$(curl -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:$soul_port/health")" = "502" ] || fail "Soul $soul_port /health was not proxied"
+  [ "$(curl -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:$soul_port/api/soul/stats.json")" = "502" ] || fail "Soul $soul_port stats were not proxied"
+  for path in / /anything /api/soul/tasks.json /api/soul/stats.json/extra /health/; do
+    [ "$(curl -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:$soul_port$path")" = "404" ] || fail "Soul $soul_port $path escaped default deny"
+  done
+  for path in //health ///health /./health /x/../health /%68ealth /api/soul%2fstats.json //api/soul/stats.json /api//soul/stats.json /api/soul/../soul/stats.json; do
+    [ "$(curl --path-as-is -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:$soul_port$path")" = "404" ] || fail "Soul $soul_port raw URI $path escaped default deny"
+  done
+  for method in POST PUT PATCH DELETE OPTIONS; do
+    [ "$(curl -X "$method" -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:$soul_port/health")" = "405" ] || fail "Soul $soul_port $method escaped method deny"
+  done
 done
-for path in //health ///health /./health /x/../health /%68ealth /api/soul%2fstats.json //api/soul/stats.json /api//soul/stats.json /api/soul/../soul/stats.json; do
-  [ "$(curl --path-as-is -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:$SOUL_PORT$path")" = "404" ] || fail "Soul raw URI $path escaped default deny"
+for redirect in "$WWW_PORT|https://mattkelly.io/example" "$QUARTZ_ALIAS_PORT|https://mattkelly.io/quartz/example" "$CHIP8_PORT|https://mattkelly.io/quartz/chip8/"; do
+  redirect_port=${redirect%%|*}
+  redirect_target=${redirect#*|}
+  actual=$(curl -sS -o /dev/null -w '%{http_code}|%{redirect_url}' "http://127.0.0.1:$redirect_port/example")
+  [ "$actual" = "308|$redirect_target" ] || fail "legacy host redirect contract failed: $actual"
 done
 expect_security_headers /
 expect_security_headers /quartz/missing

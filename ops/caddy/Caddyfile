@@ -1,4 +1,4 @@
-{$PORTFOLIO_ADDRESS} {
+{$PORTFOLIO_ADDRESS:http://mattkelly.io} {
 	root * {$PORTFOLIO_ROOT:/opt/mattkelly/current/public}
 
 	@staticAssets path /assets/* /images/* /favicon.ico /favicon-*.png /icon.png /icon.svg
@@ -69,9 +69,21 @@
 	}
 }
 
+{$WWW_ADDRESS:http://www.mattkelly.io} {
+	redir https://mattkelly.io{uri} 308
+}
+
+{$QUARTZ_ALIAS_ADDRESS:http://quartz.mattkelly.io} {
+	redir https://mattkelly.io/quartz{uri} 308
+}
+
+{$CHIP8_ADDRESS:http://chip8.mattkelly.io} {
+	redir https://mattkelly.io/quartz/chip8/ 308
+}
+
 # Soul is deliberately isolated on its own hostname and configurable upstream.
 # No apex request can fall through to this dynamic service.
-{$SOUL_ADDRESS:http://127.0.0.1:18081} {
+{$SOUL_ADDRESS:http://soulofquartz.mattkelly.io} {$SOUL_ALIAS_ADDRESS:http://unikernel.mattkelly.io} {
 	@soulHealth expression `{http.request.orig_uri} == "/health" || {http.request.orig_uri}.startsWith("/health?")`
 	@soulStats expression `{http.request.orig_uri} == "/api/soul/stats.json" || {http.request.orig_uri}.startsWith("/api/soul/stats.json?")`
 
@@ -92,9 +104,9 @@
 		respond @unsupportedMethod 405
 
 		rewrite @soulHealth /health
-		reverse_proxy @soulHealth {$SOUL_UPSTREAM:http://127.0.0.1:19090}
+		reverse_proxy @soulHealth {$SOUL_UPSTREAM:http://127.0.0.1:8080}
 		rewrite @soulStats /api/soul/stats.json
-		reverse_proxy @soulStats {$SOUL_UPSTREAM:http://127.0.0.1:19090}
+		reverse_proxy @soulStats {$SOUL_UPSTREAM:http://127.0.0.1:8080}
 		respond 404
 	}
 }

@@ -2,6 +2,9 @@
 
 This runbook defines the reviewable deployment path. It does not install Caddy, Cloudflare rules, monitors, credentials, hostnames, or infrastructure.
 
+The stable production target and operator command sequence are recorded in
+`docs/migrations/portfolio/DEPLOYMENT.md`.
+
 Live Caddy containment is active, but deployment from this source tree remains pending.
 
 ## Layout and invariants
@@ -122,7 +125,11 @@ Supply all values at validation and runtime:
 
 ```sh
 PORTFOLIO_ADDRESS=https://public-hostname.example \
+WWW_ADDRESS=https://www-redirect-hostname.example \
+QUARTZ_ALIAS_ADDRESS=https://quartz-redirect-hostname.example \
+CHIP8_ADDRESS=https://chip8-redirect-hostname.example \
 SOUL_ADDRESS=https://soul-hostname.example \
+SOUL_ALIAS_ADDRESS=https://soul-alias-hostname.example \
 SOUL_UPSTREAM=http://operator-supplied-upstream \
 caddy validate --config ops/caddy/Caddyfile --adapter caddyfile
 ```

@@ -28,6 +28,7 @@ Artifact validation checks integrity and route contract, not security. See `docs
 ## Structure
 
 - `site/content/routes.txt`: canonical page route, metadata, and sitemap manifest
+- `docs/migrations/portfolio/DEPLOYMENT.md`: sanitized production SSH alias and deployment runbook
 - `site/content/claims.txt`: flat, build-validated claim and disclosure ledger
 - `site/content/terminal.commands`: non-JavaScript evidence-navigation content model
 - `site/content/pages/`: semantic HTML for Work, Lab, Writing, About, Resume, References, Now, Provenance, and Site History

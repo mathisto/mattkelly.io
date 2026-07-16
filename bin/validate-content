@@ -1,0 +1,320 @@
+#!/usr/bin/env -S python3 -B
+"""Fail-closed validation for trusted semantic page fragments and claim use."""
+
+from html.parser import HTMLParser
+from pathlib import Path
+from urllib.parse import urlsplit
+import hashlib
+import os
+import re
+import subprocess
+import sys
+
+ROOT = Path(__file__).resolve().parent.parent
+PAGES = ROOT / "site/content/pages"
+ROUTES = ROOT / "site/content/routes.txt"
+CLAIMS = ROOT / "site/content/claims.txt"
+TOOLCHAIN = ROOT / "toolchain.env"
+
+ALLOWED_TAGS = {
+    "a", "article", "aside", "blockquote", "br", "code", "dd", "div", "dl", "dt",
+    "em", "figcaption", "figure", "h1", "h2", "h3", "h4", "header", "img",
+    "li", "main", "nav", "ol", "p", "pre", "section", "small", "span",
+    "strong", "time", "ul",
+}
+VOID_TAGS = {"br", "img"}
+GLOBAL_ATTRIBUTES = {"class", "id", "title", "data-claim"}
+TAG_ATTRIBUTES = {
+    "a": {"href"},
+    "img": {"src", "alt", "width", "height"},
+    "pre": {"tabindex"},
+    "time": {"datetime"},
+}
+ARIA_ATTRIBUTE = re.compile(r"aria-[a-z][a-z0-9-]*\Z")
+SAFE_TOKEN = re.compile(r"[A-Za-z0-9_-]+\Z")
+
+
+def safe_url(value: str, *, image: bool) -> bool:
+    value = value.strip()
+    if not value or any(ord(char) < 32 for char in value) or "\\" in value:
+        return False
+    if value.startswith("//"):
+        return False
+    parsed = urlsplit(value)
+    if parsed.scheme:
+        return not image and parsed.scheme == "https" and bool(parsed.netloc)
+    if parsed.netloc:
+        return False
+    return value.startswith("/") or (not image and value.startswith("#"))
+
+
+class FragmentValidator(HTMLParser):
+    def __init__(self, source: Path):
+        super().__init__(convert_charrefs=True)
+        self.source = source
+        self.stack: list[str] = []
+        self.claims: set[str] = set()
+
+    def fail(self, message: str) -> None:
+        line, column = self.getpos()
+        raise ValueError(f"{self.source}:{line}:{column + 1}: {message}")
+
+    def handle_decl(self, decl: str) -> None:
+        self.fail("declarations are not allowed in semantic fragments")
+
+    def handle_comment(self, data: str) -> None:
+        self.fail("comments are not allowed in semantic fragments")
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        if tag not in ALLOWED_TAGS:
+            self.fail(f"element <{tag}> is not allowlisted")
+        seen: set[str] = set()
+        for name, value in attrs:
+            if name in seen:
+                self.fail(f"duplicate {name} attribute")
+            seen.add(name)
+            if name.startswith("on") or name in {"srcdoc", "style", "formaction"}:
+                self.fail(f"dangerous {name} attribute")
+            if name not in GLOBAL_ATTRIBUTES and name not in TAG_ATTRIBUTES.get(tag, set()) and not ARIA_ATTRIBUTE.fullmatch(name):
+                self.fail(f"attribute {name} is not allowlisted on <{tag}>")
+            if value is None:
+                self.fail(f"attribute {name} requires a value")
+            if name in {"class", "id"} and not all(SAFE_TOKEN.fullmatch(token) for token in value.split()):
+                self.fail(f"attribute {name} contains an unsafe token")
+            if name == "href" and not safe_url(value, image=False):
+                self.fail("link URL is not an approved local path or HTTPS URL")
+            if name == "src" and not safe_url(value, image=True):
+                self.fail("image URL must be a local absolute path")
+            if name in {"width", "height"} and (not value.isdigit() or int(value) <= 0):
+                self.fail(f"attribute {name} must be a positive integer")
+            if name == "tabindex" and value != "0":
+                self.fail("only tabindex=0 is allowed")
+            if name == "data-claim":
+                claim_ids = value.split()
+                if not claim_ids or not all(re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", item) for item in claim_ids):
+                    self.fail("data-claim contains an invalid claim id")
+                self.claims.update(claim_ids)
+        if tag == "img" and not {"src", "alt"}.issubset(seen):
+            self.fail("images require src and alt")
+        if tag not in VOID_TAGS:
+            self.stack.append(tag)
+
+    def handle_startendtag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        self.handle_starttag(tag, attrs)
+        if tag not in VOID_TAGS:
+            self.handle_endtag(tag)
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag in VOID_TAGS:
+            self.fail(f"void element <{tag}> must not have an end tag")
+        if not self.stack or self.stack[-1] != tag:
+            expected = self.stack[-1] if self.stack else "no element"
+            self.fail(f"mismatched </{tag}>; expected {expected}")
+        self.stack.pop()
+
+    def close(self) -> None:
+        super().close()
+        if self.stack:
+            self.fail(f"unclosed <{self.stack[-1]}>")
+
+
+def records(path: Path, fields: int) -> list[list[str]]:
+    result = []
+    for line_number, raw in enumerate(path.read_text().splitlines(), 1):
+        if not raw or raw.startswith("#"):
+            continue
+        row = [field.strip() for field in raw.split("|")]
+        if len(row) != fields:
+            raise ValueError(f"{path}:{line_number}: expected {fields} fields")
+        result.append(row)
+    return result
+
+
+def command(*args: str) -> str:
+    result = subprocess.run(args, capture_output=True, text=True, check=False)
+    if result.returncode != 0:
+        raise ValueError(f"command failed: {' '.join(args)}")
+    return result.stdout.strip()
+
+
+def sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def operator_evidence_path(relative: str) -> Path:
+    prefix = ("docs", "migrations", "portfolio", "evidence")
+    if not relative or relative.startswith("/") or "\\" in relative:
+        raise ValueError(f"operator evidence path is not repository-relative: {relative}")
+    parts = tuple(relative.split("/"))
+    if len(parts) <= len(prefix) or parts[: len(prefix)] != prefix or any(part in {"", ".", ".."} for part in parts):
+        raise ValueError(f"operator evidence path is not normalized beneath {'/'.join(prefix)}/: {relative}")
+
+    evidence_root = ROOT.joinpath(*prefix)
+    candidate = ROOT
+    for part in parts:
+        candidate = candidate / part
+        if candidate.is_symlink():
+            raise ValueError(f"operator evidence path contains a symlink: {relative}")
+    try:
+        resolved_root = evidence_root.resolve(strict=True)
+        resolved = candidate.resolve(strict=True)
+        resolved.relative_to(resolved_root)
+    except (FileNotFoundError, RuntimeError, ValueError):
+        raise ValueError(f"operator evidence path escapes or does not exist beneath the evidence directory: {relative}") from None
+    if not resolved.is_file():
+        raise ValueError(f"operator evidence path is not a regular file: {relative}")
+    return resolved
+
+
+def toolchain_revision() -> str:
+    for line in TOOLCHAIN.read_text().splitlines():
+        if line.startswith("QUARTZ_REVISION="):
+            revision = line.split("=", 1)[1]
+            if re.fullmatch(r"[0-9a-f]{40}", revision):
+                return revision
+    raise ValueError(f"{TOOLCHAIN}: missing valid QUARTZ_REVISION")
+
+
+def evidence_manifest_entries(claim_rows: list[list[str]]) -> list[tuple[str, str]]:
+    quartz_checkout = Path(os.environ.get("QUARTZ_CHECKOUT", ROOT.parent / "quartz")).resolve()
+    pinned_quartz = toolchain_revision()
+    if command("git", "-C", str(quartz_checkout), "rev-parse", "HEAD") != pinned_quartz:
+        raise ValueError(f"Quartz evidence checkout is not pinned to {pinned_quartz}")
+    if command("git", "-C", str(quartz_checkout), "status", "--porcelain", "--untracked-files=all"):
+        raise ValueError("Quartz evidence checkout must be clean")
+
+    snapshot_manifest = os.environ.get("PORTFOLIO_EVIDENCE_MANIFEST")
+    snapshot_entries: dict[str, str] = {}
+    if snapshot_manifest:
+        manifest_path = Path(snapshot_manifest)
+        expected_hash = os.environ.get("PORTFOLIO_EVIDENCE_MANIFEST_SHA256", "")
+        if not re.fullmatch(r"[0-9a-f]{64}", expected_hash) or sha256(manifest_path) != expected_hash:
+            raise ValueError("snapshot evidence manifest hash mismatch")
+        lines = manifest_path.read_text().splitlines()
+        if len(lines) < 3 or lines[0] != "EVIDENCE_MANIFEST_VERSION=1":
+            raise ValueError("snapshot evidence manifest has an unsupported format")
+        if lines[1] != f"CLAIMS_SHA256={sha256(CLAIMS)}":
+            raise ValueError("snapshot claims do not match the validated evidence manifest")
+        count_line = lines[2]
+        if not count_line.startswith("REFERENCE_COUNT=") or not count_line[16:].isdigit():
+            raise ValueError("snapshot evidence manifest has an invalid reference count")
+        for line in lines[3:]:
+            fields = line.split("|")
+            if len(fields) != 3 or fields[0] != "REFERENCE" or fields[1] in snapshot_entries or not re.fullmatch(r"[0-9a-f]{40}|[0-9a-f]{64}", fields[2]):
+                raise ValueError("snapshot evidence manifest contains a malformed reference")
+            snapshot_entries[fields[1]] = fields[2]
+        if len(snapshot_entries) != int(count_line[16:]):
+            raise ValueError("snapshot evidence manifest reference count is inconsistent")
+
+    entries: list[tuple[str, str]] = []
+    repo_reference = re.compile(r"repo:(mattkelly\.io|quartz)@([0-9a-f]{40})(?::([^;#*?]+)(?:#[A-Za-z0-9._-]+)?)?\Z")
+    operator_reference = re.compile(r"operator-evidence:([0-9a-f]{64}):([^;*?]+)\Z")
+    for row in claim_rows:
+        for reference in row[3].split(";"):
+            if row[1] == "public":
+                if not safe_url(reference, image=False) or not reference.startswith("https://"):
+                    raise ValueError(f"{CLAIMS}: public claim {row[0]} has a non-exact HTTPS source")
+                entries.append((reference, hashlib.sha256(reference.encode()).hexdigest()))
+                continue
+            operator_match = operator_reference.fullmatch(reference)
+            if operator_match:
+                expected, relative = operator_match.groups()
+                evidence_path = operator_evidence_path(relative)
+                if sha256(evidence_path) != expected:
+                    raise ValueError(f"{CLAIMS}: operator evidence failed integrity validation: {relative}")
+                entries.append((reference, expected))
+                continue
+            match = repo_reference.fullmatch(reference)
+            if not match:
+                raise ValueError(f"{CLAIMS}: claim {row[0]} has an ambiguous or unnamespaced source: {reference}")
+            repository, revision, path = match.groups()
+            object_name = revision if path is None else f"{revision}:{path}"
+            if repository == "quartz":
+                if revision != pinned_quartz:
+                    raise ValueError(f"{CLAIMS}: Quartz claim {row[0]} does not use the pinned revision")
+                object_id = command("git", "-C", str(quartz_checkout), "rev-parse", object_name)
+            elif snapshot_manifest:
+                if reference not in snapshot_entries:
+                    raise ValueError(f"snapshot evidence manifest is missing {reference}")
+                object_id = snapshot_entries[reference]
+            else:
+                object_id = command("git", "-C", str(ROOT), "rev-parse", object_name)
+            entries.append((reference, object_id))
+
+    resolved_entries: dict[str, str] = {}
+    for reference, object_id in entries:
+        if reference in resolved_entries and resolved_entries[reference] != object_id:
+            raise ValueError(f"evidence reference resolved inconsistently: {reference}")
+        resolved_entries[reference] = object_id
+    entries = sorted(resolved_entries.items())
+    if snapshot_manifest and dict(entries) != snapshot_entries:
+        raise ValueError("snapshot evidence references differ from the validated manifest")
+    return entries
+
+
+def write_evidence_manifest(entries: list[tuple[str, str]]) -> None:
+    output = os.environ.get("PORTFOLIO_EVIDENCE_MANIFEST_OUT")
+    if not output:
+        return
+    lines = [
+        "EVIDENCE_MANIFEST_VERSION=1",
+        f"CLAIMS_SHA256={sha256(CLAIMS)}",
+        f"REFERENCE_COUNT={len(entries)}",
+    ]
+    lines.extend(f"REFERENCE|{reference}|{object_id}" for reference, object_id in entries)
+    Path(output).write_text("\n".join(lines) + "\n")
+
+
+def main() -> int:
+    if len(sys.argv) == 3 and sys.argv[1] == "--check-operator-evidence-path":
+        operator_evidence_path(sys.argv[2])
+        print("Operator evidence path confinement passed.")
+        return 0
+    if len(sys.argv) > 1:
+        for name in sys.argv[1:]:
+            path = Path(name)
+            parser = FragmentValidator(path)
+            parser.feed(path.read_text())
+            parser.close()
+        print("Semantic HTML fragment allowlist passed.")
+        return 0
+    route_by_source = {source: route for route, source, *_ in records(ROUTES, 5)}
+    known_routes = set(route_by_source.values())
+    claim_rows = records(CLAIMS, 8)
+    claims = {row[0]: row for row in claim_rows}
+    if len(claims) != len(claim_rows):
+        raise ValueError(f"{CLAIMS}: duplicate claim id")
+    evidence_entries = evidence_manifest_entries(claim_rows)
+    write_evidence_manifest(evidence_entries)
+    allowed_pages = {claim_id: set(row[6].split(",")) for claim_id, row in claims.items()}
+    for claim_id, pages in allowed_pages.items():
+        unknown_pages = sorted(pages - known_routes)
+        if unknown_pages:
+            raise ValueError(f"{CLAIMS}: claim {claim_id} authorizes unknown pages: {', '.join(unknown_pages)}")
+    used: set[str] = set()
+
+    for source, route in route_by_source.items():
+        path = PAGES / source
+        parser = FragmentValidator(path)
+        parser.feed(path.read_text())
+        parser.close()
+        for claim_id in parser.claims:
+            if claim_id not in claims:
+                raise ValueError(f"{path}: unknown claim {claim_id}")
+            if route not in allowed_pages[claim_id]:
+                raise ValueError(f"{path}: claim {claim_id} is not authorized for {route}")
+        used.update(parser.claims)
+
+    missing = sorted(set(claims) - used)
+    if missing:
+        raise ValueError(f"{CLAIMS}: claims are not presented on an authorized page: {', '.join(missing)}")
+    print("Semantic HTML, claim authorization, and evidence integrity passed.")
+    return 0
+
+
+if __name__ == "__main__":
+    try:
+        raise SystemExit(main())
+    except (OSError, UnicodeError, ValueError) as error:
+        print(f"validate-content: {error}", file=sys.stderr)
+        raise SystemExit(1)

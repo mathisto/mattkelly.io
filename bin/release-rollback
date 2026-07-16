@@ -9,26 +9,45 @@ allow_preview=0
 if [ "${1:-}" = "--allow-core-preview" ]; then allow_preview=1; shift; fi
 [ "$#" = "0" ] || release_fail "usage: DEPLOY_ROOT=/opt/mattkelly bin/release-rollback [--allow-core-preview]"
 deploy_root=${DEPLOY_ROOT:-/opt/mattkelly}
+deploy_root=$(physical_deploy_root "$deploy_root")
+require_real_child_directory "$deploy_root" releases
 profile=complete
 [ "$allow_preview" = "0" ] || profile=any
-if [ "$allow_preview" = "1" ] && [ "$deploy_root" = "/opt/mattkelly" ]; then
+if [ "$allow_preview" = "1" ] && is_production_deploy_root "$deploy_root"; then
   release_fail "preview rollback requires a non-production DEPLOY_ROOT"
 fi
 
 lock="$deploy_root/.deploy.lock"
-mkdir "$lock" 2>/dev/null || release_fail "another deployment operation holds $lock"
-cleanup() { rm -f "$deploy_root/.current.next.$$" "$deploy_root/.previous.next.$$"; rmdir "$lock"; }
+acquire_deploy_lock "$lock"
+intent="$deploy_root/.rollback-intent"
+cleanup() { rm -f "$deploy_root/.current.next.$$" "$deploy_root/.previous.next.$$" "$deploy_root/.rollback-intent.next.$$"; release_deploy_lock "$lock"; }
 trap cleanup EXIT HUP INT TERM
-current_id=$(release_link_id "$deploy_root/current")
-previous_id=$(release_link_id "$deploy_root/previous")
-[ -n "$current_id" ] || release_fail "current release is not set"
-[ -n "$previous_id" ] || release_fail "previous release is not set"
-[ "$current_id" != "$previous_id" ] || release_fail "current and previous point to the same release"
+if [ -f "$intent" ]; then
+  [ ! -L "$intent" ] || release_fail "rollback intent must not be a symlink"
+  [ "$(wc -l < "$intent" | tr -d ' ')" = "2" ] || release_fail "rollback intent is malformed"
+  current_id=$(manifest_value "$intent" ROLLBACK_FROM)
+  previous_id=$(manifest_value "$intent" ROLLBACK_TO)
+  require_release_id "$current_id"
+  require_release_id "$previous_id"
+else
+  current_id=$(release_link_id "$deploy_root/current")
+  previous_id=$(release_link_id "$deploy_root/previous")
+  [ -n "$current_id" ] || release_fail "current release is not set"
+  [ -n "$previous_id" ] || release_fail "previous release is not set"
+  [ "$current_id" != "$previous_id" ] || release_fail "current and previous point to the same release"
+  printf 'ROLLBACK_FROM=%s\nROLLBACK_TO=%s\n' "$current_id" "$previous_id" > "$deploy_root/.rollback-intent.next.$$"
+  mv "$deploy_root/.rollback-intent.next.$$" "$intent"
+  if [ "${RELEASE_TEST_INTERRUPT:-}" = "kill-after-intent" ]; then kill -KILL "$$"; fi
+  [ "${RELEASE_TEST_INTERRUPT:-}" != "after-intent" ] || release_fail "injected interruption after persisted rollback intent"
+fi
 validate_release "$deploy_root/releases/$previous_id" "$profile"
+validate_release "$deploy_root/releases/$current_id" any
 ln -s "releases/$previous_id" "$deploy_root/.current.next.$$"
+atomic_replace_link "$deploy_root/.current.next.$$" "$deploy_root/current"
+[ "${RELEASE_TEST_INTERRUPT:-}" != "after-current" ] || release_fail "injected interruption after atomic current switch"
 ln -s "releases/$current_id" "$deploy_root/.previous.next.$$"
 atomic_replace_link "$deploy_root/.previous.next.$$" "$deploy_root/previous"
-atomic_replace_link "$deploy_root/.current.next.$$" "$deploy_root/current"
+rm -f "$intent"
 trap - EXIT HUP INT TERM
-rmdir "$lock"
+release_deploy_lock "$lock"
 printf 'Rolled back from %s to %s; displaced release remains available\n' "$current_id" "$previous_id"

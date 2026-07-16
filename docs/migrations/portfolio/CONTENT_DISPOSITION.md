@@ -13,7 +13,7 @@ This ledger freezes the foundation migration state. `Preserved` does not mean in
 | Rails DOCX CV | None | Withheld | ZIP integrity passed; no public pair is shipped until both formats are deliberately redacted and reviewed |
 | Published `building-mattkelly-io` post | `site/content/blog/` | Migrated as historical personal account | Frontmatter and output validated; detailed claims not independently verified |
 | `hello-world` post | Redirect contract only | Retired | Caddy and static tombstone point to the canonical historical article |
-| DragonRuby tutorial Markdown | `dragonruby/` and `/lab/dragonruby/` | Preserved archive with public disposition page | Not rendered as lessons by the core site |
+| DragonRuby tutorial Markdown | `dragonruby/` and `/lab/dragonruby/` | Preserved archive with public disposition page | Every historical `/dragonruby/:slug` request is permanently redirected to `/lab/dragonruby/`; lessons are not rendered by the core site |
 | DragonRuby browser artifacts | `public/dragonruby/` | Preserved archive | Excluded from `dist`; execution, provenance, licensing, and required headers are not verified |
 | Quartz Astro site | External `/quartz` artifact | Separately assembled | Requires contract, complete SHA-256 inventory, and active-content-free network profile; conformance is not a general security attestation |
 | Rails/Scribe application and data | Git history / private archival process | Not migrated | Private Scribe data is out of portfolio scope |

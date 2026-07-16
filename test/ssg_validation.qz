@@ -62,7 +62,7 @@ def main(): Int
   var inline_code = render_safe_markdown("Use `<widget attr=\"x\">` as text")
   failures = failures + check_case(str_contains(inline_code, "<code>&lt;widget attr=&quot;x&quot;&gt;</code>"), "inline code preserves visible angle brackets")
   var fenced_code = render_safe_markdown("```html\n<section>safe example</section>\n```")
-  failures = failures + check_case(str_contains(fenced_code, "<pre><code class=\"language-html\">&lt;section&gt;safe example&lt;/section&gt;"), "fenced code preserves visible angle brackets")
+  failures = failures + check_case(str_contains(fenced_code, "<pre tabindex=\"0\"><code class=\"language-html\">&lt;section&gt;safe example&lt;/section&gt;"), "fenced code is keyboard focusable and preserves visible angle brackets")
 
   var safe_links = render_safe_markdown("[root](/projects/) [fragment](#work) [https](https://example.com/path?q=ok) [http](http://example.com) [mail](mailto:person@example.com)")
   failures = failures + check_case(str_contains(safe_links, "href=\"/projects/\"") and str_contains(safe_links, "href=\"#work\"") and str_contains(safe_links, "href=\"https://example.com/path?q=ok\"") and str_contains(safe_links, "href=\"mailto:person@example.com\""), "approved links render with escaped href attributes")

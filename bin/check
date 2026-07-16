@@ -71,7 +71,11 @@ grep -F 'https://mattkelly.io/references/' "$ROOT/dist/sitemap.xml" >/dev/null |
 grep -F 'https://mattkelly.io/work/' "$ROOT/dist/sitemap.xml" >/dev/null || fail "work route missing from sitemap"
 grep -F 'https://mattkelly.io/lab/dragonruby/' "$ROOT/dist/sitemap.xml" >/dev/null || fail "DragonRuby route missing from sitemap"
 grep -F 'https://mattkelly.io/provenance/' "$ROOT/dist/sitemap.xml" >/dev/null || fail "provenance route missing from sitemap"
-grep -F 'https://mattkelly.io/quartz' "$ROOT/dist/sitemap.xml" >/dev/null || fail "Quartz artifact route missing from sitemap"
+if [ "${PORTFOLIO_REQUIRE_QUARTZ:-0}" = "1" ]; then
+  grep -F 'https://mattkelly.io/quartz' "$ROOT/dist/sitemap.xml" >/dev/null || fail "complete release Quartz artifact route missing from sitemap"
+else
+  if grep -F 'https://mattkelly.io/quartz' "$ROOT/dist/sitemap.xml" >/dev/null; then fail "core-only sitemap advertises omitted Quartz artifact"; fi
+fi
 if grep -F 'hello-world' "$ROOT/dist/sitemap.xml" >/dev/null; then fail "retired route leaked into sitemap"; fi
 
 if grep -R -E '(<script[^>]+src="https?://|<link[^>]+rel="stylesheet"[^>]+href="https?://)' "$ROOT/dist" >/dev/null 2>&1; then fail "generated core contains a third-party script or stylesheet"; fi
@@ -81,7 +85,9 @@ if grep -R -F 'quartz.mattkelly.io' "$ROOT/dist" >/dev/null 2>&1; then fail "non
 if grep -R -E '(href|src)="/(CV\.pdf|CV\.docx)"' "$ROOT/dist" >/dev/null 2>&1; then fail "withheld CV download link found"; fi
 grep -F 'Cloudflare edge' "$ROOT/dist/lab/home-lab/index.html" >/dev/null || fail "sanitized home-lab diagram is missing"
 grep -F 'No environmental claim' "$ROOT/dist/lab/home-lab/index.html" >/dev/null || fail "solar environmental boundary is missing"
-grep -F '10 source, 1 public, and 5 personal-account' "$ROOT/dist/provenance/index.html" >/dev/null || fail "claim state receipt is stale"
+grep -F '<pre tabindex="0"' "$ROOT/dist/lab/home-lab/index.html" >/dev/null || fail "scrollable architecture block is not keyboard focusable"
+if grep -R '<pre>' "$ROOT/dist" --include='*.html' >/dev/null 2>&1; then fail "rendered pre block is not keyboard focusable"; fi
+grep -F '11 source, 1 public, and 5 personal-account' "$ROOT/dist/provenance/index.html" >/dev/null || fail "claim state receipt is stale"
 grep -F '<dl class="terminal-commands">' "$ROOT/dist/index.html" >/dev/null || fail "terminal command content model was not rendered"
 [ "$(grep -c '^' "$ROOT/site/content/terminal.commands")" -gt 1 ] || fail "terminal command model is empty"
 

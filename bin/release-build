@@ -34,26 +34,55 @@ quartz_validation=not-included
 quartz_source=none
 validation_summary='core:passed,quartz:not-included'
 [ "$profile" != "complete" ] || [ -n "${QUARTZ_ARTIFACT:-}" ] || release_fail "QUARTZ_ARTIFACT is required for a complete release"
-"$ROOT/bin/verify"
+source_root=$ROOT
+source_snapshot=
+evidence_hash=
+if [ "$repository_state" = "clean" ]; then
+  source_snapshot=$(mktemp -d "${TMPDIR:-/tmp}/mattkelly-release-source.XXXXXX")
+  evidence_manifest="$source_snapshot/validated-evidence.manifest"
+  PORTFOLIO_EVIDENCE_MANIFEST_OUT="$evidence_manifest" "$ROOT/bin/validate-content"
+  git -C "$ROOT" archive "$repository_sha" | tar -x -C "$source_snapshot"
+  mkdir -p "$source_snapshot/site/content"
+  mv "$evidence_manifest" "$source_snapshot/site/content/validated-evidence.manifest"
+  evidence_manifest="$source_snapshot/site/content/validated-evidence.manifest"
+  evidence_hash=$(shasum -a 256 "$evidence_manifest" | cut -d' ' -f1)
+  [ "$(git -C "$ROOT" rev-parse HEAD)" = "$repository_sha" ] || release_fail "repository HEAD changed while exporting release source"
+  [ -z "$(git -C "$ROOT" status --porcelain --untracked-files=all)" ] || release_fail "repository changed while exporting release source"
+  source_root=$source_snapshot
+fi
+source_cleanup() { [ -z "$source_snapshot" ] || rm -rf "$source_snapshot"; }
+trap source_cleanup EXIT HUP INT TERM
+if [ -n "$evidence_hash" ]; then
+  PORTFOLIO_EVIDENCE_MANIFEST="$source_root/site/content/validated-evidence.manifest" \
+  PORTFOLIO_EVIDENCE_MANIFEST_SHA256="$evidence_hash" \
+    "$source_root/bin/verify"
+  [ "$(shasum -a 256 "$source_root/site/content/validated-evidence.manifest" | cut -d' ' -f1)" = "$evidence_hash" ] || release_fail "validated evidence manifest changed during snapshot verification"
+else
+  "$source_root/bin/verify"
+fi
 if [ "$profile" = "complete" ]; then
-  "$ROOT/bin/assemble-release"
-  contract="$QUARTZ_ARTIFACT/artifact-contract.env"
-  quartz_source=$(grep '^SOURCE_REVISION=' "$contract")
-  quartz_source=${quartz_source#*=}
+  receipt="$source_snapshot/.quartz-assembly-receipt"
+  QUARTZ_ARTIFACT="$QUARTZ_ARTIFACT" QUARTZ_ASSEMBLY_RECEIPT="$receipt" \
+  PORTFOLIO_EVIDENCE_MANIFEST="$source_root/site/content/validated-evidence.manifest" \
+  PORTFOLIO_EVIDENCE_MANIFEST_SHA256="$evidence_hash" \
+    "$source_root/bin/assemble-release"
+  [ -s "$receipt" ] || release_fail "Quartz assembly did not produce a source receipt"
+  quartz_source=$(cat "$receipt")
+  rm -f "$receipt"
   quartz_validation=passed
   validation_summary='core:passed,quartz:passed'
 fi
 
-. "$ROOT/toolchain.env"
+. "$source_root/toolchain.env"
 parent=$(dirname "$output")
 [ -d "$parent" ] || release_fail "output parent does not exist: $parent"
 tmp="$parent/.release-building.$$"
 release="$tmp/$release_id"
 [ ! -e "$tmp" ] || release_fail "temporary output already exists: $tmp"
-cleanup() { rm -rf "$tmp"; }
+cleanup() { rm -rf "$tmp"; source_cleanup; }
 trap cleanup EXIT HUP INT TERM
 mkdir "$tmp" "$release" "$release/public"
-cp -R "$ROOT/dist/." "$release/public/"
+cp -R "$source_root/dist/." "$release/public/"
 (
   cd "$release"
   find public -type f -print | LC_ALL=C sort | while IFS= read -r path; do
@@ -84,4 +113,5 @@ validate_release "$release" "$profile"
 mv "$release" "$output"
 rm -rf "$tmp"
 trap - EXIT HUP INT TERM
+source_cleanup
 printf 'Built validated %s release at %s\n' "$profile" "$output"

@@ -12,14 +12,17 @@ release_id=$(basename "$incoming")
 require_release_id "$release_id"
 [ -f "$incoming/.transfer-complete" ] || [ "${ALLOW_LOCAL_STAGE:-0}" = "1" ] || release_fail "incoming release lacks .transfer-complete"
 validate_release "$incoming" any
-[ ! -L "$deploy_root" ] || release_fail "DEPLOY_ROOT must not be a symlink"
+[ ! -L "$deploy_root" ] || release_fail "requested DEPLOY_ROOT must not be a symlink: $deploy_root"
 mkdir -p "$deploy_root/releases"
+deploy_root=$(physical_deploy_root "$deploy_root")
+require_real_child_directory "$deploy_root" releases
+incoming=$(CDPATH= cd -P -- "$incoming" && pwd -P) || release_fail "cannot resolve incoming release"
 lock="$deploy_root/.deploy.lock"
-mkdir "$lock" 2>/dev/null || release_fail "another deployment operation holds $lock"
+acquire_deploy_lock "$lock"
 destination="$deploy_root/releases/$release_id"
 staging="$deploy_root/releases/.staging.$$"
 partial="$staging/$release_id"
-cleanup() { chmod -R u+w "$staging" 2>/dev/null || true; rm -rf "$staging"; rmdir "$lock"; }
+cleanup() { chmod -R u+w "$staging" 2>/dev/null || true; rm -rf "$staging"; release_deploy_lock "$lock"; }
 trap cleanup EXIT HUP INT TERM
 [ ! -e "$destination" ] || release_fail "immutable release already exists: $destination"
 [ ! -e "$staging" ] || release_fail "staging path already exists: $staging"
@@ -31,5 +34,5 @@ mv "$partial" "$destination"
 chmod -R a-w "$destination"
 rm -rf "$staging"
 trap - EXIT HUP INT TERM
-rmdir "$lock"
+release_deploy_lock "$lock"
 printf 'Staged immutable release %s\n' "$destination"

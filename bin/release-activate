@@ -11,25 +11,55 @@ if [ "${1:-}" = "--allow-core-preview" ]; then allow_preview=1; shift; fi
 release_id=$1
 require_release_id "$release_id"
 deploy_root=${DEPLOY_ROOT:-/opt/mattkelly}
+deploy_root=$(physical_deploy_root "$deploy_root")
+require_real_child_directory "$deploy_root" releases
 release="$deploy_root/releases/$release_id"
 profile=complete
 [ "$allow_preview" = "0" ] || profile=any
 validate_release "$release" "$profile"
-if [ "$allow_preview" = "1" ] && [ "$deploy_root" = "/opt/mattkelly" ]; then
+if [ "$allow_preview" = "1" ] && is_production_deploy_root "$deploy_root"; then
   release_fail "core-only preview activation requires a non-production DEPLOY_ROOT"
 fi
 
 lock="$deploy_root/.deploy.lock"
-mkdir "$lock" 2>/dev/null || release_fail "another deployment operation holds $lock"
-cleanup() { rm -f "$deploy_root/.current.next.$$" "$deploy_root/.previous.next.$$"; rmdir "$lock"; }
+acquire_deploy_lock "$lock"
+intent="$deploy_root/.activation-intent"
+cleanup() { rm -f "$deploy_root/.current.next.$$" "$deploy_root/.previous.next.$$" "$deploy_root/.activation-intent.next.$$"; release_deploy_lock "$lock"; }
 trap cleanup EXIT HUP INT TERM
-current_id=$(release_link_id "$deploy_root/current")
-if [ -n "$current_id" ]; then
+if [ -f "$intent" ]; then
+  [ ! -L "$intent" ] || release_fail "activation intent must not be a symlink"
+  [ "$(wc -l < "$intent" | tr -d ' ')" = "2" ] || release_fail "activation intent is malformed"
+  current_id=$(manifest_value "$intent" ACTIVATE_FROM)
+  target_id=$(manifest_value "$intent" ACTIVATE_TO)
+  [ "$target_id" = "$release_id" ] || release_fail "pending activation targets $target_id, not $release_id"
+  [ "$current_id" = "none" ] || require_release_id "$current_id"
+  require_release_id "$target_id"
+else
+  current_id=$(release_link_id "$deploy_root/current")
+  if [ "$current_id" = "$release_id" ]; then
+    trap - EXIT HUP INT TERM
+    release_deploy_lock "$lock"
+    printf 'Release %s is already active; rollback target preserved\n' "$release_id"
+    exit 0
+  fi
+  target_id=$release_id
+  intent_from=${current_id:-none}
+  printf 'ACTIVATE_FROM=%s\nACTIVATE_TO=%s\n' "$intent_from" "$target_id" > "$deploy_root/.activation-intent.next.$$"
+  mv "$deploy_root/.activation-intent.next.$$" "$intent"
+fi
+validate_release "$deploy_root/releases/$target_id" "$profile"
+if [ "$current_id" != "none" ] && [ -n "$current_id" ]; then
+  validate_release "$deploy_root/releases/$current_id" any
+  deployment_test_interrupt before-previous
   ln -s "releases/$current_id" "$deploy_root/.previous.next.$$"
   atomic_replace_link "$deploy_root/.previous.next.$$" "$deploy_root/previous"
+  deployment_test_interrupt after-previous
 fi
-ln -s "releases/$release_id" "$deploy_root/.current.next.$$"
+deployment_test_interrupt before-current
+ln -s "releases/$target_id" "$deploy_root/.current.next.$$"
 atomic_replace_link "$deploy_root/.current.next.$$" "$deploy_root/current"
+deployment_test_interrupt after-current
+rm -f "$intent"
 trap - EXIT HUP INT TERM
-rmdir "$lock"
-printf 'Activated release %s; previous release remains available\n' "$release_id"
+release_deploy_lock "$lock"
+printf 'Activated release %s; previous release remains available\n' "$target_id"

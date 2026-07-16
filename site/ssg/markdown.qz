@@ -229,5 +229,6 @@ def render_safe_markdown(source: String): String
   # those entities preserves visible angle brackets without creating tags.
   rendered = str_replace(rendered, "&amp;lt;", "&lt;")
   rendered = str_replace(rendered, "&amp;gt;", "&gt;")
-  return str_replace(rendered, "&amp;amp;", "&amp;")
+  rendered = str_replace(rendered, "&amp;amp;", "&amp;")
+  return str_replace(rendered, "<pre>", "<pre tabindex=\"0\">")
 end

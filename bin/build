@@ -17,6 +17,8 @@ hash_file() { shasum -a 256 "$1" | cut -d' ' -f1; }
 for path in site/ssg/build.qz site/ssg/content.qz site/ssg/doc.qz site/ssg/markdown.qz site/ssg/records.qz site/ssg/template.qz site/ssg/theme.qz site/layouts/base.html site/content/routes.txt site/content/claims.txt site/content/terminal.commands site/content/pages/404.html site/content/blog site/content/blog.order site/public/assets/css/site.css site/public/assets/js/site.js site/assets.sha256; do
   [ -e "$ROOT/$path" ] || fail "missing required input: $path"
 done
+command -v python3 >/dev/null 2>&1 || fail "python3 is required for semantic HTML validation"
+"$ROOT/bin/validate-content"
 while IFS='|' read -r route source title description indexed; do
   case "$route" in ''|'#'*) continue ;; esac
   [ -f "$ROOT/site/content/pages/$source" ] || fail "route source does not exist: $source"

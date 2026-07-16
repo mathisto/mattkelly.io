@@ -42,18 +42,17 @@
   if (!form || !input || !output) return
 
   const routes = {
-    work: "/projects/",
-    lab: "/dragonruby/",
-    writing: "/blog/",
-    about: "/",
-    now: "/",
-    history: "/blog/building-mattkelly-io/",
-    version: "/quartz",
-    provenance: "/projects/",
+    work: "/work/",
+    lab: "/lab/",
+    writing: "/writing/",
+    about: "/about/",
+    now: "/now/",
+    history: "/site-history/",
+    provenance: "/provenance/",
     proof: "/references/",
     references: "/references/",
     source: "https://github.com/mathisto/mattkelly.io",
-    resume: "/cv/"
+    resume: "/resume/"
   }
 
   form.addEventListener("submit", (event) => {
@@ -62,7 +61,7 @@
     const command = input.value.trim().toLowerCase()
 
     if (command === "help" || command === "routes" || command === "") {
-      output.textContent = "Commands: work, lab, writing, about, now, history, version, provenance, proof, source, resume"
+      output.textContent = "Commands: work, lab, writing, about, resume, references, now, provenance, history, source"
       return
     }
 

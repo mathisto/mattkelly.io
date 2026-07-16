@@ -2,6 +2,8 @@
 
 This runbook defines the reviewable deployment path. It does not install Caddy, Cloudflare rules, monitors, credentials, hostnames, or infrastructure.
 
+Live Caddy containment is active, but deployment from this source tree remains pending.
+
 ## Layout and invariants
 
 The serving root is `PORTFOLIO_ROOT=/opt/mattkelly/current/public` by default.
@@ -33,7 +35,7 @@ QUARTZ_ARTIFACT=/path/to/validated-quartz-artifact \
 bin/release-build /absolute/output/20260716T120000Z-9a4f54c
 ```
 
-`bin/release-build` runs the existing reproducible core verification first, then validates and assembles the external `/quartz` artifact. It refuses a dirty repository because `REPOSITORY_SHA` must identify the built source exactly.
+`bin/release-build` validates portfolio evidence objects in the original repository, validates Quartz evidence objects in the clean pinned Quartz checkout, and writes a deterministic evidence receipt before export. It then exports the recorded clean Git tree to an isolated directory, hash-pins that receipt for Git-less verification, and copies only verified output. Complete releases additionally snapshot and assemble the required external `/quartz` artifact. A clean core-only release exercises the same immutable export without requiring that artifact.
 
 A core-only artifact is for an isolated preview, never production:
 
@@ -69,9 +71,9 @@ SMOKE_RELEASE=/opt/mattkelly/releases/20260716T120000Z-9a4f54c \
 bin/release-smoke
 ```
 
-Stage verifies hashes in a same-filesystem temporary directory, moves the inactive release under `releases/`, and removes all write bits. Activation does not reload Caddy because Caddy follows `current`; validate and reload Caddy separately only when its configuration changes.
+Stage verifies hashes in a same-filesystem temporary directory, moves the inactive release under `releases/`, and removes all write bits. Activation persists its source and target before changing links, updates `previous` before atomically switching `current`, and completes that intent on the next invocation after interruption. Re-activating the current release preserves the existing rollback target. Activation does not reload Caddy because Caddy follows `current`; validate and reload Caddy separately only when its configuration changes.
 
-If an interrupted process leaves `.deploy.lock`, first confirm no deployment command is running and inspect `current`, `previous`, and any dot-prefixed staging path. Remove only the stale lock after that review; never automate stale-lock deletion.
+Deployment locks record their owner PID. A later command reclaims a lock only when that process no longer exists and the lock contains no unexpected state; a live, malformed, or legacy lock still fails closed for operator review.
 
 For a core-only preview, use a non-production root and the explicit flag:
 
@@ -81,7 +83,7 @@ DEPLOY_ROOT=/srv/mattkelly-preview bin/release-activate --allow-core-preview pre
 
 ## Rollback and pruning
 
-Rollback atomically exchanges `current` and `previous`; it does not delete either release:
+Rollback persists `.rollback-intent` before changing links, atomically switches `current`, then records the displaced release in `previous`. If interruption occurs at either point, the next rollback invocation reclaims a stale owned lock and completes the persisted transaction. It does not delete either release:
 
 ```sh
 DEPLOY_ROOT=/opt/mattkelly bin/release-rollback

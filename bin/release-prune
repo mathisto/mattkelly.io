@@ -12,16 +12,18 @@ deploy_root=${DEPLOY_ROOT:-/opt/mattkelly}
 keep=${RELEASE_KEEP:-5}
 case "$keep" in ''|*[!0-9]*) release_fail "RELEASE_KEEP must be a non-negative integer" ;; esac
 [ -d "$deploy_root/releases" ] || release_fail "releases directory does not exist"
+deploy_root=$(physical_deploy_root "$deploy_root")
+require_real_child_directory "$deploy_root" releases
 lock="$deploy_root/.deploy.lock"
 lock_held=0
 if [ "$execute" = "1" ]; then
-  mkdir "$lock" 2>/dev/null || release_fail "another deployment operation holds $lock"
+  acquire_deploy_lock "$lock"
   lock_held=1
 fi
 tmp_dir=
 cleanup() {
   [ -z "$tmp_dir" ] || rm -rf "$tmp_dir"
-  [ "$lock_held" = "0" ] || rmdir "$lock"
+  [ "$lock_held" = "0" ] || release_deploy_lock "$lock"
 }
 trap cleanup EXIT HUP INT TERM
 current_id=$(release_link_id "$deploy_root/current")

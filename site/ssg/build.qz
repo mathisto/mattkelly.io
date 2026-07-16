@@ -179,7 +179,6 @@ def render_blog(layout: String): Int
     end
     i = i + 1
   end
-  sitemap.append("  <url><loc>https://mattkelly.io/quartz</loc></url>\n")
   i = 0
   while i < slugs.size
     sitemap.append("  <url><loc>https://mattkelly.io/blog/" + slugs[i] + "/</loc></url>\n")

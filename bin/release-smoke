@@ -56,13 +56,18 @@ expect_header() {
   trap - EXIT HUP INT TERM
 }
 
-for path in / /projects/ /cv/ /blog/ /references/ /dragonruby/ /robots.txt /sitemap.xml /assets/css/site.css; do
+for path in / /work/ /lab/ /writing/ /about/ /resume/ /references/ /now/ /provenance/ /site-history/ /blog/building-mattkelly-io/ /robots.txt /sitemap.xml /assets/css/site.css; do
   expect_code "$path" 200 "$@"
 done
 expect_code /definitely-not-a-release-route 404 "$@"
-expect_redirect /projects /projects/ "$@"
+expect_redirect /projects /work/ "$@"
+expect_redirect /projects/ /work/ "$@"
+expect_redirect /blog /writing/ "$@"
+expect_redirect /blog/ /writing/ "$@"
+expect_redirect /dragonruby/example-lesson /lab/dragonruby/ "$@"
 expect_redirect /quartz/ /quartz "$@"
 expect_header / X-Content-Type-Options nosniff "$@"
+expect_header / Content-Security-Policy "default-src 'none'" "$@"
 expect_header /assets/css/site.css Cache-Control max-age=3600 "$@"
 if [ "$profile" = "complete" ]; then expect_code /quartz 200 "$@"; fi
 if [ "$profile" = "core-only-preview" ]; then expect_code /quartz 404 "$@"; fi
@@ -71,5 +76,9 @@ if [ -n "${SOUL_SMOKE_URL:-}" ]; then
   case "$SOUL_SMOKE_URL" in http://*|https://*) ;; *) release_fail "SOUL_SMOKE_URL must be HTTP or HTTPS" ;; esac
   soul_code=$(curl --silent --show-error --max-time 10 -o /dev/null -w '%{http_code}' "$SOUL_SMOKE_URL/health")
   [ "$soul_code" = "200" ] || release_fail "Soul /health returned $soul_code"
+  soul_stats_code=$(curl --silent --show-error --max-time 10 -o /dev/null -w '%{http_code}' "$SOUL_SMOKE_URL/api/soul/stats.json")
+  [ "$soul_stats_code" = "200" ] || release_fail "Soul stats returned $soul_stats_code"
+  soul_denied_code=$(curl --silent --show-error --max-time 10 -o /dev/null -w '%{http_code}' "$SOUL_SMOKE_URL/api/soul/tasks.json")
+  [ "$soul_denied_code" = "404" ] || release_fail "Soul default deny returned $soul_denied_code"
 fi
 printf 'Safe GET-only smoke checks passed for %s\n' "$base_url"

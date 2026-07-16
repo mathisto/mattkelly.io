@@ -1,5 +1,5 @@
-<main class="content"><article class="prose" data-claim="home-lab-architecture solar-plan"><header><p class="eyebrow">Sanitized architecture</p><h1>Home Lab</h1><p class="hero-copy">A public logical model of how static availability is separated from optional experimental services.</p></header>
-<h2>Public serving path</h2><pre aria-label="Sanitized public home-lab architecture"><code>Visitor
+<main class="content"><article class="prose" data-claim="home-lab-architecture phase0-caddy-containment solar-plan"><header><p class="eyebrow">Sanitized target architecture</p><h1>Home Lab</h1><p class="hero-copy">A planned public logical model for separating static availability from optional experimental services, not an attestation that this source release is deployed.</p></header>
+<h2>Public serving path</h2><pre tabindex="0" aria-label="Scrollable sanitized public home-lab architecture"><code>Visitor
   |
   v
 Cloudflare edge
@@ -16,7 +16,7 @@ Caddy
          +-- read-only delayed telemetry
          +-- Quartz userspace service
          +-- Quartz unikernel</code></pre>
-<p>The static release has no runtime dependency on the isolated Quartz paths. This diagram intentionally contains no private address, hostname, tunnel identifier, machine identifier, credential location, or recovery command.</p>
+<p>In the target design, the static release has no runtime dependency on isolated Quartz paths. An operator self-attests that bounded live Caddy ingress containment was active on 2026-07-16; Cloudflare rule installation and deployment of this source or an immutable release remain unverified and pending. This diagram intentionally contains no private address, hostname, tunnel identifier, machine identifier, credential location, or recovery command.</p>
 <h2>Operational posture</h2><p>Public ingress restrictions and alerting are in scope. Backup implementation is deferred and is not represented as complete. Dynamic telemetry must be allowlisted, delayed or coarsened where appropriate, rate-limited, and safe to replace with an unavailable state.</p>
 <h2>Solar as a measurement program</h2><p>The planned program is a once-daily local collection job. Provider credentials and raw responses remain private; only reviewed daily or monthly aggregates may enter a static release. Electrical boundaries, units, coverage, and import/export semantics must be established before interpretation.</p>
 <p><strong>No environmental claim:</strong> This plan does not establish whole-home coverage, net energy, avoided emissions, carbon neutrality, or any other environmental outcome.</p></article></main>

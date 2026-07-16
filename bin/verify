@@ -26,6 +26,9 @@ manifest > "$tmp_dir/first.sha256"
 manifest > "$tmp_dir/second.sha256"
 cmp "$tmp_dir/first.sha256" "$tmp_dir/second.sha256"
 "$ROOT/bin/check"
+"$ROOT/test/content_security.sh"
+"$ROOT/test/evidence_manifest.sh"
 "$ROOT/test/routes.sh"
 "$ROOT/test/artifact_contract.sh"
-printf '%s\n' 'Two clean builds are byte-identical and all foundation checks passed.'
+"$ROOT/ops/deploy/simulate-local.sh"
+printf '%s\n' 'Two clean builds are byte-identical; content, artifact, browser/static route, Caddy, and full deployment simulation checks passed.'

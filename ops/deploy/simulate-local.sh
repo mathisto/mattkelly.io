@@ -15,7 +15,7 @@ make_release() {
   id=$1
   release="$tmp_dir/source/$id"
   mkdir -p "$release/public/assets/css"
-  for path in index.html projects/index.html cv/index.html blog/index.html references/index.html dragonruby/index.html 404.html; do
+  for path in index.html work/index.html lab/index.html writing/index.html about/index.html resume/index.html references/index.html now/index.html provenance/index.html site-history/index.html blog/building-mattkelly-io/index.html 404.html; do
     mkdir -p "$release/public/$(dirname "$path")"
     printf '<!doctype html><title>%s</title><h1>%s</h1>\n' "$id" "$id" > "$release/public/$path"
   done
@@ -58,20 +58,22 @@ grep -F 'Would transfer' "$tmp_dir/transfer-dry-run" >/dev/null
 
 smoke_env=
 if command -v caddy >/dev/null 2>&1; then
-  PORTFOLIO_ADDRESS=http://127.0.0.1:18080 \
+  portfolio_port=$((30000 + ($$ % 10000)))
+  soul_port=$((portfolio_port + 1))
+  PORTFOLIO_ADDRESS="http://127.0.0.1:$portfolio_port" \
   PORTFOLIO_ROOT="$tmp_dir/deploy/current/public" \
-  SOUL_ADDRESS=http://127.0.0.1:18081 \
+  SOUL_ADDRESS="http://127.0.0.1:$soul_port" \
   SOUL_UPSTREAM=http://127.0.0.1:19090 \
   caddy run --config "$ROOT/ops/caddy/Caddyfile" --adapter caddyfile > "$tmp_dir/caddy.log" 2>&1 &
   pid=$!
   attempt=0
   while [ "$attempt" -lt 50 ]; do
-    if curl -sS -o /dev/null http://127.0.0.1:18080/ 2>/dev/null; then break; fi
+    if curl -sS -o /dev/null "http://127.0.0.1:$portfolio_port/" 2>/dev/null; then break; fi
     attempt=$((attempt + 1))
     sleep 0.1
   done
   [ "$attempt" -lt 50 ] || { printf '%s\n' 'simulate-local: Caddy did not start' >&2; exit 1; }
-  smoke_env=http://127.0.0.1:18080
+  smoke_env="http://127.0.0.1:$portfolio_port"
 fi
 
 DEPLOY_ROOT="$tmp_dir/deploy" SMOKE_BASE_URL="$smoke_env" \
@@ -79,10 +81,82 @@ DEPLOY_ROOT="$tmp_dir/deploy" SMOKE_BASE_URL="$smoke_env" \
   "$tmp_dir/source/20260716T000000Z-known-good" \
   "$tmp_dir/source/20260716T000100Z-candidate"
 
+test_activation_interruption() {
+  point=$1
+  if DEPLOY_ROOT="$tmp_dir/deploy" RELEASE_TEST_INTERRUPT="$point" "$ROOT/bin/release-activate" --allow-core-preview 20260716T000100Z-candidate >/dev/null 2>&1; then
+    printf 'simulate-local: activation interruption %s unexpectedly succeeded\n' "$point" >&2
+    exit 1
+  fi
+  [ -f "$tmp_dir/deploy/.activation-intent" ]
+  DEPLOY_ROOT="$tmp_dir/deploy" "$ROOT/bin/release-activate" --allow-core-preview 20260716T000100Z-candidate
+  [ "$(readlink "$tmp_dir/deploy/current")" = "releases/20260716T000100Z-candidate" ]
+  [ "$(readlink "$tmp_dir/deploy/previous")" = "releases/20260716T000000Z-known-good" ]
+  DEPLOY_ROOT="$tmp_dir/deploy" "$ROOT/bin/release-rollback" --allow-core-preview
+  [ "$(readlink "$tmp_dir/deploy/current")" = "releases/20260716T000000Z-known-good" ]
+}
+
+test_activation_interruption before-previous
+test_activation_interruption after-previous
+test_activation_interruption before-current
+test_activation_interruption kill-after-current
+
+DEPLOY_ROOT="$tmp_dir/deploy" "$ROOT/bin/release-activate" --allow-core-preview 20260716T000100Z-candidate
+if DEPLOY_ROOT="$tmp_dir/deploy" RELEASE_TEST_INTERRUPT=kill-after-intent "$ROOT/bin/release-rollback" --allow-core-preview >/dev/null 2>&1; then
+  printf '%s\n' 'simulate-local: rollback interruption injection unexpectedly succeeded' >&2
+  exit 1
+fi
+[ -f "$tmp_dir/deploy/.rollback-intent" ]
+[ -d "$tmp_dir/deploy/.deploy.lock" ]
+DEPLOY_ROOT="$tmp_dir/deploy" "$ROOT/bin/release-rollback" --allow-core-preview
+[ "$(readlink "$tmp_dir/deploy/current")" = "releases/20260716T000000Z-known-good" ]
+
+DEPLOY_ROOT="$tmp_dir/deploy" "$ROOT/bin/release-activate" --allow-core-preview 20260716T000100Z-candidate
+if DEPLOY_ROOT="$tmp_dir/deploy" RELEASE_TEST_INTERRUPT=after-current "$ROOT/bin/release-rollback" --allow-core-preview >/dev/null 2>&1; then
+  printf '%s\n' 'simulate-local: post-switch interruption injection unexpectedly succeeded' >&2
+  exit 1
+fi
+[ "$(readlink "$tmp_dir/deploy/current")" = "releases/20260716T000000Z-known-good" ]
+[ -f "$tmp_dir/deploy/.rollback-intent" ]
+DEPLOY_ROOT="$tmp_dir/deploy" "$ROOT/bin/release-rollback" --allow-core-preview
+[ "$(readlink "$tmp_dir/deploy/previous")" = "releases/20260716T000100Z-candidate" ]
+
+containment_root="$tmp_dir/containment"
+mkdir "$containment_root"
+ln -s "$tmp_dir/deploy/releases" "$containment_root/releases"
+if DEPLOY_ROOT="$containment_root" "$ROOT/bin/release-activate" --allow-core-preview 20260716T000100Z-candidate >/dev/null 2>&1; then
+  printf '%s\n' 'simulate-local: activation accepted a symlinked releases directory' >&2
+  exit 1
+fi
+saved_current=$(readlink "$tmp_dir/deploy/current")
+rm "$tmp_dir/deploy/current"
+ln -s 'releases/../outside' "$tmp_dir/deploy/current"
+if DEPLOY_ROOT="$tmp_dir/deploy" "$ROOT/bin/release-activate" --allow-core-preview 20260716T000100Z-candidate >/dev/null 2>&1; then
+  printf '%s\n' 'simulate-local: activation accepted a traversal link target' >&2
+  exit 1
+fi
+rm "$tmp_dir/deploy/current"
+ln -s "$saved_current" "$tmp_dir/deploy/current"
+
+production_root="$tmp_dir/production"
+mkdir "$production_root" "$production_root/releases"
+cp -R "$tmp_dir/source/20260716T000100Z-candidate" "$production_root/releases/"
+if PRODUCTION_DEPLOY_ROOT="$production_root" DEPLOY_ROOT="$production_root/." "$ROOT/bin/release-activate" --allow-core-preview 20260716T000100Z-candidate >/dev/null 2>&1; then
+  printf '%s\n' 'simulate-local: canonical production-root alias bypassed preview protection' >&2
+  exit 1
+fi
+ln -s "$production_root" "$tmp_dir/production-link"
+if PRODUCTION_DEPLOY_ROOT="$production_root" DEPLOY_ROOT="$tmp_dir/production-link" "$ROOT/bin/release-activate" --allow-core-preview 20260716T000100Z-candidate >/dev/null 2>&1; then
+  printf '%s\n' 'simulate-local: symlinked requested production root bypassed preview protection' >&2
+  exit 1
+fi
+
 if [ -n "$smoke_env" ]; then
-  [ "$(curl -sS -X POST -o /dev/null -w '%{http_code}' http://127.0.0.1:18080/)" = "405" ]
-  [ "$(curl -sS -o /dev/null -w '%{http_code}' http://127.0.0.1:18081/api/soul/spawn)" = "404" ]
-  [ "$(curl -sS -X POST -o /dev/null -w '%{http_code}' http://127.0.0.1:18081/health)" = "405" ]
+  [ "$(curl -sS -X POST -o /dev/null -w '%{http_code}' "http://127.0.0.1:$portfolio_port/")" = "405" ]
+  [ "$(curl -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:$soul_port/api/soul/spawn")" = "404" ]
+  [ "$(curl -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:$soul_port/anything-else")" = "404" ]
+  [ "$(curl -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:$soul_port/health")" = "502" ]
+  [ "$(curl -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:$soul_port/api/soul/stats.json")" = "502" ]
+  [ "$(curl -sS -X POST -o /dev/null -w '%{http_code}' "http://127.0.0.1:$soul_port/health")" = "405" ]
 fi
 
 stale_incoming="$tmp_dir/deploy/incoming/20260715T235900Z-stale"
@@ -102,4 +176,4 @@ DEPLOY_ROOT="$tmp_dir/deploy" RELEASE_KEEP=0 "$ROOT/bin/release-prune" --execute
 [ -d "$tmp_dir/deploy/releases/20260716T000000Z-known-good" ]
 [ -d "$tmp_dir/deploy/releases/20260716T000100Z-candidate" ]
 [ ! -e "$tmp_dir/deploy/releases/20260715T235900Z-stale" ]
-printf '%s\n' 'Local stage, activation, smoke (when Caddy is available), rollback, and prune simulation passed.'
+printf '%s\n' 'Local transfer dry-run, stage, activation and rollback interruption recovery, production-root containment, canonical-route smoke, Soul default-deny, and prune simulation passed.'

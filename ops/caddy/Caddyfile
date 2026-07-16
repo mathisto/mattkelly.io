@@ -9,6 +9,7 @@
 		header @staticAssets Cache-Control "public, max-age=3600"
 		header @machineFiles Cache-Control "public, max-age=300"
 		header {
+			Content-Security-Policy "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
 			Strict-Transport-Security "max-age=31536000; includeSubDomains"
 			X-Content-Type-Options "nosniff"
 			X-Frame-Options "DENY"
@@ -29,13 +30,15 @@
 		redir /writing /writing/ 308
 		redir /about /about/ 308
 		redir /resume /resume/ 308
-		redir /blog /blog/ 308
+		redir /blog /writing/ 308
+		redir /blog/ /writing/ 308
 		redir /references /references/ 308
 		redir /now /now/ 308
 		redir /provenance /provenance/ 308
 		redir /site-history /site-history/ 308
 		redir /dragonruby /lab/dragonruby/ 308
 		redir /dragonruby/ /lab/dragonruby/ 308
+		redir /dragonruby/* /lab/dragonruby/ 308
 		redir /blog/building-mattkelly-io /blog/building-mattkelly-io/ 308
 		redir /blog/hello-world /blog/building-mattkelly-io/ 308
 		redir /blog/hello-world/ /blog/building-mattkelly-io/ 308
@@ -59,12 +62,14 @@
 # Soul is deliberately isolated on its own hostname and configurable upstream.
 # No apex request can fall through to this dynamic service.
 {$SOUL_ADDRESS:http://127.0.0.1:18081} {
+	@soulAllowed path /health /api/soul/stats.json
 	@soulStats path /api/soul/stats.json
 
 	route {
 		header Cache-Control "no-store"
 		header @soulStats Cache-Control "public, max-age=5"
 		header {
+			Content-Security-Policy "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"
 			Strict-Transport-Security "max-age=31536000; includeSubDomains"
 			X-Content-Type-Options "nosniff"
 			X-Frame-Options "DENY"
@@ -76,9 +81,7 @@
 		@unsupportedMethod not method GET HEAD
 		respond @unsupportedMethod 405
 
-		@retiredSoul path /load /load/* /api/recent.json /api/stats.json /api/host.json /api/soul/tasks.json /api/soul/spawn /api/soul/cancel /api/soul/demo/*
-		respond @retiredSoul 404
-
-		reverse_proxy {$SOUL_UPSTREAM:http://127.0.0.1:19090}
+		reverse_proxy @soulAllowed {$SOUL_UPSTREAM:http://127.0.0.1:19090}
+		respond 404
 	}
 }

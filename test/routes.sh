@@ -2,7 +2,8 @@
 set -eu
 
 ROOT=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
-PORT=${PORTFOLIO_TEST_PORT:-18080}
+PORT=${PORTFOLIO_TEST_PORT:-$((20000 + ($$ % 10000)))}
+SOUL_PORT=$((PORT + 1))
 BASE="http://127.0.0.1:$PORT"
 tmp_dir=$(mktemp -d "${TMPDIR:-/tmp}/mattkelly-routes.XXXXXX")
 pid=
@@ -22,8 +23,8 @@ expect_redirect() {
 }
 
 command -v caddy >/dev/null 2>&1 || fail "caddy is required for route contract tests"
-PORTFOLIO_ADDRESS="http://127.0.0.1:$PORT" PORTFOLIO_ROOT="$ROOT/dist" caddy validate --config "$ROOT/ops/caddy/Caddyfile" --adapter caddyfile >/dev/null
-PORTFOLIO_ADDRESS="http://127.0.0.1:$PORT" PORTFOLIO_ROOT="$ROOT/dist" caddy run --config "$ROOT/ops/caddy/Caddyfile" --adapter caddyfile >"$tmp_dir/caddy.log" 2>&1 &
+PORTFOLIO_ADDRESS="http://127.0.0.1:$PORT" PORTFOLIO_ROOT="$ROOT/dist" SOUL_ADDRESS="http://127.0.0.1:$SOUL_PORT" caddy validate --config "$ROOT/ops/caddy/Caddyfile" --adapter caddyfile >/dev/null
+PORTFOLIO_ADDRESS="http://127.0.0.1:$PORT" PORTFOLIO_ROOT="$ROOT/dist" SOUL_ADDRESS="http://127.0.0.1:$SOUL_PORT" caddy run --config "$ROOT/ops/caddy/Caddyfile" --adapter caddyfile >"$tmp_dir/caddy.log" 2>&1 &
 pid=$!
 
 attempt=0
@@ -34,7 +35,7 @@ while [ "$attempt" -lt 50 ]; do
 done
 [ "$attempt" -lt 50 ] || fail "Caddy did not start"
 
-for path in / /work/ /work/va-public-apis/ /work/legacy-recovery/ /work/data-advertising-systems/ /work/nuclear-to-software/ /lab/ /lab/quartz/ /lab/soul-of-quartz/ /lab/chip-8/ /lab/home-lab/ /lab/dragonruby/ /lab/scribe/ /lab/site-evolution/ /writing/ /about/ /resume/ /references/ /now/ /provenance/ /site-history/ /blog/ /blog/building-mattkelly-io/ /assets/css/site.css /sitemap.xml /robots.txt /favicon.ico /icon.png; do
+for path in / /work/ /work/va-public-apis/ /work/legacy-recovery/ /work/data-advertising-systems/ /work/nuclear-to-software/ /lab/ /lab/quartz/ /lab/soul-of-quartz/ /lab/chip-8/ /lab/home-lab/ /lab/dragonruby/ /lab/scribe/ /lab/site-evolution/ /writing/ /about/ /resume/ /references/ /now/ /provenance/ /site-history/ /blog/building-mattkelly-io/ /assets/css/site.css /sitemap.xml /robots.txt /favicon.ico /icon.png; do
   expect_code "$path" 200
 done
 expect_code /missing-route 404
@@ -50,13 +51,18 @@ expect_redirect /lab /lab/
 expect_redirect /writing /writing/
 expect_redirect /about /about/
 expect_redirect /resume /resume/
-expect_redirect /blog /blog/
+expect_redirect /blog /writing/
+expect_redirect /blog/ /writing/
 expect_redirect /references /references/
 expect_redirect /now /now/
 expect_redirect /provenance /provenance/
 expect_redirect /site-history /site-history/
 expect_redirect /dragonruby /lab/dragonruby/
 expect_redirect /dragonruby/ /lab/dragonruby/
+for tutorial in "$ROOT"/dragonruby/[0-9][0-9][0-9]-*.md; do
+  slug=$(basename "$tutorial" .md)
+  expect_redirect "/dragonruby/$slug" /lab/dragonruby/
+done
 expect_redirect /blog/building-mattkelly-io /blog/building-mattkelly-io/
 expect_redirect /blog/hello-world /blog/building-mattkelly-io/
 expect_redirect /blog/hello-world/ /blog/building-mattkelly-io/
@@ -67,5 +73,13 @@ if [ -f "$ROOT/dist/quartz/index.html" ]; then
 else
   expect_code /quartz 404
 fi
+
+[ "$(curl -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:$SOUL_PORT/health")" = "502" ] || fail "Soul /health was not proxied"
+[ "$(curl -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:$SOUL_PORT/api/soul/stats.json")" = "502" ] || fail "Soul stats were not proxied"
+for path in / /anything /api/soul/tasks.json /api/soul/stats.json/extra /health/; do
+  [ "$(curl -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:$SOUL_PORT$path")" = "404" ] || fail "Soul $path escaped default deny"
+done
+curl -sS -D "$tmp_dir/headers" -o /dev/null "$BASE/"
+grep -i '^Content-Security-Policy:.*default-src' "$tmp_dir/headers" >/dev/null || fail "portfolio CSP is missing"
 
 printf '%s\n' 'Caddy route contract tests passed.'

@@ -44,7 +44,7 @@ a {
 
 a:hover { color: #9ab8ff; text-decoration-color: currentColor; }
 
-:where(a, button, input, summary):focus-visible {
+:where(a, button, input, summary, pre):focus-visible {
   outline: 0.18rem solid var(--focus-color);
   outline-offset: 0.22rem;
 }
@@ -290,6 +290,7 @@ h3 { line-height: 1.28; letter-spacing: -0.015em; }
 .prose :where(p, li) { max-width: 70ch; }
 .prose blockquote { margin-inline: 0; padding-left: 1.2rem; border-left: 2px solid var(--secondary-color); color: var(--text-muted); }
 .prose pre { max-width: 100%; overflow-x: auto; padding: 1rem; border: 1px solid var(--border-color); background: var(--code-bg); }
+.prose pre[tabindex="0"] { scrollbar-gutter: stable; }
 .prose code { font-family: var(--font-mono); font-size: 0.9em; }
 .prose :not(pre) > code { padding: 0.12em 0.32em; background: var(--code-bg); color: #c8d3f5; }
 
@@ -430,4 +431,9 @@ h3 { line-height: 1.28; letter-spacing: -0.015em; }
   .claim-note { border-color: #555; background: none; }
   .pill { border-color: #777; color: #222; }
   .section, .section + .section { margin-block: 1.5rem; padding-top: 1rem; }
+  .cv-header { margin-bottom: 1.5rem; }
+  .job { break-inside: avoid-page; }
+  .job ul { margin-block: 0.35rem; }
+  .job p { margin-block: 0.25rem; }
+  @page { margin: 0.55in; }
 }

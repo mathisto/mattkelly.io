@@ -26,8 +26,80 @@ release_link_id() {
   [ -L "$link" ] || return 0
   target=$(readlink "$link")
   case "$target" in
-    releases/*) printf '%s\n' "${target#releases/}" ;;
+    releases/*)
+      link_id=${target#releases/}
+      require_release_id "$link_id"
+      printf '%s\n' "$link_id" ;;
     *) release_fail "$link does not point into releases/" ;;
+  esac
+}
+
+physical_deploy_root() {
+  requested=$1
+  [ ! -L "$requested" ] || release_fail "requested DEPLOY_ROOT must not be a symlink: $requested"
+  [ -d "$requested" ] || release_fail "deployment root is not a directory: $requested"
+  (CDPATH= cd -P -- "$requested" && pwd -P) || release_fail "cannot resolve deployment root: $requested"
+}
+
+production_deploy_root() {
+  requested=${PRODUCTION_DEPLOY_ROOT:-/opt/mattkelly}
+  [ ! -L "$requested" ] || release_fail "production deployment root must not be a symlink: $requested"
+  if [ -d "$requested" ]; then
+    physical_deploy_root "$requested"
+    return
+  fi
+  parent=$(dirname "$requested")
+  name=$(basename "$requested")
+  case "$name" in ''|.|..) release_fail "production deployment root is unsafe: $requested" ;; esac
+  parent=$(CDPATH= cd -P -- "$parent" && pwd -P) || release_fail "cannot resolve production deployment parent: $requested"
+  printf '%s/%s\n' "$parent" "$name"
+}
+
+is_production_deploy_root() {
+  actual=$1
+  [ "$actual" = "$(production_deploy_root)" ]
+}
+
+require_real_child_directory() {
+  parent=$1
+  child=$2
+  path="$parent/$child"
+  [ ! -L "$path" ] || release_fail "deployment path must not be a symlink: $path"
+  [ -d "$path" ] || release_fail "deployment path is not a directory: $path"
+  actual=$(CDPATH= cd -P -- "$path" && pwd -P) || release_fail "cannot resolve deployment path: $path"
+  [ "$actual" = "$parent/$child" ] || release_fail "deployment path escapes its physical parent: $path"
+}
+
+acquire_deploy_lock() {
+  lock=$1
+  if mkdir "$lock" 2>/dev/null; then
+    printf '%s\n' "$$" > "$lock/owner-pid"
+    return
+  fi
+  owner_file="$lock/owner-pid"
+  [ -f "$owner_file" ] && [ ! -L "$owner_file" ] || release_fail "another or legacy deployment operation holds $lock"
+  owner_pid=$(cat "$owner_file")
+  case "$owner_pid" in ''|*[!0-9]*) release_fail "deployment lock owner is malformed: $lock" ;; esac
+  if kill -0 "$owner_pid" 2>/dev/null; then
+    release_fail "another deployment operation holds $lock (pid $owner_pid)"
+  fi
+  rm -f "$owner_file"
+  rmdir "$lock" 2>/dev/null || release_fail "stale deployment lock contains unexpected state: $lock"
+  mkdir "$lock" 2>/dev/null || release_fail "could not reclaim stale deployment lock: $lock"
+  printf '%s\n' "$$" > "$lock/owner-pid"
+}
+
+release_deploy_lock() {
+  lock=$1
+  rm -f "$lock/owner-pid"
+  rmdir "$lock"
+}
+
+deployment_test_interrupt() {
+  point=$1
+  case "${RELEASE_TEST_INTERRUPT:-}" in
+    "kill-$point") kill -KILL "$$" ;;
+    "$point") release_fail "injected interruption at $point" ;;
   esac
 }
 

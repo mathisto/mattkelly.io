@@ -2,19 +2,26 @@
 set -eu
 
 ROOT=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
-ARTIFACT=${QUARTZ_ARTIFACT:-}
+ARTIFACT_SOURCE=${QUARTZ_ARTIFACT:-}
 fail() { printf 'assemble-release: %s\n' "$1" >&2; exit 1; }
 tmp_dir=$(mktemp -d "${TMPDIR:-/tmp}/mattkelly-assemble.XXXXXX")
 trap 'rm -rf "$tmp_dir"' EXIT HUP INT TERM
 
-[ -n "$ARTIFACT" ] || fail "QUARTZ_ARTIFACT is required"
-[ -d "$ARTIFACT" ] || fail "artifact is not a directory: $ARTIFACT"
+[ -n "$ARTIFACT_SOURCE" ] || fail "QUARTZ_ARTIFACT is required"
+[ -d "$ARTIFACT_SOURCE" ] || fail "artifact is not a directory: $ARTIFACT_SOURCE"
+[ ! -L "$ARTIFACT_SOURCE" ] || fail "artifact directory must not be a symlink"
+if find "$ARTIFACT_SOURCE" -type l -print | grep . >/dev/null; then
+  fail "artifact must not contain symlinks"
+fi
+ARTIFACT="$tmp_dir/artifact-snapshot"
+mkdir "$ARTIFACT"
+cp -R "$ARTIFACT_SOURCE/." "$ARTIFACT/"
 [ -f "$ARTIFACT/index.html" ] || fail "artifact is missing index.html"
 [ -f "$ARTIFACT/artifact-contract.env" ] || fail "artifact is missing artifact-contract.env"
 [ -f "$ARTIFACT/artifact-manifest.sha256" ] || fail "artifact is missing artifact-manifest.sha256"
 
 if find "$ARTIFACT" -type l -print | grep . >/dev/null; then
-  fail "artifact must not contain symlinks"
+  fail "artifact snapshot must not contain symlinks"
 fi
 
 if grep -Ev '^[0-9a-f]{64}  [A-Za-z0-9._/-]+$' "$ARTIFACT/artifact-manifest.sha256" | grep . >/dev/null; then
@@ -63,5 +70,12 @@ unset QUARTZ_ARTIFACT
 mkdir -p "$ROOT/dist/quartz"
 cp -R "$ARTIFACT/." "$ROOT/dist/quartz/"
 rm -f "$ROOT/dist/quartz/artifact-contract.env" "$ROOT/dist/quartz/artifact-manifest.sha256"
+sitemap_tmp="$tmp_dir/sitemap.xml"
+while IFS= read -r line; do
+  if [ "$line" = "</urlset>" ]; then printf '%s\n' '  <url><loc>https://mattkelly.io/quartz</loc></url>'; fi
+  printf '%s\n' "$line"
+done < "$ROOT/dist/sitemap.xml" > "$sitemap_tmp"
+mv "$sitemap_tmp" "$ROOT/dist/sitemap.xml"
 PORTFOLIO_REQUIRE_QUARTZ=1 "$ROOT/bin/check"
+[ -z "${QUARTZ_ASSEMBLY_RECEIPT:-}" ] || printf '%s\n' "$SOURCE_REVISION" > "$QUARTZ_ASSEMBLY_RECEIPT"
 printf '%s\n' 'Release assembled. Artifact integrity and route contract validated; no security attestation is implied.'

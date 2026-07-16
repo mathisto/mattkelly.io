@@ -1,16 +1,34 @@
 #!/bin/sh
 set -eu
 
-[ "${PORTFOLIO_RELEASE_BUILD_TEST_ACTIVE:-0}" != "1" ] || exit 0
-
 ROOT=$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)
+snapshot_skip_message='Release-build regression skipped in validated Git-less snapshot.'
+if [ ! -e "$ROOT/.git" ]; then
+  printf '%s\n' "$snapshot_skip_message"
+  exit 0
+fi
+unset GIT_DIR GIT_WORK_TREE
+[ "$(git -C "$ROOT" rev-parse --is-inside-work-tree)" = "true" ] || {
+  printf '%s\n' 'release-build test: repository metadata does not identify a Git worktree' >&2
+  exit 1
+}
+
 QUARTZ_CHECKOUT=${QUARTZ_CHECKOUT:-"$ROOT/../quartz"}
-export QUARTZ_CHECKOUT PORTFOLIO_RELEASE_BUILD_TEST_ACTIVE=1
+export QUARTZ_CHECKOUT
 tmp_dir=$(mktemp -d "${TMPDIR:-/tmp}/mattkelly-release-build.XXXXXX")
 trap 'rm -rf "$tmp_dir"' EXIT HUP INT TERM
 fixture_root="$tmp_dir/repository"
+snapshot_root="$tmp_dir/gitless-snapshot"
 artifact="$tmp_dir/artifact"
 output="$tmp_dir/releases/complete-fixture"
+
+mkdir -p "$snapshot_root/test"
+cp "$ROOT/test/release_build.sh" "$snapshot_root/test/release_build.sh"
+snapshot_result=$(PORTFOLIO_RELEASE_BUILD_TEST_ACTIVE=1 GIT_DIR="$ROOT/.git" GIT_WORK_TREE="$ROOT" "$snapshot_root/test/release_build.sh")
+[ "$snapshot_result" = "$snapshot_skip_message" ] || {
+  printf '%s\n' 'release-build test: Git-less snapshot did not report the expected recursive-test skip' >&2
+  exit 1
+}
 
 git clone --quiet "$ROOT" "$fixture_root"
 mkdir -p "$fixture_root/test" "$artifact" "$(dirname "$output")"

@@ -4,7 +4,7 @@ This ledger freezes the foundation migration state. `Preserved` does not mean in
 
 | Source | Static destination | Disposition | Validation / evidence state |
 | --- | --- | --- | --- |
-| Rails home, projects, and CV views | `site/content/pages/` | Adapted | Biographical and accomplishment claims are visibly labeled personal accounts; independent evidence pending |
+| Rails home, projects, and CV views | `/`, `/work/*`, `/about/`, `/resume/` | Adapted into living-resume content | Professional outcomes remain visibly labeled personal accounts in the validated claim ledger |
 | Five reference cards | `site/content/pages/references.html` | Migrated with confirmed publication consent | Quotations and attribution transcribed from Rails source; source snapshot is Git history |
 | Five reference JPEGs | `site/public/images/references/` | Byte-preserved | JPEG type and pinned SHA-256 validated |
 | Tokyo Night blog cover | `site/public/images/blog/` | Byte-preserved | PNG type and pinned SHA-256 validated |
@@ -13,14 +13,14 @@ This ledger freezes the foundation migration state. `Preserved` does not mean in
 | Rails DOCX CV | None | Withheld | ZIP integrity passed; no public pair is shipped until both formats are deliberately redacted and reviewed |
 | Published `building-mattkelly-io` post | `site/content/blog/` | Migrated as historical personal account | Frontmatter and output validated; detailed claims not independently verified |
 | `hello-world` post | Redirect contract only | Retired | Caddy and static tombstone point to the canonical historical article |
-| DragonRuby tutorial Markdown | `dragonruby/` | Preserved archive | Not rendered by the core site |
+| DragonRuby tutorial Markdown | `dragonruby/` and `/lab/dragonruby/` | Preserved archive with public disposition page | Not rendered as lessons by the core site |
 | DragonRuby browser artifacts | `public/dragonruby/` | Preserved archive | Excluded from `dist`; execution, provenance, licensing, and required headers are not verified |
 | Quartz Astro site | External `/quartz` artifact | Separately assembled | Requires contract, complete SHA-256 inventory, and active-content-free network profile; conformance is not a general security attestation |
 | Rails/Scribe application and data | Git history / private archival process | Not migrated | Private Scribe data is out of portfolio scope |
 
-## Evidence Placeholders
+## Evidence Ledger
 
-Foundation pages intentionally use personal-account labels. Before removing those labels, add an evidence record under `docs/migrations/portfolio/evidence/` containing the claim, source, capture date, repository revision where applicable, publication constraints, and reviewer.
+`site/content/claims.txt` contains the canonical flat claim records. The build validates record shape and state; output checks validate that page-level claim references resolve. Removing a personal-account label requires a reviewed source record and corresponding copy change.
 
 ## Canonical Scribe Change
 

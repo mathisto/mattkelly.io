@@ -1,14 +1,11 @@
 # Claim Evidence Records
 
-No independent evidence records have been approved in this foundation.
+The canonical public ledger is the build-validated flat file at `site/content/claims.txt`. One record occupies one line:
 
-Future records should include:
+```text
+id|status|claim|source|reviewed_on|reviewer|pages|boundary
+```
 
-- Exact public claim
-- Classification: independent source, repository evidence, attributed reference, or personal account
-- Source location and immutable revision or capture date
-- Privacy and publication review
-- Reviewer and review date
-- Pages authorized to consume the evidence
+Approved statuses are `source`, `public`, and `personal-account`. The Quartz build rejects malformed dates, unknown statuses, duplicate or unsafe identifiers, and missing source, review, page, or disclosure fields. `bin/check` also rejects generated `data-claim` references that do not resolve to the ledger.
 
-Until a record exists, affected public copy remains visibly labeled as a personal account.
+The ledger records publication authority, not universal truth. `source` is limited to the named immutable repository record. `public` may establish context without proving individual contribution. `personal-account` remains visibly labeled in public copy.

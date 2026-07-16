@@ -14,9 +14,13 @@ hash_file() { shasum -a 256 "$1" | cut -d' ' -f1; }
 
 [ -z "${QUARTZ_ARTIFACT:-}" ] || fail "QUARTZ_ARTIFACT is not accepted by the core build; use bin/assemble-release"
 
-for path in site/ssg/build.qz site/ssg/content.qz site/ssg/doc.qz site/ssg/markdown.qz site/ssg/template.qz site/ssg/theme.qz site/layouts/base.html site/content/pages/home.html site/content/pages/projects.html site/content/pages/cv.html site/content/pages/references.html site/content/pages/dragonruby.html site/content/pages/404.html site/content/blog site/content/blog.order site/public/assets/css/site.css site/assets.sha256; do
+for path in site/ssg/build.qz site/ssg/content.qz site/ssg/doc.qz site/ssg/markdown.qz site/ssg/records.qz site/ssg/template.qz site/ssg/theme.qz site/layouts/base.html site/content/routes.txt site/content/claims.txt site/content/terminal.commands site/content/pages/404.html site/content/blog site/content/blog.order site/public/assets/css/site.css site/assets.sha256; do
   [ -e "$ROOT/$path" ] || fail "missing required input: $path"
 done
+while IFS='|' read -r route source title description indexed; do
+  case "$route" in ''|'#'*) continue ;; esac
+  [ -f "$ROOT/site/content/pages/$source" ] || fail "route source does not exist: $source"
+done < "$ROOT/site/content/routes.txt"
 
 git -C "$QUARTZ_CHECKOUT" rev-parse --git-dir >/dev/null 2>&1 || fail "QUARTZ_CHECKOUT is not a Git checkout: $QUARTZ_CHECKOUT"
 [ -x "$QUARTZ_COMPILER" ] || fail "Quartz compiler is not executable: $QUARTZ_COMPILER"
@@ -51,6 +55,10 @@ fi
 
 tmp_dir=$(mktemp -d "${TMPDIR:-/tmp}/mattkelly-build.XXXXXX")
 trap 'rm -rf "$tmp_dir"' EXIT HUP INT TERM
+
+find "$ROOT/site/content/pages" -type f -name '*.html' ! -name '404.html' -exec basename {} \; | LC_ALL=C sort > "$tmp_dir/actual-pages"
+grep -v -E '^(#|$)' "$ROOT/site/content/routes.txt" | cut -d'|' -f2 | LC_ALL=C sort > "$tmp_dir/declared-pages"
+cmp "$tmp_dir/actual-pages" "$tmp_dir/declared-pages" >/dev/null || fail "routes.txt must list every semantic page exactly once"
 
 find "$ROOT/site/content/blog" -type f -name '*.md' -exec basename {} \; | LC_ALL=C sort > "$tmp_dir/actual-blog"
 grep -v '^$' "$ROOT/site/content/blog.order" | LC_ALL=C sort > "$tmp_dir/declared-blog"

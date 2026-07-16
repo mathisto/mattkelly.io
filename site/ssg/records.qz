@@ -1,0 +1,85 @@
+import ssg/content
+import ssg/template
+
+def _record_line_active(line: String): Bool
+  var value = str_trim(line)
+  return value != "" and str_starts_with(value, "#") == false
+end
+
+def records_validate_claims(src: String): Int
+  var lines = str_split(src, "\n")
+  var ids: Vec<String> = vec_new()
+  var count = 0
+  var i = 0
+  while i < lines.size
+    if _record_line_active(lines[i])
+      var fields = str_split(lines[i], "|")
+      if fields.size != 8
+        puts("error: claims.txt line " + str_from_int(i + 1) + " must have 8 fields")
+        return 0 - 1
+      end
+      var id = str_trim(fields[0])
+      var status = str_trim(fields[1])
+      if content_slug_valid(id) == false
+        puts("error: invalid claim id: " + id)
+        return 0 - 1
+      end
+      var j = 0
+      while j < ids.size
+        if ids[j] == id
+          puts("error: duplicate claim id: " + id)
+          return 0 - 1
+        end
+        j = j + 1
+      end
+      if status != "source" and status != "public" and status != "personal-account"
+        puts("error: invalid claim status: " + status)
+        return 0 - 1
+      end
+      if str_trim(fields[2]) == "" or str_trim(fields[3]) == "" or content_date_valid(str_trim(fields[4])) == false or str_trim(fields[5]) == "" or str_starts_with(str_trim(fields[6]), "/") == false or str_trim(fields[7]) == ""
+        puts("error: incomplete claim record: " + id)
+        return 0 - 1
+      end
+      ids.push(id)
+      count = count + 1
+    end
+    i = i + 1
+  end
+  return count
+end
+
+def records_render_terminal(src: String): String
+  var lines = str_split(src, "\n")
+  var commands: Vec<String> = vec_new()
+  var out = sb_new()
+  out.append("<dl class=\"terminal-commands\">\n")
+  var i = 0
+  while i < lines.size
+    if _record_line_active(lines[i])
+      var fields = str_split(lines[i], "|")
+      if fields.size != 3
+        return ""
+      end
+      var command = str_trim(fields[0])
+      var target = str_trim(fields[2])
+      if content_slug_valid(command) == false or str_starts_with(target, "/") == false
+        return ""
+      end
+      var j = 0
+      while j < commands.size
+        if commands[j] == command
+          return ""
+        end
+        j = j + 1
+      end
+      commands.push(command)
+      out.append("<div><dt><a href=\"" + html_attribute_escape(target) + "\">" + html_context_escape(command) + "</a></dt><dd>" + html_context_escape(str_trim(fields[1])) + "</dd></div>\n")
+    end
+    i = i + 1
+  end
+  if commands.size == 0
+    return ""
+  end
+  out.append("</dl>")
+  return out.to_string()
+end

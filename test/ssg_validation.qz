@@ -2,6 +2,7 @@ import ssg/doc
 import ssg/content
 import ssg/template
 import ssg/markdown
+import ssg/records
 
 def check_case(condition: Bool, message: String): Int
   if condition == false
@@ -97,6 +98,13 @@ def main(): Int
   failures = failures + check_case(str_contains(content_validate_doc(unsafe_redirect, "old-title"), "safe internal"), "unsafe redirect")
 
   failures = failures + check_case(html_context_escape("<tag attr=\"x\">&'") == "&lt;tag attr=&quot;x&quot;&gt;&amp;&#39;", "HTML context escaping")
+  var claims = "# header\nexample-claim|source|A scoped claim|git:abc:path|2026-07-16|reviewer|/about/|A disclosure boundary.\n"
+  failures = failures + check_case(records_validate_claims(claims) == 1, "valid flat claim record")
+  failures = failures + check_case(records_validate_claims(str_replace(claims, "|source|", "|unsupported|")) < 0, "unknown claim status rejected")
+  failures = failures + check_case(records_validate_claims(claims + str_replace(claims, "# header\n", "")) < 0, "duplicate claim id rejected")
+  var terminal = records_render_terminal("work|Read the work.|/work/\nlab|Inspect the lab.|/lab/\n")
+  failures = failures + check_case(str_contains(terminal, "href=\"/work/\"") and str_contains(terminal, "<dt>"), "terminal command rendering")
+  failures = failures + check_case(records_render_terminal("bad command|No.|/work/\n") == "", "invalid terminal command rejected")
   if failures == 0
     puts("SSG validation tests passed.")
   end

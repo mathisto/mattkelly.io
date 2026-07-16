@@ -34,18 +34,29 @@ while [ "$attempt" -lt 50 ]; do
 done
 [ "$attempt" -lt 50 ] || fail "Caddy did not start"
 
-for path in / /projects/ /cv/ /blog/ /blog/building-mattkelly-io/ /references/ /dragonruby/ /assets/css/site.css /sitemap.xml /robots.txt /favicon.ico /icon.png; do
+for path in / /work/ /work/va-public-apis/ /work/legacy-recovery/ /work/data-advertising-systems/ /work/nuclear-to-software/ /lab/ /lab/quartz/ /lab/soul-of-quartz/ /lab/chip-8/ /lab/home-lab/ /lab/dragonruby/ /lab/scribe/ /lab/site-evolution/ /writing/ /about/ /resume/ /references/ /now/ /provenance/ /site-history/ /blog/ /blog/building-mattkelly-io/ /assets/css/site.css /sitemap.xml /robots.txt /favicon.ico /icon.png; do
   expect_code "$path" 200
 done
 expect_code /missing-route 404
 expect_code /CV.pdf 410
 expect_code /CV.docx 410
 
-expect_redirect /projects /projects/
-expect_redirect /cv /cv/
+expect_redirect /projects /work/
+expect_redirect /projects/ /work/
+expect_redirect /cv /resume/
+expect_redirect /cv/ /resume/
+expect_redirect /work /work/
+expect_redirect /lab /lab/
+expect_redirect /writing /writing/
+expect_redirect /about /about/
+expect_redirect /resume /resume/
 expect_redirect /blog /blog/
 expect_redirect /references /references/
-expect_redirect /dragonruby /dragonruby/
+expect_redirect /now /now/
+expect_redirect /provenance /provenance/
+expect_redirect /site-history /site-history/
+expect_redirect /dragonruby /lab/dragonruby/
+expect_redirect /dragonruby/ /lab/dragonruby/
 expect_redirect /blog/building-mattkelly-io /blog/building-mattkelly-io/
 expect_redirect /blog/hello-world /blog/building-mattkelly-io/
 expect_redirect /blog/hello-world/ /blog/building-mattkelly-io/

@@ -6,6 +6,7 @@ import ssg/content
 import ssg/template
 import ssg/markdown
 import ssg/theme
+import ssg/records
 
 def _document_title(title: String): String
   if title == "Matt Kelly"
@@ -22,9 +23,69 @@ def _wrap(layout: String, title: String, description: String, path: String, page
   return str_replace(out, "{{content}}", content_html)
 end
 
-def _render_page(src_path: String, out_dir: String, path: String, title: String, description: String, layout: String): Void
+def _render_page(src_path: String, out_dir: String, path: String, title: String, description: String, layout: String, terminal_html: String): Void
   mkdir(out_dir)
-  write_file(out_dir + "/index.html", _wrap(layout, title, description, path, "website", read_file(src_path)))
+  var body = str_replace(read_file(src_path), "{{terminal_commands}}", terminal_html)
+  write_file(out_dir + "/index.html", _wrap(layout, title, description, path, "website", body))
+end
+
+def _route_path_valid(path: String): Bool
+  if path == "/"
+    return true
+  end
+  if str_starts_with(path, "/") == false or str_ends_with(path, "/") == false or str_contains(path, "//")
+    return false
+  end
+  var parts = str_split(str_byte_slice(path, 1, str_byte_len(path) - 1), "/")
+  var i = 0
+  while i < parts.size
+    if content_slug_valid(parts[i]) == false
+      return false
+    end
+    i = i + 1
+  end
+  return true
+end
+
+def render_routes(layout: String, terminal_html: String): Int
+  var lines = str_split(read_file("site/content/routes.txt"), "\n")
+  var paths: Vec<String> = vec_new()
+  var count = 0
+  var i = 0
+  while i < lines.size
+    var line = str_trim(lines[i])
+    if line != "" and str_starts_with(line, "#") == false
+      var fields = str_split(line, "|")
+      if fields.size != 5
+        puts("error: routes.txt line " + str_from_int(i + 1) + " must have 5 fields")
+        return 0 - 1
+      end
+      var path = str_trim(fields[0])
+      var source = str_trim(fields[1])
+      var indexed = str_trim(fields[4])
+      if _route_path_valid(path) == false or str_contains(source, "/") or str_contains(source, "..") or str_ends_with(source, ".html") == false
+        puts("error: invalid route record: " + line)
+        return 0 - 1
+      end
+      if str_trim(fields[2]) == "" or str_trim(fields[3]) == "" or (indexed != "yes" and indexed != "no")
+        puts("error: incomplete route record: " + path)
+        return 0 - 1
+      end
+      if _contains(paths, path)
+        puts("error: duplicate route: " + path)
+        return 0 - 1
+      end
+      paths.push(path)
+      var out_dir = "dist"
+      if path != "/"
+        out_dir = "dist" + str_byte_slice(path, 0, str_byte_len(path) - 1)
+      end
+      _render_page("site/content/pages/" + source, out_dir, path, str_trim(fields[2]), str_trim(fields[3]), layout, terminal_html)
+      count = count + 1
+    end
+    i = i + 1
+  end
+  return count
 end
 
 def _filename_slug(fname: String): String
@@ -106,19 +167,19 @@ def render_blog(layout: String): Int
 
   var sitemap = sb_new()
   sitemap.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n")
-  var fixed: Vec<String> = vec_new()
-  fixed.push("")
-  fixed.push("projects/")
-  fixed.push("cv/")
-  fixed.push("references/")
-  fixed.push("dragonruby/")
-  fixed.push("blog/")
-  fixed.push("quartz")
+  var route_lines = str_split(read_file("site/content/routes.txt"), "\n")
   i = 0
-  while i < fixed.size
-    sitemap.append("  <url><loc>https://mattkelly.io/" + fixed[i] + "</loc></url>\n")
+  while i < route_lines.size
+    var route_line = str_trim(route_lines[i])
+    if route_line != "" and str_starts_with(route_line, "#") == false
+      var route_fields = str_split(route_line, "|")
+      if route_fields.size == 5 and str_trim(route_fields[4]) == "yes"
+        sitemap.append("  <url><loc>https://mattkelly.io" + str_trim(route_fields[0]) + "</loc></url>\n")
+      end
+    end
     i = i + 1
   end
+  sitemap.append("  <url><loc>https://mattkelly.io/quartz</loc></url>\n")
   i = 0
   while i < slugs.size
     sitemap.append("  <url><loc>https://mattkelly.io/blog/" + slugs[i] + "/</loc></url>\n")
@@ -135,19 +196,28 @@ def main(): Int
   mkdir("dist/assets/css")
   write_file("dist/assets/css/themes.css", render_themes_css())
   var layout = read_file("site/layouts/base.html")
-  _render_page("site/content/pages/home.html", "dist", "/", "Matt Kelly", "Technical leadership, systems architecture, and selected work by Matt Kelly.", layout)
-  _render_page("site/content/pages/projects.html", "dist/projects", "/projects/", "Projects", "Selected software, systems, and open-source work.", layout)
-  _render_page("site/content/pages/cv.html", "dist/cv", "/cv/", "CV", "Professional experience and education.", layout)
-  _render_page("site/content/pages/references.html", "dist/references", "/references/", "References", "Consented professional references for Matt Kelly.", layout)
-  _render_page("site/content/pages/dragonruby.html", "dist/dragonruby", "/dragonruby/", "DragonRuby Lab Archive", "Archived DragonRuby tutorial and browser-artifact disposition.", layout)
-  _render_page("site/content/pages/404.html", "dist/404", "/404/", "Page Not Found", "The requested page could not be found.", layout)
+  var claim_count = records_validate_claims(read_file("site/content/claims.txt"))
+  if claim_count < 0
+    return 1
+  end
+  var terminal_html = records_render_terminal(read_file("site/content/terminal.commands"))
+  if terminal_html == ""
+    puts("error: terminal command model is invalid or empty")
+    return 1
+  end
+  var page_count = render_routes(layout, terminal_html)
+  if page_count < 0
+    return 1
+  end
+  _render_page("site/content/pages/404.html", "dist/404", "/404/", "Page Not Found", "The requested page could not be found.", layout, terminal_html)
   write_file("dist/404.html", read_file("dist/404/index.html"))
   write_file("dist/robots.txt", "User-agent: *\nAllow: /\nSitemap: https://mattkelly.io/sitemap.xml\n")
   var blog_count = render_blog(layout)
   if blog_count < 0
     return 1
   end
-  puts("portfolio: 6 pages")
+  puts("portfolio pages: " + str_from_int(page_count))
+  puts("claim records: " + str_from_int(claim_count))
   puts("blog outputs: " + str_from_int(blog_count))
   puts("done -> dist/")
   return 0

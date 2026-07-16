@@ -27,7 +27,11 @@ Artifact validation checks integrity and route contract, not security. See `docs
 
 ## Structure
 
-- `site/`: static portfolio source and Quartz SSG
+- `site/content/routes.txt`: canonical page route, metadata, and sitemap manifest
+- `site/content/claims.txt`: flat, build-validated claim and disclosure ledger
+- `site/content/terminal.commands`: non-JavaScript evidence-navigation content model
+- `site/content/pages/`: semantic HTML for Work, Lab, Writing, About, Resume, References, Now, Provenance, and Site History
+- `site/ssg/`: Quartz static generator and content validation
 - `test/`: content, output, and route validation
 - `ops/caddy/`: frozen serving and redirect contract
 - `docs/migrations/portfolio/`: decisions, disposition ledger, and evidence placeholders

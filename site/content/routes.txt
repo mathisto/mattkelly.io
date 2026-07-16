@@ -1,0 +1,22 @@
+# path|source|title|description|indexed
+/|home.html|Matt Kelly|Systems-minded software leadership shaped by nuclear operations, field engineering, and software delivery.|yes
+/work/|work.html|Work|Selected professional case studies with explicit evidence and disclosure boundaries.|yes
+/work/va-public-apis/|work-va-public-apis.html|VA Public APIs|A personal account of modernization and delivery work on public-service API systems.|yes
+/work/legacy-recovery/|work-legacy-recovery.html|Legacy Recovery|A personal account of recovering and migrating long-lived software systems.|yes
+/work/data-advertising-systems/|work-data-advertising-systems.html|Data and Advertising Systems|A personal account of advertising, accounting, classification, and large-scale data work.|yes
+/work/nuclear-to-software/|work-nuclear-to-software.html|Nuclear to Software|How operating discipline and field engineering informed a transition into software.|yes
+/lab/|lab.html|Lab|Public experiments, architecture notes, and carefully bounded system demonstrations.|yes
+/lab/quartz/|lab-quartz.html|Quartz|The public-source record for the Quartz systems language and compiler.|yes
+/lab/soul-of-quartz/|lab-soul-of-quartz.html|Soul of Quartz|A bounded explanation of the isolated Quartz unikernel demonstration.|yes
+/lab/chip-8/|lab-chip-8.html|CHIP-8 in Quartz|A Quartz CHIP-8 emulator compiled for a browser demonstration.|yes
+/lab/home-lab/|lab-home-lab.html|Home Lab|A sanitized logical architecture and honest operational boundary map.|yes
+/lab/dragonruby/|lab-dragonruby.html|DragonRuby Archive|Disposition of the historical tutorial and browser-runtime experiment.|yes
+/lab/scribe/|lab-scribe.html|Scribe Architecture|An architectural archive of a private natural-language tracking system.|yes
+/lab/site-evolution/|lab-site-evolution.html|Site Evolution|The portfolio as an evolving implementation rather than a finished artifact.|yes
+/writing/|writing.html|Writing|Published essays and technical notes.|yes
+/about/|about.html|About|Background, working principles, and disclosure conventions.|yes
+/resume/|resume.html|Resume|Professional chronology with scoped personal-account outcomes.|yes
+/references/|references.html|References|Consented professional references for Matt Kelly.|yes
+/now/|now.html|Now|Current focus, active work, and deliberately deferred work.|yes
+/provenance/|provenance.html|Provenance|Claims, source boundaries, and the current static build receipt.|yes
+/site-history/|site-history.html|Site History|A public chronology of the portfolio and its implementation eras.|yes

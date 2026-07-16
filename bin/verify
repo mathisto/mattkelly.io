@@ -31,5 +31,6 @@ cmp "$tmp_dir/first.sha256" "$tmp_dir/second.sha256"
 "$ROOT/test/evidence_manifest.sh"
 "$ROOT/test/routes.sh"
 "$ROOT/test/artifact_contract.sh"
+"$ROOT/test/release_build.sh"
 "$ROOT/ops/deploy/simulate-local.sh"
 printf '%s\n' 'Two clean builds are byte-identical; content, artifact, browser/static route, Caddy, and full deployment simulation checks passed.'

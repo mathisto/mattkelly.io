@@ -10,6 +10,9 @@ if [ "${1:-}" = "--core-only-preview" ]; then
   profile=core-only-preview
   shift
 fi
+unset quartz_artifact
+quartz_artifact=${QUARTZ_ARTIFACT:-}
+unset QUARTZ_ARTIFACT
 [ "$#" = "1" ] || release_fail "usage: bin/release-build [--core-only-preview] OUTPUT_DIRECTORY"
 output=$1
 case "$output" in /*) ;; *) release_fail "output directory must be absolute" ;; esac
@@ -33,7 +36,7 @@ fi
 quartz_validation=not-included
 quartz_source=none
 validation_summary='core:passed,quartz:not-included'
-[ "$profile" != "complete" ] || [ -n "${QUARTZ_ARTIFACT:-}" ] || release_fail "QUARTZ_ARTIFACT is required for a complete release"
+[ "$profile" != "complete" ] || [ -n "$quartz_artifact" ] || release_fail "QUARTZ_ARTIFACT is required for a complete release"
 source_root=$ROOT
 source_snapshot=
 evidence_hash=
@@ -62,7 +65,7 @@ else
 fi
 if [ "$profile" = "complete" ]; then
   receipt="$source_snapshot/.quartz-assembly-receipt"
-  QUARTZ_ARTIFACT="$QUARTZ_ARTIFACT" QUARTZ_ASSEMBLY_RECEIPT="$receipt" \
+  QUARTZ_ARTIFACT="$quartz_artifact" QUARTZ_ASSEMBLY_RECEIPT="$receipt" \
   PORTFOLIO_EVIDENCE_MANIFEST="$source_root/site/content/validated-evidence.manifest" \
   PORTFOLIO_EVIDENCE_MANIFEST_SHA256="$evidence_hash" \
     "$source_root/bin/assemble-release"

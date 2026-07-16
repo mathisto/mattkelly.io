@@ -113,6 +113,41 @@ atomic_replace_link() {
   fi
 }
 
+release_sha256_tool() {
+  case "${RELEASE_SHA256_TOOL:-}" in
+    shasum|sha256sum) tool=$RELEASE_SHA256_TOOL ;;
+    '')
+      if command -v shasum >/dev/null 2>&1; then tool=shasum
+      elif command -v sha256sum >/dev/null 2>&1; then tool=sha256sum
+      else release_fail "shasum or sha256sum is required"
+      fi ;;
+    *) release_fail "unsupported RELEASE_SHA256_TOOL: $RELEASE_SHA256_TOOL" ;;
+  esac
+  command -v "$tool" >/dev/null 2>&1 || release_fail "$tool is required"
+  printf '%s\n' "$tool"
+}
+
+release_sha256_check() {
+  checksum_file=$1
+  tool=$(release_sha256_tool)
+  if [ "$tool" = "shasum" ]; then shasum -a 256 -c "$checksum_file"
+  else sha256sum -c "$checksum_file"
+  fi
+}
+
+release_sha256_digest() {
+  checksum_path=$1
+  tool=$(release_sha256_tool)
+  if [ "$tool" = "shasum" ]; then
+    checksum_output=$(shasum -a 256 "$checksum_path") || release_fail "shasum failed for $checksum_path"
+  else
+    checksum_output=$(sha256sum "$checksum_path") || release_fail "sha256sum failed for $checksum_path"
+  fi
+  checksum_digest=${checksum_output%% *}
+  printf '%s' "$checksum_digest" | grep -E '^[0-9a-f]{64}$' >/dev/null || release_fail "invalid SHA-256 output for $checksum_path"
+  printf '%s\n' "$checksum_digest"
+}
+
 validate_release() {
   release=$1
   require_profile=${2:-any}
@@ -188,9 +223,9 @@ validate_release() {
     find public -type f -print | LC_ALL=C sort > "$tmp_dir/actual"
     cut -c67- release-files.sha256 | LC_ALL=C sort > "$tmp_dir/declared"
     cmp "$tmp_dir/actual" "$tmp_dir/declared" >/dev/null || release_fail "file inventory is incomplete"
-    shasum -a 256 -c release-files.sha256 >/dev/null || release_fail "release file hash verification failed"
+    release_sha256_check release-files.sha256 >/dev/null || release_fail "release file hash verification failed"
   )
   expected_inventory_hash=$(manifest_value "$manifest" FILE_MANIFEST_SHA256)
-  actual_inventory_hash=$(shasum -a 256 "$inventory" | cut -d' ' -f1)
+  actual_inventory_hash=$(release_sha256_digest "$inventory")
   [ "$actual_inventory_hash" = "$expected_inventory_hash" ] || release_fail "file inventory hash does not match manifest"
 }

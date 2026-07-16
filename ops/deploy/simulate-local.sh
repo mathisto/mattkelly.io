@@ -11,6 +11,13 @@ cleanup() {
 }
 trap cleanup EXIT HUP INT TERM
 
+if command -v sha256sum >/dev/null 2>&1; then
+  RELEASE_SHA256_TOOL=sha256sum
+  export RELEASE_SHA256_TOOL
+fi
+RELEASE_COMMAND=simulate-local
+. "$ROOT/bin/release-lib"
+
 make_release() {
   id=$1
   release="$tmp_dir/source/$id"
@@ -24,9 +31,11 @@ make_release() {
   printf '%s\n' '<urlset></urlset>' > "$release/public/sitemap.xml"
   (
     cd "$release"
-    find public -type f -print | LC_ALL=C sort | while IFS= read -r path; do shasum -a 256 "$path"; done > release-files.sha256
+    find public -type f -print | LC_ALL=C sort | while IFS= read -r path; do
+      printf '%s  %s\n' "$(release_sha256_digest "$path")" "$path"
+    done > release-files.sha256
   )
-  inventory_hash=$(shasum -a 256 "$release/release-files.sha256" | cut -d' ' -f1)
+  inventory_hash=$(release_sha256_digest "$release/release-files.sha256")
   cat > "$release/release-manifest.env" <<EOF
 MANIFEST_VERSION=1
 RELEASE_ID=$id

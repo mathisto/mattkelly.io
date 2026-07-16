@@ -72,8 +72,8 @@
 # Soul is deliberately isolated on its own hostname and configurable upstream.
 # No apex request can fall through to this dynamic service.
 {$SOUL_ADDRESS:http://127.0.0.1:18081} {
-	@soulAllowed path /health /api/soul/stats.json
-	@soulStats path /api/soul/stats.json
+	@soulHealth expression `{http.request.orig_uri} == "/health" || {http.request.orig_uri}.startsWith("/health?")`
+	@soulStats expression `{http.request.orig_uri} == "/api/soul/stats.json" || {http.request.orig_uri}.startsWith("/api/soul/stats.json?")`
 
 	route {
 		header Cache-Control "no-store"
@@ -91,7 +91,10 @@
 		@unsupportedMethod not method GET HEAD
 		respond @unsupportedMethod 405
 
-		reverse_proxy @soulAllowed {$SOUL_UPSTREAM:http://127.0.0.1:19090}
+		rewrite @soulHealth /health
+		reverse_proxy @soulHealth {$SOUL_UPSTREAM:http://127.0.0.1:19090}
+		rewrite @soulStats /api/soul/stats.json
+		reverse_proxy @soulStats {$SOUL_UPSTREAM:http://127.0.0.1:19090}
 		respond 404
 	}
 }

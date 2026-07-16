@@ -93,6 +93,9 @@ fi
 for path in / /anything /api/soul/tasks.json /api/soul/stats.json/extra /health/; do
   [ "$(curl -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:$SOUL_PORT$path")" = "404" ] || fail "Soul $path escaped default deny"
 done
+for path in //health ///health /./health /x/../health /%68ealth /api/soul%2fstats.json //api/soul/stats.json /api//soul/stats.json /api/soul/../soul/stats.json; do
+  [ "$(curl --path-as-is -sS -o /dev/null -w '%{http_code}' "http://127.0.0.1:$SOUL_PORT$path")" = "404" ] || fail "Soul raw URI $path escaped default deny"
+done
 expect_security_headers /
 expect_security_headers /quartz/missing
 

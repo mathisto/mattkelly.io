@@ -6,9 +6,10 @@ tmp_dir=$(mktemp -d "${TMPDIR:-/tmp}/mattkelly-check.XXXXXX")
 trap 'rm -rf "$tmp_dir"' EXIT HUP INT TERM
 fail() { printf 'check: %s\n' "$1" >&2; exit 1; }
 
-for path in dist/blog/index.html dist/blog/building-mattkelly-io/index.html dist/blog/hello-world/index.html dist/404.html dist/404/index.html dist/sitemap.xml dist/robots.txt dist/assets/css/themes.css dist/assets/css/site.css dist/assets/js/site.js dist/favicon.ico dist/favicon-16x16.png dist/favicon-32x32.png dist/icon.png dist/icon.svg dist/images/blog/tokyo-night-cover.png dist/images/references/eli-mellen.jpg dist/images/references/gia-antoniades.jpg dist/images/references/heather-roy.jpg dist/images/references/janus-chung.jpg dist/images/references/kristen-brown.jpg; do
+for path in dist/blog/building-mattkelly-io/index.html dist/blog/hello-world/index.html dist/404.html dist/404/index.html dist/sitemap.xml dist/robots.txt dist/assets/css/themes.css dist/assets/css/site.css dist/assets/js/site.js dist/favicon.ico dist/favicon-16x16.png dist/favicon-32x32.png dist/icon.png dist/icon.svg dist/images/blog/tokyo-night-cover.png dist/images/references/eli-mellen.jpg dist/images/references/gia-antoniades.jpg dist/images/references/heather-roy.jpg dist/images/references/janus-chung.jpg dist/images/references/kristen-brown.jpg; do
   [ -s "$ROOT/$path" ] || fail "missing or empty generated route/asset: $path"
 done
+[ ! -e "$ROOT/dist/blog/index.html" ] || fail "retired blog index must not be generated"
 while IFS='|' read -r route source title description indexed; do
   case "$route" in ''|'#'*) continue ;; esac
   if [ "$route" = "/" ]; then path=dist/index.html; else path="dist${route}index.html"; fi

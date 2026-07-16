@@ -147,8 +147,6 @@ def render_blog(layout: String): Int
   end
 
   mkdir("dist/blog")
-  var index = sb_new()
-  index.append("<main class=\"content\"><h1>Writing</h1><ul class=\"post-list\">\n")
   i = 0
   while i < slugs.size
     var out_dir = "dist/blog/" + slugs[i]
@@ -159,11 +157,8 @@ def render_blog(layout: String): Int
     var body = "<main class=\"content\"><article class=\"prose\">" + header + render_safe_markdown(bodies[i]) + "</article></main>"
     var path = "/blog/" + slugs[i] + "/"
     write_file(out_dir + "/index.html", _wrap(layout, titles[i], descriptions[i], path, "article", body))
-    index.append("<li><a href=\"" + path + "\">" + safe_title + "</a><time datetime=\"" + safe_date + "\">" + safe_date + "</time></li>\n")
     i = i + 1
   end
-  index.append("</ul></main>\n")
-  write_file("dist/blog/index.html", _wrap(layout, "Writing", "Articles and notes by Matt Kelly.", "/blog/", "website", index.to_string()))
 
   var sitemap = sb_new()
   sitemap.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n")

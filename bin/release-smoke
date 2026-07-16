@@ -8,9 +8,11 @@ RELEASE_COMMAND=release-smoke
 base_url=${SMOKE_BASE_URL:-}
 release=${SMOKE_RELEASE:-}
 resolve=${SMOKE_RESOLVE:-}
+asset_cache_pattern=${SMOKE_ASSET_CACHE_PATTERN:-max-age=3600}
 [ -n "$base_url" ] || release_fail "SMOKE_BASE_URL is required"
 case "$base_url" in http://*|https://*) ;; *) release_fail "SMOKE_BASE_URL must be HTTP or HTTPS" ;; esac
 command -v curl >/dev/null 2>&1 || release_fail "curl is required"
+case "$asset_cache_pattern" in *[!A-Za-z0-9=,_-]*) release_fail "SMOKE_ASSET_CACHE_PATTERN contains unsafe characters" ;; esac
 curl_args='--silent --show-error --location --max-time 10'
 if [ -n "$resolve" ]; then
   case "$resolve" in *[!A-Za-z0-9.:-]*) release_fail "SMOKE_RESOLVE contains unsafe characters" ;; esac
@@ -68,7 +70,7 @@ expect_redirect /dragonruby/example-lesson /lab/dragonruby/ "$@"
 expect_redirect /quartz/ /quartz "$@"
 expect_header / X-Content-Type-Options nosniff "$@"
 expect_header / Content-Security-Policy "default-src 'none'" "$@"
-expect_header /assets/css/site.css Cache-Control max-age=3600 "$@"
+expect_header /assets/css/site.css Cache-Control "$asset_cache_pattern" "$@"
 if [ "$profile" = "complete" ]; then expect_code /quartz 200 "$@"; fi
 if [ "$profile" = "core-only-preview" ]; then expect_code /quartz 404 "$@"; fi
 

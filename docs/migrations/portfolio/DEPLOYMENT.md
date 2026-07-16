@@ -55,8 +55,14 @@ bin/release-activate <release-id>
 SMOKE_BASE_URL=https://mattkelly.io \
 SMOKE_RELEASE=/opt/mattkelly/releases/<release-id> \
 SOUL_SMOKE_URL=https://soulofquartz.mattkelly.io \
+SMOKE_ASSET_CACHE_PATTERN=max-age=14400 \
 bin/release-smoke
 ```
+
+The origin contract is `max-age=3600`. Cloudflare currently rewrites static asset
+responses to its reviewed four-hour edge TTL (`max-age=14400`), so public smoke
+sets that explicit expectation. Isolated origin previews omit the override and
+continue to verify the origin value.
 
 When `ops/caddy/Caddyfile` changes, validate it on `quartz`, install it as
 `/etc/caddy/Caddyfile`, and reload Caddy only after the candidate is staged. Public

@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#161821">
   <title>{{title}}</title>
   <meta name="description" content="{{description}}">
   <link rel="canonical" href="{{canonical}}">
@@ -17,26 +18,78 @@
   <link rel="icon" type="image/svg+xml" href="/icon.svg">
   <link rel="stylesheet" href="/assets/css/themes.css">
   <link rel="stylesheet" href="/assets/css/site.css">
+  <script src="/assets/js/site.js" defer></script>
 </head>
 <body>
-  <a class="skip-link" href="#main">Skip to content</a>
+  <a class="skip-link" href="#content">Skip to content</a>
   <header class="site-header">
-    <nav class="site-nav" aria-label="Primary">
-      <a class="brand" href="/">Matt Kelly</a>
-      <div class="nav-links">
-        <a href="/projects/">Projects</a>
-        <a href="/blog/">Blog</a>
-        <a href="/cv/">CV</a>
-        <a href="/references/">References</a>
-        <a href="/dragonruby/">Lab</a>
-        <a href="/quartz">Quartz</a>
+    <nav class="site-nav" aria-label="Site">
+      <div class="nav-masthead">
+        <a class="brand" href="/" aria-label="Matt Kelly, home">
+          <span class="brand-mark" aria-hidden="true">MK</span>
+          <span class="brand-text">Matt Kelly<small>systems / software / leadership</small></span>
+        </a>
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="nav-panel" hidden>
+          <span>Menu</span><span class="nav-toggle-mark" aria-hidden="true"></span>
+        </button>
+      </div>
+      <div class="nav-panel" id="nav-panel">
+        <div class="nav-primary">
+          <a href="/projects/">Work</a>
+          <a href="/dragonruby/">Lab</a>
+          <a href="/blog/">Writing</a>
+          <a href="/">About</a>
+        </div>
+        <div class="nav-secondary">
+          <a href="/cv/">Resume</a>
+          <a href="/references/">References</a>
+          <a href="/">Now</a>
+          <a href="/projects/">Provenance</a>
+          <a href="/blog/building-mattkelly-io/">Site history</a>
+          <a href="https://github.com/mathisto/mattkelly.io">Source</a>
+        </div>
       </div>
     </nav>
   </header>
-  <div id="main">{{content}}</div>
+
+  <div id="content" tabindex="-1">{{content}}</div>
+
+  <aside class="machine" aria-labelledby="machine-title">
+    <details class="machine-panel">
+      <summary>
+        <span><span class="status-light" aria-hidden="true"></span><strong id="machine-title">Evidence navigator</strong></span>
+        <span class="machine-summary">static index / command line</span>
+      </summary>
+      <div class="machine-body">
+        <div class="machine-transcript">
+          <p class="machine-prompt" aria-hidden="true"><span>matt@site</span>:~$ routes --available</p>
+          <nav aria-label="Evidence and site routes">
+            <a href="/projects/"><code>work</code><span>selected systems and projects</span></a>
+            <a href="/dragonruby/"><code>lab</code><span>experiments and archives</span></a>
+            <a href="/blog/building-mattkelly-io/"><code>history</code><span>how this site evolved</span></a>
+            <a href="/quartz"><code>version</code><span>the Quartz artifact</span></a>
+            <a href="/references/"><code>proof</code><span>consented references</span></a>
+            <a href="https://github.com/mathisto/mattkelly.io"><code>source</code><span>inspect the repository</span></a>
+            <a href="/cv/"><code>resume</code><span>experience and education</span></a>
+          </nav>
+        </div>
+        <form class="command-form" action="/projects/" method="get" data-command-form>
+          <label for="command-input">Run a route command</label>
+          <div class="command-line">
+            <span aria-hidden="true">$</span>
+            <input id="command-input" type="text" inputmode="text" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="help" data-command-input>
+            <button type="submit">Run</button>
+          </div>
+          <p class="command-help">Without JavaScript, Run opens Work. Every route remains available above.</p>
+          <p class="command-output" role="status" aria-live="polite" data-command-output></p>
+        </form>
+      </div>
+    </details>
+  </aside>
+
   <footer class="site-footer">
-    <span>Matt Kelly</span>
-    <span>Generated offline; served as static files.</span>
+    <p><strong>Matt Kelly</strong><span>Technical systems, made legible.</span></p>
+    <p class="footer-build"><span class="status-light" aria-hidden="true"></span>Generated offline. Served as static files.</p>
   </footer>
 </body>
 </html>

@@ -411,7 +411,6 @@ bundle exec rspec spec/system/       # System tests (terminal functionality)
 - [Filer.js API](https://github.com/filerjs/filer)
 
 ### Project Docs
-- `hero-terminal-overhaul.md` - Terminal implementation notes
+- Development wiki at `/docs` (`bin/dev`, http://localhost:3000/docs); the route is disabled in production
+- `docs/planning/sessions/` - Implementation session notes
 - `blog/blogideas.md` - Future blog post ideas
-- `VIEWCOMPONENT_MIGRATION.md` - Component migration guide
-- This file (`AGENTS.md`) - You are here!

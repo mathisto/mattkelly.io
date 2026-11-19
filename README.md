@@ -40,7 +40,7 @@ MattKelly.io is a minimalist personal website that prioritizes performance, main
 ### Core Technologies
 | Technology | Purpose |
 |------------|---------|
-| Ruby 3.4.7 on Rails 8.0.2 | Web framework |
+| Ruby 4.0.10 on Rails 8.0.2 | Web framework |
 | Tailwind CSS | Styling |
 | Markdown | Content management |
 

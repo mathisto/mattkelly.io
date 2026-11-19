@@ -54,7 +54,7 @@ ssh "$LOVELACE_USER@$LOVELACE_HOST" << EOF
 
   printf '%s\n' \
     '❌ Ruby is not installed on lovelace' \
-    'Please install Ruby 3.4.7 on lovelace first' \
+    'Please install Ruby 4.0.10 on lovelace first' \
     '' \
     'You can install Ruby using one of these methods:' \
     '' \
@@ -66,8 +66,8 @@ ssh "$LOVELACE_USER@$LOVELACE_HOST" << EOF
     '   curl https://mise.jdx.dev/install.sh | sh' \
     '   echo '\''eval "$($HOME/.local/bin/mise activate bash)"'\'' >> ~/.bashrc' \
     '   source ~/.bashrc' \
-    '   mise install ruby@3.4.7' \
-    '   mise global ruby@3.4.7' \
+    '   mise install ruby@4.0.10' \
+    '   mise global ruby@4.0.10' \
     '' \
     '3. Using rbenv:' \
     '   git clone https://github.com/rbenv/rbenv.git ~/.rbenv' \
@@ -76,8 +76,8 @@ ssh "$LOVELACE_USER@$LOVELACE_HOST" << EOF
     '   source ~/.bashrc' \
     '   mkdir -p ~/.rbenv/plugins' \
     '   git clone https://github.com/rbenv/ruby-build.git ~/.rbenv/plugins/ruby-build' \
-    '   rbenv install 3.4.7' \
-    '   rbenv global 3.4.7' \
+    '   rbenv install 4.0.10' \
+    '   rbenv global 4.0.10' \
     '' \
     'After installing Ruby, run the deployment again.'
   exit 1
